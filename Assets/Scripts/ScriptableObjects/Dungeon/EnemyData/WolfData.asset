@@ -9,10 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d92e67bf1800bf44ae902212b0f8704, type: 3}
+  m_Script: {fileID: 11500000, guid: 93905a170b98ee641a57c3630141a81c, type: 3}
   m_Name: WolfData
   m_EditorClassIdentifier: 
+  enemyId: Wolf
+  enemyName: 
+  enemyPrefab: {fileID: 6976176869298022470, guid: 48484421a9435604c9805c30a90289a3, type: 3}
   HP: 100
   Damage: 12
   Speed: 4
+  DistanceToPlayer: 3
   AttackCooldown: 2.5
+  minCoins: 0
+  maxCoins: 15
+  description: 

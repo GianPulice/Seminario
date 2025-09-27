@@ -11,7 +11,7 @@ public class LootManager : Singleton<LootManager>
 
     public void SpawnLoot(string lootName, Vector3 position)
     {
-        GameObject prefab = lootDatabase.GetPrefab(lootName);
+        GameObject prefab = lootDatabase.GetLootPrefab(lootName);
         if (prefab != null)
         {
             Instantiate(prefab, position, Quaternion.identity);

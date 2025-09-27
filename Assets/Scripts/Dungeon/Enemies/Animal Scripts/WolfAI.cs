@@ -20,7 +20,7 @@ public class WolfAI : EnemyBase
 
     private void Update()
     {
-        if (isDead || isAttacking) return;
+        if (IsDead || isAttacking) return;
 
         // ⬇️ Bloque nuevo: no dar órdenes al agent mientras dura el knockback
         var kb = GetComponent<EnemyKnockback>();

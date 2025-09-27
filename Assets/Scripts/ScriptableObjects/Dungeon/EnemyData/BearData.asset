@@ -9,10 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d92e67bf1800bf44ae902212b0f8704, type: 3}
+  m_Script: {fileID: 11500000, guid: 93905a170b98ee641a57c3630141a81c, type: 3}
   m_Name: BearData
   m_EditorClassIdentifier: 
+  enemyId: Bear
+  enemyName: 
+  enemyPrefab: {fileID: 8454660039181778633, guid: 74fb03bdaf2a08645829303757536213, type: 3}
   HP: 150
   Damage: 20
   Speed: 2
+  DistanceToPlayer: 4
   AttackCooldown: 3
+  minCoins: 0
+  maxCoins: 20
+  description: 

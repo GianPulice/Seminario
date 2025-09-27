@@ -16,6 +16,7 @@ public class InputsData : ScriptableObject
     [SerializeField] private KeyCode jump;
     [SerializeField] private KeyCode book;
     [SerializeField] private KeyCode pause;
+    [SerializeField] private KeyCode debug;
 
     [Header("Sensitivity:")]
     [SerializeField] private float sensitivityX;
@@ -34,6 +35,7 @@ public class InputsData : ScriptableObject
     public KeyCode Interact { get => interact; }
     public KeyCode Book { get => book; }
     public KeyCode Pause { get => pause; }
+    public KeyCode Debug { get => debug; }
 
 
     public float SensitivityX { get => sensitivityX; set => sensitivityX = value; }

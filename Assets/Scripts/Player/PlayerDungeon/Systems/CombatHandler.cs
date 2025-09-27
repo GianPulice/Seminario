@@ -1,10 +1,10 @@
-
 using UnityEngine;
 
 public class CombatHandler : MonoBehaviour
 {
     private PlayerDungeonModel model;
     private PlayerDungeonView view;
+    private PlayerStamina stamina;
 
     [SerializeField] private AttackHitbox attackHitbox;
     [SerializeField] private WeaponController weaponController;
@@ -24,11 +24,11 @@ public class CombatHandler : MonoBehaviour
     public void TryAttack()
     {
         if (Time.time < lastAttackTime + model.AttackCooldown) return;
-        if (!model.HasStamina(attackStaminaCost)) return;
-        if (shieldHandler != null && shieldHandler.IsActive) return; 
+        if (shieldHandler != null && shieldHandler.IsActive) return;
+        if (stamina == null || !stamina.CanUse(attackStaminaCost)) return;
 
         lastAttackTime = Time.time;
-        model.UseStamina(attackStaminaCost);
+        stamina.Use(attackStaminaCost);
 
         isAttacking = true;
         view?.PlayAttackAnimation();
@@ -42,13 +42,13 @@ public class CombatHandler : MonoBehaviour
 
     public void TryUseShield()
     {
-        if (isAttacking) return; 
+        if (isAttacking) return;
         shieldHandler?.TryUseShield();
     }
 
     public void PerformHit()
     {
-        attackHitbox.TriggerHit();
+        attackHitbox?.TriggerHit();
     }
 
     private void GetComponents()
@@ -58,6 +58,7 @@ public class CombatHandler : MonoBehaviour
         attackHitbox = GetComponent<AttackHitbox>();
         weaponController = GetComponentInChildren<WeaponController>();
         shieldHandler = GetComponent<ShieldHandler>();
+        stamina = GetComponent<PlayerStamina>();
     }
 
     public bool IsAttacking => isAttacking;

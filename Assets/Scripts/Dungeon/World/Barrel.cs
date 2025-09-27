@@ -13,11 +13,13 @@ public class Barrel : MonoBehaviour, IDamageable
     [SerializeField] private Transform lootSpawnPoint;
 
     private DropHandler dropHandler;
+
     private void Awake()
     {
         dropHandler = GetComponent<DropHandler>();
         dropHandler.Init(dropTable, lootDB, lootSpawnPoint != null ? lootSpawnPoint : transform);
     }
+
     public void TakeDamage(int value)
     {
         Debug.Log("Hice daño");
@@ -36,7 +38,10 @@ public class Barrel : MonoBehaviour, IDamageable
     private void BreakBarrel()
     {
         Debug.Log("Barrel is breaking!");
-        dropHandler.DropLoot();
+
+        int currentLayer = DungeonManager.Instance.CurrentLayer;
+        dropHandler.DropLoot(currentLayer);
+
         Destroy(gameObject);
     }
 }

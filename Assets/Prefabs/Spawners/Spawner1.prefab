@@ -11,11 +11,10 @@ GameObject:
   - component: {fileID: 7887455072199509804}
   - component: {fileID: 5230142200929748044}
   - component: {fileID: 6781351402847274416}
-  - component: {fileID: 3142625103387820402}
   m_Layer: 0
   m_Name: Spawner1
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -28,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 189518784287509402}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.6273599, y: 0.09335619, z: -0.66943926}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -48,11 +47,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyFactory: {fileID: 5653556251869384128}
-  spawnPosition: {fileID: 5255721267045534704}
-  enemySpawnTable: {fileID: 11400000, guid: 81fa1d47c1244674496dbe2303d025e8, type: 2}
-  layer: 1
   statScaler: {fileID: 6781351402847274416}
-  spawnerConfigData: {fileID: 11400000, guid: 83fa29ff0293b32499b57bf81107c8b2, type: 2}
+  spawnTableData: {fileID: 11400000, guid: 81fa1d47c1244674496dbe2303d025e8, type: 2}
+  spawnPoints: []
 --- !u!114 &6781351402847274416
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67,27 +64,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   modifiers:
   - {fileID: 11400000, guid: f5a40600728f80d42b1a10ad58bb3c50, type: 2}
---- !u!135 &3142625103387820402
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 189518784287509402}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 8
-  m_Center: {x: -2.0371199, y: 0, z: 0}
 --- !u!1 &5255721267045534704
 GameObject:
   m_ObjectHideFlags: 0
@@ -132,4 +108,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11b910d6b5509bd458c67195d605e5ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnerData: {fileID: 11400000, guid: 0fcabf485c1432941ac4e6a4926254d5, type: 2}
+  spawnTableData: {fileID: 0}

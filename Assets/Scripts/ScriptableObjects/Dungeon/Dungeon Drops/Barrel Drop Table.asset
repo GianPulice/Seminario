@@ -12,16 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 274d08194b1cebc4bb7a45e592f54662, type: 3}
   m_Name: Barrel Drop Table
   m_EditorClassIdentifier: 
-  entries:
+  drops:
+  - lootName: Common Ingredient
+    minAmount: 1
+    maxAmount: 1
+    probability: 0.5
+    minLayer: 1
+    maxLayer: 7
+  - lootName: Rare Ingredient
+    minAmount: 1
+    maxAmount: 1
+    probability: 0.2
+    minLayer: 1
+    maxLayer: 7
   - lootName: Teeth
     minAmount: 1
-    maxAmount: 10
-    probability: 0.4
-  - lootName: BeastMeat
-    minAmount: 1
-    maxAmount: 1
+    maxAmount: 15
     probability: 0.3
-  - lootName: BoneDust
-    minAmount: 1
-    maxAmount: 1
-    probability: 0.3
+    minLayer: 1
+    maxLayer: 7

@@ -1,46 +1,117 @@
-using System.Collections;
 using UnityEngine;
+using System;
 
 public class ShieldHandler : MonoBehaviour
 {
-    private PlayerDungeonModel model;
-    private PlayerDungeonView view;
-
+    [Header("Shield Settings")]
     [SerializeField] private float staminaCost = 25f;
-    [SerializeField] private float cooldown = 1.5f;
-    [SerializeField] private float activeTime = 0.6f; // cuánto dura levantado el escudo
+    [SerializeField] private float cooldownDuration = 1.5f;
+    [SerializeField] private GameObject shieldObject; // GO visual del escudo
 
-    private bool isActive;
-    private float lastUseTime = -999f;
+    [Header("Behaviour")]
+    [SerializeField] private bool holdToBlock = true;   // true = mantener; false = toggle
+    [SerializeField] private bool debugLogs = true;
+
+    // ---- Eventos desacoplados (arma baja, UI, SFX, etc.)
+    public event Action OnShieldActivated;
+    public event Action OnShieldDeactivated;
+
+    // ---- Backends de stamina (usá el que tengas en el Player)
+    private PlayerStamina staminaMgr; // nuestro manager modular
+
+    private float lastShieldUseTime = -999f;
+    [SerializeField] private bool isActive;  // visible en Inspector para debug
+
+    public bool IsActive => isActive;
 
     private void Awake()
     {
-        model = GetComponent<PlayerDungeonModel>();
-        view = GetComponent<PlayerDungeonView>();
+        // Busca primero en el mismo GO, luego en el padre
+        staminaMgr = GetComponent<PlayerStamina>() ?? GetComponentInParent<PlayerStamina>();
+
+        if (shieldObject != null) shieldObject.SetActive(false);
+
+        if (debugLogs)
+        {
+            string backend = staminaMgr ? "PlayerStaminaManager"                            
+                                        : "NONE";
+            Debug.Log($"[Shield] Awake. shieldObject={(shieldObject ? shieldObject.name : "null")} | staminaBackend={backend}");
+        }
     }
 
     public void TryUseShield()
     {
-        if (isActive) return;
-        if (Time.time < lastUseTime + cooldown) return;
-        if (model.CurrentStamina < staminaCost) return;
+        // En modo HOLD, si ya está activo no re-activamos
+        if (holdToBlock && isActive)
+        {
+            if (debugLogs) Debug.Log("[Shield] Ya activo (hold)");
+            return;
+        }
 
-        // Gasto de stamina
-        model.UseStamina(staminaCost);
+        // Cooldown
+        if (Time.time < lastShieldUseTime + cooldownDuration)
+        {
+            if (debugLogs) Debug.Log("[Shield] En cooldown");
+            return;
+        }
 
-        // Activación
-        isActive = true;
-        lastUseTime = Time.time;
-        //view?.PlayShieldAnimation(); // animación de levantar escudo
-        StartCoroutine(CO_ShieldDuration());
+        // Stamina
+        if (!CanUseStamina(staminaCost))
+        {
+            if (debugLogs) Debug.Log("[Shield] Stamina insuficiente o backend no encontrado");
+            return;
+        }
+
+        // En modo TOGGLE: si está activo y recibimos input -> desactivar
+        if (!holdToBlock && isActive)
+        {
+            if (debugLogs) Debug.Log("[Shield] Toggle -> Desactivar");
+            DeactivateShield();
+            return;
+        }
+
+        ActivateShield();
     }
 
-    private IEnumerator CO_ShieldDuration()
+    private void ActivateShield()
     {
-        yield return new WaitForSeconds(activeTime);
-        isActive = false;
-       // view?.StopShieldAnimation();
+        isActive = true;
+        lastShieldUseTime = Time.time;
+        SpendStamina(staminaCost);
+
+        if (shieldObject) shieldObject.SetActive(true);
+        OnShieldActivated?.Invoke();
+
+        if (debugLogs) Debug.Log("[Shield] ACTIVADO");
     }
 
-    public bool IsActive => isActive;
+    public void DeactivateShield()
+    {
+        if (!isActive) return;
+
+        isActive = false;
+        if (shieldObject) shieldObject.SetActive(false);
+        OnShieldDeactivated?.Invoke();
+
+        if (debugLogs) Debug.Log("[Shield] DESACTIVADO");
+    }
+
+    private void Update()
+    {
+        // En HOLD, si suelta el botón, bajamos el escudo
+        if (holdToBlock && isActive && (PlayerInputs.Instance == null || !PlayerInputs.Instance.Shield()))
+            DeactivateShield();
+    }
+
+    // ---------- Helpers: abstraen ambos backends de stamina ----------
+    private bool CanUseStamina(float amount)
+    {
+        if (staminaMgr) return staminaMgr.CanUse(amount);
+        return false;
+    }
+
+    private void SpendStamina(float amount)
+    {
+        if (staminaMgr) { staminaMgr.Use(amount); return; }
+    }
 }

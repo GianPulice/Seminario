@@ -10,14 +10,12 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public abstract class EnemyBase : MonoBehaviour,IDamageable
 {
-    [Header("References")]
-    public EnemyData enemyData;
-    protected DropHandler dropHandler;
-    protected DamageFlash damageFlash;
-    protected NavMeshAgent agent;
-    protected IDamageable playerDamageable;
+    [Header("Data")]
+    public EnemyTypeSO enemyData;
+    [SerializeField] private string id;
+    private EnemyTypeSO originalData;
+    public string Id => id;
 
-    [Space(2)]
     [Header("LoS")]
     [SerializeField] protected float visionRange = 8f;
     [SerializeField] protected float visionAngle = 100f;
@@ -25,25 +23,26 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
     [SerializeField] protected float chaseSpeedMultiplier = 1.5f;
     [SerializeField] protected float loseSightDelay = 1.5f;
 
-    protected Transform player;
-    protected bool canSeePlayer = false;
-    protected float loseSightTimer = 0f;
-
     [Header("Decals")]
     [SerializeField] private GameObject bloodDecalPrefab;
     [SerializeField] private float decalYOffset = 0.01f; // Para evitar z-fighting
+   
+    [Header("Runtime")]
+    public int CurrentHP { get; private set; }
+    public bool IsDead { get; private set; }
 
-    [Header("Health (runtime)")]
-    public int currentHP;
-    protected bool isDead = false;
+    //public static int GlobalDeathCount = 0;
+    //---References---
+    protected DropHandler dropHandler;
+    protected DamageFlash damageFlash;
+    protected NavMeshAgent agent;
+    protected IDamageable playerDamageable;
+    protected Transform player;
     protected AudioSource audioSource;
 
-    //[Header("Room Tracking")]
-    //public RoomData roomData;
+    protected bool canSeePlayer = false;
+    protected float loseSightTimer = 0f;
 
-    [Header("Spawner ID")]
-    [SerializeField] private string id;
-    public string Id => id;
     public bool CanSeePlayer => canSeePlayer;
 
     public event Action<EnemyBase> OnDeath;
@@ -52,38 +51,57 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
     {
         if (enemyData == null)
         {
-            Debug.LogError($"[{name}] Falta asignar EnemyData.");
+            Debug.LogError($"[{name}] Missing EnemyData.");
             enabled = false;
             return;
         }
+        originalData = enemyData;
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
         {
             player = playerObj.transform;
             playerDamageable = playerObj.GetComponent<IDamageable>();
         }
-        else
-        {
-            Debug.LogWarning($"[{name}] No se encontró ningún GameObject con tag 'Player'.");
-            enabled = false;
-        }
 
-        currentHP = enemyData.HP;
-        audioSource = GetComponent<AudioSource>();
-        dropHandler = GetComponent<DropHandler>();
         agent = GetComponent<NavMeshAgent>();
         damageFlash = GetComponent<DamageFlash>();
-        if (dropHandler == null)
-        {
-            Debug.LogWarning($"[{name}] No se encontró DropHandler en el objeto.");
-        }
+        dropHandler = GetComponent<DropHandler>();
+        audioSource = GetComponent<AudioSource>();
+
+        CurrentHP = enemyData.HP;
+        IsDead = false;
+    }
+    public virtual void TakeDamage(int amount)
+    {
+        if (IsDead) return;
+
+        CurrentHP -= amount;
+        damageFlash?.TriggerFlash();
+        SpawnBloodDecal();
+
+        if (CurrentHP <= 0)
+            Die();
+    }
+    public void SetScaledStats(float hpMul, float dmgMul, float speedMul)
+    {
+        enemyData = Instantiate(originalData);
+
+        enemyData.HP= Mathf.RoundToInt(enemyData.HP * (1 + hpMul));
+        enemyData.Damage = Mathf.RoundToInt(enemyData.Damage * (1 + dmgMul));
+        enemyData.Speed *= (1 + speedMul);
+
+        CurrentHP = enemyData.HP;
+        agent.speed = enemyData.Speed;
     }
     protected virtual void Die()
     {
-        if (isDead) return;
+        if (IsDead) return;
 
-        isDead = true;
+        IsDead = true;
         agent.isStopped = true;
+
+        //GlobalDeathCount++;
+        //Debug.Log($"[EnemyBase] {name} murió. Total muertes: {GlobalDeathCount}");
 
         dropHandler?.DropLoot();
         SpawnBloodDecal();
@@ -93,7 +111,7 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
         Destroy(gameObject, 1.5f);
     }
 
-    protected virtual void PerceptionUpdate()
+    protected void PerceptionUpdate()
     {
         if (player == null) return;
 
@@ -102,7 +120,6 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
         if (seesPlayer)
         {
             loseSightTimer = 0f;
-
             if (!canSeePlayer)
             {
                 canSeePlayer = true;
@@ -112,17 +129,11 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
         else
         {
             loseSightTimer += Time.deltaTime;
-
             if (canSeePlayer && loseSightTimer >= loseSightDelay)
             {
                 canSeePlayer = false;
                 agent.speed = enemyData.Speed;
                 loseSightTimer = 0f;
-            }
-
-            if (!canSeePlayer)
-            {
-                agent.speed = enemyData.Speed;
             }
         }
     }
@@ -130,50 +141,14 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
     {
         if (bloodDecalPrefab == null) return;
 
-        Vector3 origin = transform.position + Vector3.up * 1f; // Un poco más alto para asegurar que vea hacia abajo
-        Vector3 direction = Vector3.down;
-
-        if (Physics.Raycast(origin, direction, out RaycastHit hit, 10f, LayerMask.GetMask("whatIsGround")))
+        Vector3 origin = transform.position + Vector3.up * 1f;
+        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 10f, LayerMask.GetMask("whatIsGround")))
         {
-            Vector3 spawnPosition = hit.point + Vector3.up * decalYOffset; // Justo sobre el piso
-            Quaternion rotation = Quaternion.Euler(90f, UnityEngine.Random.Range(0f, 360f), 0f); // Rotación aleatoria en Y
-            Instantiate(bloodDecalPrefab, spawnPosition, rotation);
-        }
-        else
-        {
-            Debug.LogWarning("No se encontró el suelo para colocar el decal de sangre.");
+            Vector3 spawnPos = hit.point + Vector3.up * decalYOffset;
+            Quaternion rot = Quaternion.Euler(90f, UnityEngine.Random.Range(0f, 360f), 0f);
+            GameObject decal = Instantiate(bloodDecalPrefab, spawnPos, rot);
+            Destroy(decal, 5f);
         }
     }
 
-    public virtual void TakeDamage(int amount)
-    {
-        if (isDead) return;
-        currentHP -= amount;
-        damageFlash?.TriggerFlash();
-        SpawnBloodDecal();
-
-        if (currentHP <= 0) Die();
-    }
-
-    public void SetScaledStats(float hpMul, float dmgMul, float speedMul)
-    {
-        enemyData = Instantiate(enemyData); // Clona los datos base
-
-        enemyData.HP = Mathf.RoundToInt(enemyData.HP * (1 + hpMul));
-        enemyData.Damage = Mathf.RoundToInt(enemyData.Damage * (1 + dmgMul));
-        enemyData.Speed *= Mathf.RoundToInt(1 + speedMul);
-
-        currentHP = enemyData.HP;
-        agent.speed = enemyData.Speed;
-    }
-
-#if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
-    {
-        if (enemyData == null) return;
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, enemyData.DistanceToPlayer);
-        LineOfSight.DrawLOSOnGizmos(transform, visionAngle, visionRange);
-    }
-#endif
 }

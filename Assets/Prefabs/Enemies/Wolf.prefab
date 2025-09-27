@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4988113681355954702}
   - component: {fileID: 4295171960821597537}
   - component: {fileID: 4568663966282595179}
-  - component: {fileID: 7664568616185071513}
+  - component: {fileID: 2590183571117271670}
   - component: {fileID: 4314403063251974319}
   - component: {fileID: 3792482944065585976}
   - component: {fileID: 3201692909716459358}
@@ -36,7 +36,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 13.2188, y: -0.8019, z: -11.0653}
-  m_LocalScale: {x: 1.6547458, y: 1.9534218, z: 1.3042797}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -48,7 +48,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6976176869298022470}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 1588110511326799053, guid: 059bd177af4caf24382e272915f8a195, type: 3}
 --- !u!23 &4295171960821597537
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -71,7 +71,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 32407fc305e5b044da4b95cf4bf932df, type: 2}
+  - {fileID: 2100000, guid: 947f05df7d114a04a86bd16936add1c0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -120,7 +120,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &7664568616185071513
+--- !u!65 &2590183571117271670
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -139,8 +139,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 0.99999994, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.538046, y: 1.2760758, z: 1.4832697}
+  m_Center: {x: 0.003425002, y: -0.030369163, z: 0.06370878}
 --- !u!195 &4314403063251974319
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -176,6 +176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyData: {fileID: 11400000, guid: cc3224036d7e8314898cdf42f303addc, type: 2}
+  id: wolf
   visionRange: 8
   visionAngle: 100
   obstacleMask:
@@ -185,9 +186,6 @@ MonoBehaviour:
   loseSightDelay: 1.5
   bloodDecalPrefab: {fileID: 8146034578120852093, guid: f234383ce6dd0a54ab672b55e67deb00, type: 3}
   decalYOffset: 0.01
-  currentHP: 0
-  roomData: {fileID: 0}
-  id: wolf
   attackRange: 5
   leapDelay: 0.5
   atkClip: {fileID: 8300000, guid: 48ec81b1648b3f64cb9202117e7a14f7, type: 3}

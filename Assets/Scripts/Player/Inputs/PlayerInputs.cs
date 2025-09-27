@@ -54,6 +54,7 @@ public class PlayerInputs : Singleton<PlayerInputs>
     public bool Attack() => Input.GetKeyDown(keyboardInputs.Attack) || Input.GetKeyDown(joystickInputs.Attack); //Click izquierdo
     public bool Shield() => Input.GetKeyDown(keyboardInputs.Shield) || Input.GetKeyDown(joystickInputs.Shield);
     public bool RunHeld() => Input.GetKey(keyboardInputs.Run) || Input.GetKey(joystickInputs.Run);
+    public bool _Debug() => Input.GetKeyDown(keyboardInputs.Debug);
 
     /* -------------------------------------------BOTH----------------------------------------- */
 

@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using UnityEngine;
 
 public class DropHandler : MonoBehaviour
@@ -6,7 +7,6 @@ public class DropHandler : MonoBehaviour
     [SerializeField] private DropTable table;
     [SerializeField] private LootPrefabDatabase lootDB;
     [SerializeField] private Transform spawnPoint;   // dónde cae el loot
-
 
     private void Awake()
     {
@@ -19,30 +19,32 @@ public class DropHandler : MonoBehaviour
         lootDB = db;
         spawnPoint = point != null ? point : transform;
     }
-    public void DropLoot()
+    public void DropLoot(int currentLayer = 1)
     {
-        if (table == null || lootDB == null)
+        if (table == null || lootDB == null || spawnPoint == null)
         {
-            Debug.LogWarning($"DropHandler en {name}: Falta asignar DropTable o LootDB.");
+            Debug.LogWarning("[DropHandler] Componentes no configurados correctamente.");
             return;
         }
-        DropEntry entry = table.Roll();
-        if (entry != null)
+
+        // Obtener los drops basados en la layer actual
+        List<DropEntry> drops = table.GetDropsForLayer(currentLayer);
+
+        foreach (var drop in drops)
         {
-            Spawn(entry);
-        }
-        else
-        {
-            Debug.LogWarning($"No se obtuvo loot de la tabla.");
+            if (Random.Range(0f, 100f) <= drop.probability * 100f)
+            {
+                Spawn(drop);
+            }
         }
     }
 
-    private void Spawn(DropEntry e)
+    private void Spawn(DropEntry drop)
     {
-        GameObject prefab = lootDB.GetPrefab(e.lootName);
+        GameObject prefab = lootDB.GetLootPrefab(drop.lootName);
         if (prefab == null)
         {
-            Debug.LogWarning($"Sin prefab para «{e.lootName}»");
+            Debug.LogWarning($"Sin prefab para «{drop.lootName}»");
             return;
         }
 
@@ -51,15 +53,17 @@ public class DropHandler : MonoBehaviour
         // Inyección de datos si es ingrediente
         if (go.TryGetComponent(out IngredientPickup ing))
         {
-            if (System.Enum.TryParse(e.lootName, out IngredientType type))
+            if (System.Enum.TryParse(drop.lootName, out IngredientType type))
             {
                 ing.GetType().GetField("ingredient", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                     ?.SetValue(ing, type);
             }
 
-            int qty = UnityEngine.Random.Range(e.minAmount, e.maxAmount + 1);
+            int qty = Random.Range(drop.minAmount, drop.maxAmount + 1);
             ing.GetType().GetField("amount", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 ?.SetValue(ing, qty);
         }
+
+        Debug.Log($"[DropHandler] Dropped {drop.lootName} (Layer {DungeonManager.Instance.CurrentLayer}) with chance {drop.probability * 100}%");
     }
 }

@@ -8,12 +8,28 @@ public class PlayerCam : MonoBehaviour
     float _xRotation;
     float _yRotation;
 
+    private bool isTeleportPannelOpened = false;
+    private void Awake()
+    {
+        PlayerDungeonHUD.OnShowTeleportConfirm += TeleportMessageShow;
+        PlayerDungeonHUD.OnHideTeleportConfirm += HideTeleportMessage;
+    }
+
+    private void OnDestroy()
+    {
+        PlayerDungeonHUD.OnShowTeleportConfirm -= TeleportMessageShow;
+        PlayerDungeonHUD.OnHideTeleportConfirm -= HideTeleportMessage;
+    }
+
     private void Update()
     {
         CameraRotation();
     }
+
     private void CameraRotation()
     {
+        if (isTeleportPannelOpened)  return;
+
         float x, y;
         if (DeviceManager.Instance == null) return;
         if (DeviceManager.Instance.CurrentDevice == Device.Joystick)
@@ -35,5 +51,14 @@ public class PlayerCam : MonoBehaviour
 
         if (orientation != null)
             orientation.rotation = Quaternion.Euler(0f, _yRotation, 0f);
+    }
+
+    private void TeleportMessageShow(string nada)
+    {
+        isTeleportPannelOpened = true;
+    }
+    private void HideTeleportMessage()
+    {
+        isTeleportPannelOpened = false;
     }
 }

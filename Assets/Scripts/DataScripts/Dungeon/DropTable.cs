@@ -4,14 +4,20 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "DropTable", menuName = "ScriptableObjects/Dungeon/New Monster Drop Table")]
 public class DropTable : ScriptableObject
 {
-    public List<DropEntry> entries;
-    public DropEntry Roll()
+    public List<DropEntry> drops;
+
+    public List<DropEntry> GetDropsForLayer(int currentLayer)
     {
-        Dictionary<DropEntry, float> lootProbabilities = new Dictionary<DropEntry, float>();
-        foreach (var entry in entries)
+        List<DropEntry> validDrops = new List<DropEntry>();
+
+        foreach (var drop in drops)
         {
-            lootProbabilities[entry] = entry.probability;
+            if (currentLayer >= drop.minLayer && currentLayer <= drop.maxLayer)
+            {
+                validDrops.Add(drop);
+            }
         }
-        return RouletteSelection.Roulette(lootProbabilities);
+
+        return validDrops;
     }
 }

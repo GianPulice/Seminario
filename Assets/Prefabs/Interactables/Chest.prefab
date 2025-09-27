@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4738757277998329282}
   - component: {fileID: 2981248871564013133}
   - component: {fileID: 873843224485730443}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: SM_Prop_Chest_02_Lid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -123,7 +123,7 @@ GameObject:
   - component: {fileID: 401546194902698572}
   - component: {fileID: 2707193042321966065}
   - component: {fileID: 6545978004326890987}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Chest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -139,7 +139,7 @@ Transform:
   m_GameObject: {fileID: 1668090225508558710}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.5912533, z: 0, w: 0.80648595}
-  m_LocalPosition: {x: -3.0105758, y: -0.85999984, z: 0.13502052}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -248,12 +248,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf80558135d69854ba9a4c6275d70c98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  layerCheck: 1
   table: {fileID: 11400000, guid: 593ca2009df1a604fbf9b1ff64bca9a7, type: 2}
   lootDB: {fileID: 11400000, guid: dec7d8b66e1a9cd46a53f7940c0f0234, type: 2}
   spawnPoint: {fileID: 2851994795772086849}
-  fxOpen: {fileID: 2921260011291357130}
   animator: {fileID: 873843224485730443}
-  destroyAfterOpen: 0
+  fxOpen: {fileID: 2921260011291357130}
+  destroyAfterOpen: 1
   waitTimeBeforeDestroy: 2
 --- !u!114 &6545978004326890987
 MonoBehaviour:
@@ -269,7 +270,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   outlineMode: 0
   outlineColor: {r: 0, g: 1, b: 0.8559098, a: 1}
-  outlineWidth: 2.5
+  outlineWidth: 0
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
@@ -284,7 +285,7 @@ GameObject:
   - component: {fileID: 2919447009669414220}
   - component: {fileID: 3048200262877799716}
   - component: {fileID: 3046771342626052586}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: EnergyPull_FX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5135,7 +5136,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2851994795772086849}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Spawn
   m_TagString: Untagged
   m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}

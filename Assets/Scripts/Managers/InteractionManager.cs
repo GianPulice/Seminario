@@ -39,6 +39,7 @@ public class InteractionManager : Singleton<InteractionManager>
         previousTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
         currentTarget?.HideOutline();
         currentTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
+       
         previousTarget = null;
         currentTarget = null;
     }
@@ -47,10 +48,13 @@ public class InteractionManager : Singleton<InteractionManager>
     {
         if (InteractionManagerUI.Instance == null) return;
         if (!InteractionManagerUI.Instance.CenterPointUI.gameObject.activeSelf) return;
-        if (BookManagerUI.Instance == null) return;
-        if (BookManagerUI.Instance.IsBookOpen) return;
+        if (ScenesManager.instance.CurrentSceneName == "Tabern")
+        {
+            if (BookManagerUI.Instance == null) return;
+            if (BookManagerUI.Instance.IsBookOpen) return;
+        }
 
-        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
+            Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
 
         // Si no hay target y antes había uno, limpiamos
         if (previousTarget != null)
@@ -59,6 +63,7 @@ public class InteractionManager : Singleton<InteractionManager>
             previousTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
             currentTarget?.HideOutline();
             currentTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
+           
             previousTarget = null;
             currentTarget = null;
         }
@@ -69,10 +74,12 @@ public class InteractionManager : Singleton<InteractionManager>
 
             if (hitTarget != null)
             {
+
                 if (hitTarget != previousTarget && previousTarget != null)
                 {
                     previousTarget.HideOutline();
                     previousTarget.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
+                   
                 }
 
                 currentTarget = hitTarget;
@@ -81,7 +88,7 @@ public class InteractionManager : Singleton<InteractionManager>
                 // Mostrar outline siempre, aunque sea el mismo objeto
                 currentTarget.ShowOutline();
                 currentTarget.ShowMessage(InteractionManagerUI.Instance.InteractionMessageText);
-
+               
                 return;
             }
         }
@@ -91,9 +98,11 @@ public class InteractionManager : Singleton<InteractionManager>
     {
         if (InteractionManagerUI.Instance == null) return;
         if (!InteractionManagerUI.Instance.CenterPointUI.gameObject.activeSelf) return;
-        if (BookManagerUI.Instance == null) return;
-        if (BookManagerUI.Instance.IsBookOpen) return;
-
+        if (ScenesManager.instance.CurrentSceneName == "Tabern")
+        {
+            if (BookManagerUI.Instance == null) return;
+            if (BookManagerUI.Instance.IsBookOpen) return;
+        }
         if (currentTarget != null && !PauseManager.Instance.IsGamePaused)
         {
             switch (currentTarget.InteractionMode)
@@ -104,6 +113,7 @@ public class InteractionManager : Singleton<InteractionManager>
                         currentTarget.Interact(true);
                         currentTarget.HideOutline();
                         currentTarget.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
+                        
                     }
                     break;
 
@@ -111,11 +121,13 @@ public class InteractionManager : Singleton<InteractionManager>
                     if (PlayerInputs.Instance.InteractHold())
                     {
                         currentTarget.Interact(true);
+                        
                     }
 
                     else
                     {
                         currentTarget.Interact(false);
+                      
                     }
                     break;
             }

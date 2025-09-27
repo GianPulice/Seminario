@@ -4,32 +4,44 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "LootDatabase", menuName = "ScriptableObjects/Loot Prefab Database")]
 public class LootPrefabDatabase : ScriptableObject
 {
+    // Una lista que contendrá las entradas del Editor.
     [System.Serializable]
     public class LootEntry
     {
         public string lootName;
-        public GameObject prefab;
+        public List<GameObject> prefabs;
     }
 
-    [SerializeField] private List<LootEntry> lootEntries;
+    [SerializeField] private List<LootEntry> lootCategories; 
 
-    private Dictionary<string, GameObject> prefabLookup;
+    private Dictionary<string, List<GameObject>> categoryLookup;
 
-    public GameObject GetPrefab(string lootName)
+    public GameObject GetLootPrefab(string lootName)
     {
-        if (prefabLookup == null)
+        if (categoryLookup == null)
         {
-            prefabLookup = new Dictionary<string, GameObject>();
-            foreach (var entry in lootEntries)
+            // Inicialización del diccionario si es nulo
+            categoryLookup = new Dictionary<string, List<GameObject>>();
+            foreach (var entry in lootCategories)
             {
-                if (!prefabLookup.ContainsKey(entry.lootName))
+                if (!categoryLookup.ContainsKey(entry.lootName))
                 {
-                    prefabLookup.Add(entry.lootName, entry.prefab);
+                    // Añade la categoría y su lista de prefabs
+                    categoryLookup.Add(entry.lootName, entry.prefabs);
                 }
             }
         }
 
-        prefabLookup.TryGetValue(lootName, out GameObject result);
-        return result;
+        if (categoryLookup.TryGetValue(lootName, out List<GameObject> possiblePrefabs))
+        {
+            if (possiblePrefabs != null && possiblePrefabs.Count > 0)
+            {
+                int randomIndex = Random.Range(0, possiblePrefabs.Count);
+                return possiblePrefabs[randomIndex];
+            }
+        }
+
+        // Si no se encuentra la categoría o la lista está vacía
+        return null;
     }
 }

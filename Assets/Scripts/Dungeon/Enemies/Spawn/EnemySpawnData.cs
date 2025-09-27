@@ -3,8 +3,8 @@ using UnityEngine;
 [System.Serializable]
 public class EnemySpawnData
 {
-    public string enemyId;
+    public EnemyTypeSO enemyType; // Reference to SO
     [Range(0, 100)]
-    public float spawnChance; // % relativo dentro del conjunto
+    public float spawnChance;
 }
 

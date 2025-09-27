@@ -1,22 +1,50 @@
+
 using UnityEngine;
+using System.Collections;
 using UnityEngine.UI;
 
 public class PlayerHealthUI : MonoBehaviour
 {
-    [SerializeField] private Image fillImage;
+    [Header("UI References")]
+    [SerializeField] private Image healthFillImage;
+    [SerializeField] private float duration = 0.3f; // Duración de la transición
 
-    private void OnEnable()
+    private Coroutine healthCoroutine;
+
+    private void Awake()
     {
-        PlayerDungeonHUD.OnHealthChanged += UpdateBar;
+        // Suscribirse al evento estático del HUD
+        PlayerDungeonHUD.OnHealthChanged += UpdateHealthUI;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        PlayerDungeonHUD.OnHealthChanged -= UpdateBar;
+        PlayerDungeonHUD.OnHealthChanged -= UpdateHealthUI;
     }
 
-    private void UpdateBar(float current, float max)
+    private void UpdateHealthUI(float currentHP, float maxHP)
     {
-        fillImage.fillAmount = current / max;
+        float targetFill = Mathf.Clamp01(currentHP / maxHP);
+
+        if (healthCoroutine != null)
+            StopCoroutine(healthCoroutine);
+
+        healthCoroutine = StartCoroutine(LerpHealthFill(targetFill));
+    }
+
+    private IEnumerator LerpHealthFill(float target)
+    {
+        float start = healthFillImage.fillAmount;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            healthFillImage.fillAmount = Mathf.Lerp(start, target, elapsed / duration);
+            yield return null;
+        }
+
+        healthFillImage.fillAmount = target; // asegurar que quede exacto
+
     }
 }

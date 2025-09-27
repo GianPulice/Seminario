@@ -102,7 +102,10 @@ public class RatAI : EnemyBase
     {
         if (attackCooldownTimer < enemyData.AttackCooldown) return;
 
-        playerDamageable?.TakeDamage(enemyData.Damage);
+        Vector3 hitDir = (player.position - transform.position).normalized; // desde atacante -> jugador
+        DamageContext.Set(DamageSourceType.EnemyMelee, transform, player.position, hitDir);
+        playerDamageable.TakeDamage(enemyData.Damage);
+        DamageContext.Clear(); // opcional, por prolijidad
         audioSource.PlayOneShot(atkClip);
 
         attackCooldownTimer = 0f;

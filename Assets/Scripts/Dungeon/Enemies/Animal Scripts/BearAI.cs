@@ -21,7 +21,7 @@ public class BearAI : EnemyBase
 
     private void Update()
     {
-        if (isDead || isAttacking) return;
+        if (IsDead || isAttacking) return;
 
         if (IsInKnockback())
         {
@@ -114,7 +114,10 @@ public class BearAI : EnemyBase
         {
             if (hit.CompareTag("Player"))
             {
+                Vector3 hitDir = (player.position - transform.position).normalized; // desde atacante -> jugador
+                DamageContext.Set(DamageSourceType.EnemyMelee, transform, player.position, hitDir);
                 hit.GetComponent<IDamageable>()?.TakeDamage(enemyData.Damage);
+                DamageContext.Clear(); // opcional, por prolijidad
             }
         }
     }

@@ -48,7 +48,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7724425054083080287}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 1588110511326799053, guid: 47df4fe1f9e2f8e4e8093850111712dc, type: 3}
 --- !u!23 &5039319771018514090
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -71,7 +71,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ac953115f4c5c9242b4b2e7bd69fbb70, type: 2}
+  - {fileID: 2100000, guid: ce13992da1877e84aadd74c62aca6876, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -176,6 +176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyData: {fileID: 11400000, guid: 67b3ab554f5f75c4cb1402a0e7827f3d, type: 2}
+  id: rat
   visionRange: 8
   visionAngle: 100
   obstacleMask:
@@ -185,9 +186,6 @@ MonoBehaviour:
   loseSightDelay: 1.5
   bloodDecalPrefab: {fileID: 8146034578120852093, guid: f234383ce6dd0a54ab672b55e67deb00, type: 3}
   decalYOffset: 0.01
-  currentHP: 0
-  roomData: {fileID: 0}
-  id: rat
   circleRadius: 2
   directionChangeInterval: 0.4
   atkClip: {fileID: 8300000, guid: 84e4f9b179b52c84b982b891220940d7, type: 3}

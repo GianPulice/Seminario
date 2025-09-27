@@ -12,16 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 274d08194b1cebc4bb7a45e592f54662, type: 3}
   m_Name: Chest Drop Table
   m_EditorClassIdentifier: 
-  entries:
-  - lootName: Rareingredient
+  drops:
+  - lootName: Rare Ingredient
     minAmount: 1
     maxAmount: 1
-    probability: 0
+    probability: 0.4
+    minLayer: 0
+    maxLayer: 0
   - lootName: Teeth
-    minAmount: 1
-    maxAmount: 5
-    probability: 0.6
+    minAmount: 50
+    maxAmount: 50
+    probability: 0.2
+    minLayer: 0
+    maxLayer: 0
   - lootName: Recipe
     minAmount: 1
     maxAmount: 1
-    probability: 0
+    probability: 0.4
+    minLayer: 0
+    maxLayer: 0
