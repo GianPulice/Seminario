@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2e6a8561fc71134ebeaafb8eca4c553, type: 3}
+  m_Name: MediumRoom2 Config
+  m_EditorClassIdentifier: 
+  size: 1
+  roomID: 2
+  baseEnemyCount: 3
+  enemyCountByLayer:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  enemyStrengthByLayer:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  enemySpawnPointCount: 3
+  lootSpawnPointCount: 5
+  trapSpawnPointCount: 2
+  possibleEnemies:
+  - {fileID: 8454660039181778633, guid: 74fb03bdaf2a08645829303757536213, type: 3}
+  - {fileID: 7724425054083080287, guid: bc693e6355413c340828973b2af72ed0, type: 3}
+  - {fileID: 6976176869298022470, guid: 48484421a9435604c9805c30a90289a3, type: 3}
+  possibleLoot: []
+  possibleTraps: []
+  ambientVariants: []
+  possibleFloorMaterials: []
+  possibleWallMaterials: []
+  possibleLightingSetups: []
+  allowFog: 0
+  allowTraps: 1
+  allowLoot: 1
+  isBossRoom: 0
+  hasSpecialEvent: 0
+  possibleAmbientSounds: []
+  ambientVolume: 0.3

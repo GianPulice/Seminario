@@ -51677,6 +51677,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 836321580799992492}
+  - component: {fileID: 3331071893331566522}
+  - component: {fileID: 5587767865181275896}
+  - component: {fileID: 2178357165642987966}
+  - component: {fileID: 5316441892915902448}
   m_Layer: 0
   m_Name: MediumRoom_1
   m_TagString: Untagged
@@ -51698,8 +51702,73 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1564567333903243481}
+  - {fileID: 7235123998216580053}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3331071893331566522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6041328546538504687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96c5afe12662a934796de9cda2bc9d19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  config: {fileID: 11400000, guid: a2423cb8355c4d44bbb027839d4feb61, type: 2}
+  enemyHandler: {fileID: 5587767865181275896}
+  lootHandler: {fileID: 2178357165642987966}
+  trapHandler: {fileID: 5316441892915902448}
+  entryDoor: {fileID: 0}
+  exitDoors: []
+  roomSpawnPoint: {fileID: 7235123998216580053}
+--- !u!114 &5587767865181275896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6041328546538504687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 483c85b90f97f3f41a109abba073601c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawners: []
+  totalRounds: 3
+  basePerRound: 2
+--- !u!114 &2178357165642987966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6041328546538504687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f4dc595f6bfdc48a48b895bb586564, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lootSpawnpoints: []
+  barrelPrefab: {fileID: 0}
+  chestPrefab: {fileID: 0}
+  lootMultiplierPerLayer: 0.1
+--- !u!114 &5316441892915902448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6041328546538504687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62ab5a5290ccf2a4e8e99ed65576a249, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  trapPrefabs: []
+  trapSpawnpoints: []
 --- !u!1 &6052735069481833419
 GameObject:
   m_ObjectHideFlags: 0
@@ -52001,6 +52070,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 5.000002, y: 0.16728602, z: 4.999999}
   m_Center: {x: -2.500001, y: 0.08059252, z: 2.4999995}
+--- !u!1 &6105459501300798795
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7235123998216580053}
+  m_Layer: 0
+  m_Name: Enter Spawnpoint MediumRoom1
+  m_TagString: Untagged
+  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7235123998216580053
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6105459501300798795}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -21.895, y: 19.19, z: 3.562}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 836321580799992492}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6119081903471825983
 GameObject:
   m_ObjectHideFlags: 0
