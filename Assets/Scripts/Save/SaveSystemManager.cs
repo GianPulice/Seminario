@@ -26,7 +26,7 @@ public class SaveSystemManager : Singleton<SaveSystemManager>
 
     public static SaveData LoadGame()
     {
-        if (!instance.saveSystemData.UseSaveSystem) return null;
+        if (!instance.saveSystemData.UseSaveSystem) return new SaveData();
 
         if (File.Exists(instance.path))
         {
