@@ -140,7 +140,7 @@ public class ClientManager : MonoBehaviour
 
         if (spawnTime > clientManagerData.TimeToWaitForSpawnNewClient)
         {
-            clientAbstractFactory.CreateObject("ClientOgre");
+            clientAbstractFactory.CreateObject("ClientGoblin");
 
             spawnTime = 0f;
         }

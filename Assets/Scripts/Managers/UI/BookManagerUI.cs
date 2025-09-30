@@ -105,6 +105,7 @@ public class BookManagerUI : Singleton<BookManagerUI>
     {
         if (!isBookOpen) return;
         if (PauseManager.Instance.IsGamePaused) return;
+        if (bookElementsUI == null) return;
 
         float rightStickX = Input.GetAxis("RightStickHorizontal");
 

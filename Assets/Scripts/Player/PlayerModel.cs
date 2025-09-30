@@ -5,6 +5,11 @@ public enum PlayerStates
     Idle, Walk, Run, Jump, Cook, Admin
 }
 
+public enum SpawnPoints
+{
+    Default, Cooking, Admin
+}
+
 public class PlayerModel : MonoBehaviour
 {
     [SerializeField] private PlayerTabernData playerTabernData;
@@ -15,13 +20,19 @@ public class PlayerModel : MonoBehaviour
     private CapsuleCollider capsuleCollider;
     private PhysicMaterial physicMaterial;
 
+    [SerializeField] private Transform CookingZone;
+    [SerializeField] private Transform AdministrationZone;
+
     [SerializeField] private LayerMask groundLayer;
+
+    [SerializeField] private SpawnPoints spawnPosition;
 
     private float speed;
     private float distanceToGround = 1.05f;
    
     private bool isCooking = false;
     private bool isAdministrating = false;
+    private bool isInTeleportPanel = false;
 
     public PlayerTabernData PlayerTabernData { get => playerTabernData; }
 
@@ -36,12 +47,14 @@ public class PlayerModel : MonoBehaviour
     public bool IsGrounded { get =>  Physics.SphereCast(transform.position, 0.3f, Vector3.down, out _, distanceToGround, groundLayer); }
     public bool IsCooking { get => isCooking; set => isCooking = value; }
     public bool IsAdministrating { get => isAdministrating; set => isAdministrating = value; }
+    public bool IsInTeleportPanel { get => isInTeleportPanel; set => isInTeleportPanel = value; }
 
 
     void Awake()
     {
         GetComponents();
         Initialize();
+        SpawnPlayerPosition();
     }
 
 
@@ -50,7 +63,7 @@ public class PlayerModel : MonoBehaviour
         if (BookManagerUI.Instance == null) return;
         if (BookManagerUI.Instance.IsBookOpen) return;
         if (PlayerInputs.Instance == null) return;
-        if (isCooking || isAdministrating) return;
+        if (isCooking || isAdministrating || isInTeleportPanel) return;
 
         Vector3 cameraForward = playerCamera.transform.forward;
         cameraForward.y = 0;
@@ -82,6 +95,11 @@ public class PlayerModel : MonoBehaviour
         }
     }
 
+    public void StopVelocity()
+    {
+        rb.velocity = Vector3.zero;
+    }
+
 
     private void GetComponents()
     {
@@ -93,5 +111,18 @@ public class PlayerModel : MonoBehaviour
     private void Initialize()
     {
         physicMaterial = capsuleCollider.material;
+    }
+
+    private void SpawnPlayerPosition()
+    {
+        if (spawnPosition == SpawnPoints.Cooking)
+        {
+            transform.position = CookingZone.transform.position;  
+        }
+
+        else if (spawnPosition == SpawnPoints.Admin)
+        {
+            transform.position = AdministrationZone.transform.position;
+        }
     }
 }
