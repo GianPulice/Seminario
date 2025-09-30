@@ -5156,6 +5156,7 @@ GameObject:
   - component: {fileID: 120290591}
   - component: {fileID: 120290590}
   - component: {fileID: 120290589}
+  - component: {fileID: 120290594}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -5282,6 +5283,26 @@ Transform:
   - {fileID: 1487620866}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &120290594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 120290585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 931a43e226599e24e96d70abda2536ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cameraRef: {fileID: 565690411}
+  walkSpeed: 5
+  runSpeed: 10
+  jumpForce: 5
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 2049
+  rotationSpeedMult: 1
 --- !u!1 &121354866 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 117512, guid: f3be1ef107933d34d9ca25815249a775, type: 3}
