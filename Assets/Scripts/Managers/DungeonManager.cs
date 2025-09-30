@@ -117,7 +117,7 @@ public class DungeonManager : Singleton<DungeonManager>
     {
         Debug.Log("[DungeonManager] Teleport manual al Lobby desde UI.");
         TeleportPlayer(startSpawnPoint.position);
-        ClearHistories();
+        ResetDungeonState();
     }
     public void AdvanceLayer()
     {
@@ -167,11 +167,13 @@ public class DungeonManager : Singleton<DungeonManager>
     private void StartRun()
     {
         currentRoomIndex = 0;
+
         if (runSequence.Count == 0)
         {
             Debug.LogError("[DungeonManager] runSequence vacío al iniciar la run.");
             return;
         }
+
         PlayerDungeonHUD.OnLayerChanged?.Invoke(currentLayer);
         LoadRoomFromRunSequence(currentRoomIndex);
     }
@@ -218,7 +220,18 @@ public class DungeonManager : Singleton<DungeonManager>
         currentRoomIndex = 0;
         currentLayer = 1;
     }
+    private void ResetDungeonState()
+    {
+        ClearHistories();
+        runStarted = false;
+        currentRoom = null;
+        currentRoomIndex = 0;
+        currentLayer = 1;
 
+        GenerateRunSequence();
+
+        Debug.Log("[DungeonManager] Estado de dungeon reseteado. Esperando nueva run...");
+    }
     private Transform GetRandomFromDict(Dictionary<string, Transform> dict, Queue<Transform> history)
     {
         List<Transform> candidates = new List<Transform>(dict.Values);

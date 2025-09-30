@@ -37,7 +37,6 @@ public class PlayerDungeonModel : MonoBehaviour, IDamageable
     private Transform orientation;
     private Rigidbody rb;
     private CombatHandler combatHandler;
-    private SafetyPoint safetyPoint;
 
     [SerializeField] private bool debugLogs = true;
     private bool wasRunning = false;
@@ -262,7 +261,6 @@ public class PlayerDungeonModel : MonoBehaviour, IDamageable
         playerHealth = GetComponent<PlayerHealth>();
         combatHandler = GetComponent<CombatHandler>();
         playerStamina = GetComponent<PlayerStamina>();
-        safetyPoint = GetComponent<SafetyPoint>();
         orientation = transform.Find("Orientation");
         rb.freezeRotation = true;
 

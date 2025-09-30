@@ -28,7 +28,7 @@ public class EnemyFactory : MonoBehaviour
     {
         if (enemiesDictionary != null && enemiesDictionary.TryGetValue(id, out GameObject prefab))
         {
-            var instance = Instantiate(prefab, spawnPosition, spawnRotation);
+            var instance = Instantiate(prefab, spawnPosition, spawnRotation,this.transform);
             return instance.GetComponent<EnemyBase>();
         }
         Debug.LogWarning($"[EnemyFactory] No prefab found with Id '{id}'");
