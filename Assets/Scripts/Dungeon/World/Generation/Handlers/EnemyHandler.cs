@@ -72,10 +72,11 @@ public class EnemyHandler : MonoBehaviour
         {
             currentRound = round;
 
-            int toSpawn = basePerRound * round;
+            int toSpawn = basePerRound;
 
             int layerBonus = currentLayer / 3;
             toSpawn += layerBonus;
+            
 
             if (toSpawn <= 0) toSpawn = 1; 
 
@@ -120,6 +121,7 @@ public class EnemyHandler : MonoBehaviour
         if (enemy == null) return;
 
         aliveCount++;
+        Debug.Log($"[EnemyHandler] Spawned {enemy.name}, vivos: {aliveCount}");
 
         enemy.OnDeath -= HandleEnemyDeath;
         enemy.OnDeath += HandleEnemyDeath;
@@ -127,7 +129,8 @@ public class EnemyHandler : MonoBehaviour
 
     private void HandleEnemyDeath(EnemyBase e)
     {
-        Debug.Log($"[EnemyHandler] Recibido OnDeath de {e.name}");
+        Debug.Log($"[EnemyHandler] {e.name} murió. Vivos restantes: {aliveCount}");
+
         e.OnDeath -= HandleEnemyDeath;
         aliveCount--;
     }
