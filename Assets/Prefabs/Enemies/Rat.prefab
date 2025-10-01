@@ -35,8 +35,8 @@ Transform:
   m_GameObject: {fileID: 7724425054083080287}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.178, y: 0, z: -10.439496}
-  m_LocalScale: {x: 0.6442546, y: 0.47875196, z: 0.73586273}
+  m_LocalPosition: {x: 0.178, y: 0.055, z: -10.439496}
+  m_LocalScale: {x: 0.444948, y: 0.33064523, z: 0.5082162}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -150,7 +150,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 7724425054083080287}
   m_Enabled: 1
   m_AgentTypeID: -334000983
-  m_Radius: 0.5
+  m_Radius: 0.59
   m_Speed: 6
   m_Acceleration: 8
   avoidancePriority: 50
@@ -159,8 +159,8 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 1.4
-  m_BaseOffset: 1
+  m_Height: 0.8
+  m_BaseOffset: 0.41
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!114 &7297627141673116640
@@ -184,8 +184,6 @@ MonoBehaviour:
     m_Bits: 64
   chaseSpeedMultiplier: 1.5
   loseSightDelay: 1.5
-  bloodDecalPrefab: {fileID: 8146034578120852093, guid: f234383ce6dd0a54ab672b55e67deb00, type: 3}
-  decalYOffset: 0.01
   circleRadius: 2
   directionChangeInterval: 0.4
   atkClip: {fileID: 8300000, guid: 84e4f9b179b52c84b982b891220940d7, type: 3}

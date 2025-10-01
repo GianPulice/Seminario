@@ -129,9 +129,9 @@ public class EnemyHandler : MonoBehaviour
 
     private void HandleEnemyDeath(EnemyBase e)
     {
-        Debug.Log($"[EnemyHandler] {e.name} murió. Vivos restantes: {aliveCount}");
 
         e.OnDeath -= HandleEnemyDeath;
         aliveCount--;
+        Debug.Log($"[EnemyHandler] {e.name} murió. Vivos restantes: {aliveCount}");
     }
 }

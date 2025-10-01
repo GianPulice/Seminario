@@ -171,7 +171,7 @@ MonoBehaviour:
   airMultiplier: 5
   groundDrag: 0
   jumpForce: 7
-  currentWeaponDamage: 25
+  currentWeaponDamage: 25000
   attackCooldown: 1
   groundCheckDistance: 1.05
   groundLayer:
@@ -204,7 +204,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9042588cd2db354f8bbec978ba88da2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 100
+  maxHP: 1000
   healAmount: 10
   healInterval: 30
   debugLogs: 1
@@ -324,7 +324,7 @@ MonoBehaviour:
   weaponTransform: {fileID: 3209574813253720826}
   combatLocalPos: {x: 0, y: 0, z: 0}
   combatLocalEuler: {x: 0, y: 0, z: 0}
-  loweredLocalPos: {x: 0, y: 0, z: 0}
+  loweredLocalPos: {x: 0, y: -6, z: 0}
   loweredLocalEuler: {x: 0, y: 0, z: 0}
   lerpSpeed: 12
   useOffsetFallback: 0
@@ -481,7 +481,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3358658896867381641}
   - {fileID: 7346115733473577451}
   - {fileID: 6771797060150400561}
   m_Father: {fileID: 7893357068095882199}
@@ -500,37 +499,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sword: {fileID: 449254278659169392}
   attackCooldown: 1
---- !u!1 &1183691308403942056
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3358658896867381641}
-  m_Layer: 0
-  m_Name: WeaponAnchor
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3358658896867381641
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1183691308403942056}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5226388079967726769}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1644272985029411559
 GameObject:
   m_ObjectHideFlags: 0
@@ -542,7 +510,6 @@ GameObject:
   - component: {fileID: 7893357068095882199}
   - component: {fileID: 6515142177530854106}
   - component: {fileID: 2875690358900739560}
-  - component: {fileID: 192060867222265429}
   - component: {fileID: 2311310904376503321}
   m_Layer: 0
   m_Name: Main Camera
@@ -632,22 +599,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   orientation: {fileID: 3766527146166358730}
---- !u!114 &192060867222265429
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1644272985029411559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e88814e2df2d7014ebe63b535233dd53, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cam: {fileID: 6515142177530854106}
-  duration: 0.5
-  magnitude: 0.5
-  zoomAmount: 0.05
 --- !u!114 &2311310904376503321
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -978,7 +929,7 @@ GameObject:
   - component: {fileID: 7346115733473577451}
   - component: {fileID: 1780987590426664420}
   m_Layer: 0
-  m_Name: WeponAnchor
+  m_Name: WeaponAnchor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

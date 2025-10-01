@@ -6,18 +6,13 @@ public class Barrel : MonoBehaviour, IDamageable
 {
     [Header("Properties")]
     [SerializeField] private int hitPoints = 1;
-
-    [Header("Loot System")]
-    [SerializeField] private DropTable dropTable;
-    [SerializeField] private LootPrefabDatabase lootDB;
-    [SerializeField] private Transform lootSpawnPoint;
+    [SerializeField] private GameObject barrelVFX;
 
     private DropHandler dropHandler;
 
     private void Awake()
     {
         dropHandler = GetComponent<DropHandler>();
-        dropHandler.Init(dropTable, lootDB, lootSpawnPoint != null ? lootSpawnPoint : transform);
     }
 
     public void TakeDamage(int value)
@@ -29,6 +24,7 @@ public class Barrel : MonoBehaviour, IDamageable
     public void TakeHit(int value)
     {
         hitPoints -= value;
+        if(AudioManager.Instance != null) AudioManager.Instance.PlaySFX("BarrelHit");
         if (hitPoints <= 0)
         {
             BreakBarrel();
@@ -38,7 +34,14 @@ public class Barrel : MonoBehaviour, IDamageable
     private void BreakBarrel()
     {
         Debug.Log("Barrel is breaking!");
+        if(barrelVFX != null)
+        {
+            var vfx =Instantiate(barrelVFX, transform.position, Quaternion.identity);
+            Destroy(vfx, 0.5f);
+        }
 
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySFX("BarrelDestroy");
+        
         int currentLayer = DungeonManager.Instance.CurrentLayer;
         dropHandler.DropLoot(currentLayer);
 

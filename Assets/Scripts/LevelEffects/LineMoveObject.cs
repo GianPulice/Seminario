@@ -8,25 +8,49 @@ public class LineMoveObject : MonoBehaviour
     public Transform pointA;
     [Header("End Point (B)")]
     public Transform pointB;
-    [Header("Movement speed ")]
+    [Header("Movement Speed (Rate of change)")]
+    [Tooltip("La velocidad determina la tasa de suavizado. Un valor más alto significa un movimiento más rápido y menos 'deslizante'.")]
     public float speed = 1f;
 
+    private Vector3 startPosition;
+    private Vector3 endPosition;
     private Vector3 currentTarget;
 
+    private float totalDistance;
     void Start()
     {
-        if (pointA != null)
-            transform.position = pointA.position;
-        currentTarget = pointB != null ? pointB.position : transform.position;
+        if (pointA == null || pointB == null)
+        {
+            Debug.LogError("Points A and B must be assigned to LineMoveObject.");
+            enabled = false;
+            return;
+        }
+
+        // Inicializar posiciones
+        startPosition = pointA.position;
+        endPosition = pointB.position;
+
+        // Colocar el objeto en el punto inicial y definir el primer objetivo
+        transform.position = startPosition;
+        currentTarget = endPosition;
+
+        totalDistance = Vector3.Distance(startPosition, endPosition);
     }
 
     void Update()
     {
         if (pointA == null || pointB == null) return;
-        transform.position = Vector3.MoveTowards(transform.position, currentTarget, speed * Time.deltaTime);
-        if (Vector3.Distance(transform.position, currentTarget) < 0.01f)
+        transform.position = Vector3.Lerp(transform.position,currentTarget,speed * Time.deltaTime);
+        if (Vector3.Distance(transform.position, currentTarget) < 0.1f)
         {
-            currentTarget = currentTarget == pointA.position ? pointB.position : pointA.position;
+            if (currentTarget == endPosition)
+            {
+                currentTarget = startPosition;
+            }
+            else
+            {
+                currentTarget = endPosition;
+            }
         }
     }
 
