@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 7800188800207904516}
   - component: {fileID: -3240050898543320959}
   - component: {fileID: -7288183208084117572}
-  - component: {fileID: 2464001039186295525}
   m_Layer: 10
   m_Name: Teeth
   m_TagString: Untagged
@@ -140,22 +139,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 0
   bobSpeed: 1
-  bobHeight: 0.05
---- !u!114 &2464001039186295525
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2946134255287635992}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 0
-  outlineColor: {r: 0, g: 1, b: 0.24022293, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
+  bobHeight: 0.25

@@ -22,10 +22,6 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
     [SerializeField] protected LayerMask obstacleMask;
     [SerializeField] protected float chaseSpeedMultiplier = 1.5f;
     [SerializeField] protected float loseSightDelay = 1.5f;
-
-    [Header("Decals")]
-    [SerializeField] private GameObject bloodDecalPrefab;
-    [SerializeField] private float decalYOffset = 0.01f; // Para evitar z-fighting
    
     [Header("Runtime")]
     public int CurrentHP { get; private set; }
@@ -139,15 +135,14 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
     }
     private void SpawnBloodDecal()
     {
-        if (bloodDecalPrefab == null) return;
+        if (BloodDecalPool.Instance == null) return;
 
         Vector3 origin = transform.position + Vector3.up * 1f;
         if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 10f, LayerMask.GetMask("whatIsGround")))
         {
-            Vector3 spawnPos = hit.point + Vector3.up * decalYOffset;
+            Vector3 spawnPos = hit.point + Vector3.up * 0.01f;
             Quaternion rot = Quaternion.Euler(90f, UnityEngine.Random.Range(0f, 360f), 0f);
-            GameObject decal = Instantiate(bloodDecalPrefab, spawnPos, rot);
-            Destroy(decal, 5f);
+            BloodDecalPool.Instance.Spawn(spawnPos, rot);
         }
     }
 
