@@ -7,6 +7,9 @@ public class TeleportDungeonUI : MonoBehaviour, IInteractable
 {
     private PlayerModel playerModel;
 
+    private GameObject leftDoor;
+    private GameObject rightDoor;
+
     private static event Action onShowTeleportPanel;
 
     public static Action OnShowTeleportPanel { get => onShowTeleportPanel; set => onShowTeleportPanel = value; }
@@ -60,6 +63,8 @@ public class TeleportDungeonUI : MonoBehaviour, IInteractable
     private void GetComponents()
     {
         playerModel = FindFirstObjectByType<PlayerModel>();
+        leftDoor = transform.Find("LeftDoor").gameObject;
+        rightDoor = transform.Find("RightDoor").gameObject;
     }
 
     private IEnumerator RegisterOutline()
