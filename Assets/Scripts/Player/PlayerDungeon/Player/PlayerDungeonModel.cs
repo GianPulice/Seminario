@@ -63,7 +63,8 @@ public class PlayerDungeonModel : MonoBehaviour, IDamageable
 
     public event Action<float, float> OnHealthChanged;
     public event Action<float, float> OnStaminaChanged;
-   
+    public event Action onPlayerDied;
+
 
     #endregion
 
@@ -241,6 +242,7 @@ public class PlayerDungeonModel : MonoBehaviour, IDamageable
         CanMove = false;
         rb.velocity = Vector3.zero;
         playerHealth.SetInvulnerable(true);
+        onPlayerDied?.Invoke();
         StartCoroutine(DeathSequence());
     }
 

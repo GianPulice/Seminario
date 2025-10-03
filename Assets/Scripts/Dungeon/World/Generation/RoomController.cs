@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class RoomController : MonoBehaviour
 {
@@ -34,7 +35,8 @@ public class RoomController : MonoBehaviour
     //--------------- UNITY -------------------
     private void Awake()
     {
-        InitializeHandlers();
+       if(enemyHandler != null)
+            enemyHandler.OnAllEnemiesDefeated += HandleRoomCleared;
     }
     private void OnDestroy()
     {
@@ -56,8 +58,7 @@ public class RoomController : MonoBehaviour
 
         if (enemyHandler != null)
         {
-            enemyHandler.Initialize(layer);
-            enemyHandler.OnAllEnemiesDefeated += HandleRoomCleared;
+            enemyHandler.Initialize(layer,config);
         }
 
         if (config.allowLoot)
@@ -74,12 +75,7 @@ public class RoomController : MonoBehaviour
 
         isActive = false;
 
-        if (enemyHandler != null)
-        {
-            enemyHandler.OnAllEnemiesDefeated -= HandleRoomCleared;
-            enemyHandler.Cleanup();
-        }
-
+        enemyHandler?.Cleanup();
         lootHandler?.Cleanup();
         trapHandler?.Cleanup();
     }
@@ -87,28 +83,6 @@ public class RoomController : MonoBehaviour
     public void ResetRoom()
     {
         DeactivateRoom();
-        InitializeHandlers();
-    }
-    private void InitializeHandlers()
-    {
-        if (enemyHandler == null)
-        {
-            enemyHandler = GetComponentInChildren<EnemyHandler>();
-            if (enemyHandler == null)
-                Debug.LogError($"[RoomController] EnemyHandler not found in children of {name}");
-        }
-        if (lootHandler == null)
-        {
-            lootHandler = GetComponentInChildren<LootHandler>();
-            if (lootHandler == null)
-                Debug.LogWarning($"[RoomController] LootHandler not found in children of {name}");
-        }
-        if (trapHandler == null)
-        {
-            trapHandler = GetComponentInChildren<TrapHandler>();
-            if (trapHandler == null)
-                Debug.LogWarning($"[RoomController] TrapHandler not found in children of {name}");
-        }
     }
     private void HandleRoomCleared()
     {
@@ -120,7 +94,7 @@ public class RoomController : MonoBehaviour
         UnlockExitDoors();
 
         DungeonManager.Instance?.OnRoomCleared(this);
-       
+
         OnAllEnemiesDefeated?.Invoke();
         OnAllEnemiesDefeated = null;
     }

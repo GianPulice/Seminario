@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,7 +7,7 @@ public class EnemySpawner : MonoBehaviour
 {
     [Header("Refs")]
     [SerializeField] private AbstractFactory enemyFactory;
-    [SerializeField] private List<ObjectPooler> enemyPools;
+    [SerializeField] private List<ObjectPooler> enemyPools = new();
     [SerializeField] private StatScaler statScaler;
     [SerializeField] private EnemySpawnTableData spawnTableData;
     [Header("Spawnpoints")]

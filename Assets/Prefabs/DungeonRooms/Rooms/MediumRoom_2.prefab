@@ -6701,7 +6701,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.010786437, z: -0, w: 0.9999419}
   m_LocalPosition: {x: 24.812366, y: 4.1499977, z: -1.2021942}
-  m_LocalScale: {x: 1, y: -1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2774399951718595840}
@@ -49769,7 +49769,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.010786437, z: -0, w: 0.9999419}
   m_LocalPosition: {x: 29.703344, y: 4.1499977, z: 3.9045029}
-  m_LocalScale: {x: 1, y: -1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2774399951718595840}
@@ -49876,7 +49876,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.010786437, z: -0, w: 0.9999419}
   m_LocalPosition: {x: 4.9464493, y: 4.1499977, z: -7.632225}
-  m_LocalScale: {x: 1, y: -1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2774399951718595840}
@@ -56315,7 +56315,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.010786437, z: -0, w: 0.9999419}
   m_LocalPosition: {x: 24.704508, y: 4.1499977, z: 3.796646}
-  m_LocalScale: {x: 1, y: -1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2774399951718595840}
@@ -68283,7 +68283,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.010786437, z: -0, w: 0.9999419}
   m_LocalPosition: {x: 29.811203, y: 4.1499977, z: -1.0943375}
-  m_LocalScale: {x: 1, y: -1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2774399951718595840}
@@ -72810,9 +72810,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 483c85b90f97f3f41a109abba073601c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawners: []
+  spawner: {fileID: 0}
   totalRounds: 3
   basePerRound: 2
+  timeBetweenRounds: 2
 --- !u!114 &2469646037542646342
 MonoBehaviour:
   m_ObjectHideFlags: 0

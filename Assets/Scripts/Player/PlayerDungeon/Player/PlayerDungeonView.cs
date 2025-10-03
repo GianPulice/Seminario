@@ -18,7 +18,7 @@ public class PlayerDungeonView : MonoBehaviour
         {
             model.OnHealthChanged += HandleHealthChanged;
             model.OnStaminaChanged += HandleStaminaChanged;
-            model.Health.OnPlayerDied += HandleDeath;
+            model.onPlayerDied += HandleDeath;
         }
     }
 
@@ -28,7 +28,7 @@ public class PlayerDungeonView : MonoBehaviour
         {
             model.OnHealthChanged -= HandleHealthChanged;
             model.OnStaminaChanged -= HandleStaminaChanged;
-            model.Health.OnPlayerDied -= HandleDeath;
+            model.onPlayerDied -= HandleDeath;
         }
     }
 
