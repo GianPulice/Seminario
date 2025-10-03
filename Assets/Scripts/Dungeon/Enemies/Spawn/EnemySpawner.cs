@@ -1,150 +1,103 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-[Tooltip("Colocalo en la sala. Se encarga de spawnear enemigos en puntos definidos. Usado por EnemyHandler.")]
 public class EnemySpawner : MonoBehaviour
 {
     [Header("Refs")]
-    [Tooltip("Factory de enemigos que instancia prefabs en base al Id. (Obligatorio)")]
-    [SerializeField] private EnemyFactory enemyFactory;
-
-    [Tooltip("Scaler de estadísticas. Aplica modificadores según la capa actual. (Opcional, pero recomendado)")]
+    [SerializeField] private AbstractFactory enemyFactory;
+    [SerializeField] private List<ObjectPooler> enemyPools;
     [SerializeField] private StatScaler statScaler;
-
-    [Header("Spawn Table")]
     [SerializeField] private EnemySpawnTableData spawnTableData;
-
     [Header("Spawnpoints")]
-    [Tooltip("Lista de Transforms que definen las posiciones posibles de spawn. El sistema elige uno al azar cada vez.")]
     [SerializeField] private List<Transform> spawnPoints = new();
 
-    /*
-    [Header("Markers")]
-    [SerializeField] private GameObject spawnMarkerPrefab;
-    [SerializeField] private float preSpawnDelay = 0.75f;
-    */
+    private Dictionary<string, ObjectPooler> enemyPoolDict = new();
+    private bool isActive = false;
 
-    private readonly Dictionary<string, Queue<EnemyBase>> pools = new();
 
-    // ---------- API PRINCIPAL ----------
-    /// <summary>
-    /// Spawnea 'amount' enemigos en esta estación, usando puntos random.
-    /// Llama onSpawned por cada enemigo creado/activado.
-    /// </summary>
-    public IEnumerator SpawnEnemies(int amount, int layer, System.Action<EnemyBase> onSpawned)
+    public bool IsActive { get => isActive; set => isActive = value; }
+    public Transform SpawnPosition => spawnPoints.Count > 0 ? spawnPoints[0] : null;
+    void Awake()
     {
-        if (spawnPoints == null || spawnPoints.Count == 0)
+        InitializeEnemyPoolDictionary();
+    }
+
+    private void InitializeEnemyPoolDictionary()
+    {
+        foreach (var pool in enemyPools)
         {
-            Debug.LogWarning($"[EnemySpawner] No hay spawnPoints en {name}");
-            yield break;
+            if (pool.Prefab != null)
+            {
+                enemyPoolDict[pool.Prefab.name] = pool;
+            }
         }
+    }
 
-        List<Transform> pointsShuffled = spawnPoints.OrderBy(_ => Random.value).ToList();
-
-      
-        for (int i = 0; i < amount; i++)
+    /// <summary>
+    /// Spawnea N enemigos según la capa (layer) y tabla de spawn.
+    /// </summary>
+    public void SpawnEnemies(int amount, int layer, Action<EnemyBase> onSpawned)
+    {
+        if (!isActive || spawnPoints == null || spawnPoints.Count == 0 || amount <= 0) return;
+        List<Transform> shuffledPoints = RouletteSelection.Shuffle(new List<Transform>(spawnPoints));
+        for(int i = 0;i<amount; i++)
         {
-            Transform point = pointsShuffled[i % pointsShuffled.Count];
-
-            //if (spawnMarkerPrefab != null)
-            //{
-            //    var marker = Instantiate(spawnMarkerPrefab, point.position, point.rotation);
-            //    yield return new WaitForSeconds(preSpawnDelay);
-            //    if (marker != null) Destroy(marker);
-            //}
-
-
+            Transform point = shuffledPoints[i % shuffledPoints.Count];
             EnemyTypeSO enemyType = GetEnemyTypeForLayer(layer);
+            if (enemyType == null) continue;
 
-            if (enemyType != null)
+            // Crear o recuperar del pool
+            GameObject obj = enemyFactory.CreateObject(enemyType.enemyId);
+            if (obj == null)
             {
-                EnemyBase enemy = GetFromPoolOrCreate(enemyType.enemyId, point.position, point.rotation);
-                statScaler?.ApplyScaling(enemy, layer);
-
-                // Bind de retorno al pool cuando muere
-                var binder = enemy.GetComponent<EnemyPoolBinder>();
-                if (binder == null) binder = enemy.gameObject.AddComponent<EnemyPoolBinder>();
-                binder.Bind(this, enemyType.enemyId, enemy);
-
-                onSpawned?.Invoke(enemy);
+                Debug.LogWarning($"[EnemySpawner] No se pudo crear objeto para id '{enemyType.enemyId}'");
+                continue;
             }
 
-           
-            yield return null;
-        }
-    }
-
-    /// <summary>
-    /// Limpia estado interno y desactiva todo lo poolleado.
-    /// </summary>
-    public void ResetSpawner()
-    {
-        foreach (var kvp in pools)
-        {
-            var q = kvp.Value;
-            foreach (var e in q)
+            var enemy = obj.GetComponent<EnemyBase>();
+            if (enemy == null)
             {
-                if (e != null) e.gameObject.SetActive(false);
+                Debug.LogWarning($"[EnemySpawner] El prefab '{enemyType.enemyId}' no tiene EnemyBase.");
+                continue;
             }
-        }
-    }
 
-    internal void ReturnToPool(string enemyId, EnemyBase enemy)
-    {
-        if (enemy == null) return;
-        enemy.gameObject.SetActive(false);
+            // Colocar y escalar
+            enemy.transform.SetPositionAndRotation(point.position, point.rotation);
+            statScaler?.ApplyScaling(enemy, layer);
 
-        if (!pools.TryGetValue(enemyId, out var q))
-        {
-            q = new Queue<EnemyBase>();
-            pools[enemyId] = q;
-        }
-        q.Enqueue(enemy);
-    }
-
-    private EnemyBase GetFromPoolOrCreate(string enemyId, Vector3 pos, Quaternion rot)
-    {
-        EnemyBase instance = null;
-
-        if (pools.TryGetValue(enemyId, out var q) && q.Count > 0)
-        {
-            instance = q.Dequeue();
-            if (instance != null)
+            // Suscribir retorno al pool al morir
+            if (enemyPoolDict.TryGetValue(enemyType.enemyId, out var pooler) && pooler != null)
             {
-                var t = instance.transform;
-                t.SetPositionAndRotation(pos, rot);
-                instance.gameObject.SetActive(true);
-
-                return instance;
+                Action<EnemyBase> deathHandler = null;
+                deathHandler = (e) =>
+                {
+                    e.OnDeath -= deathHandler;
+                    pooler.ReturnObjectToPool(e);
+                };
+                enemy.OnDeath += deathHandler;
             }
+
+            // Avisar al handler
+            onSpawned?.Invoke(enemy);
         }
-
-        // Instanciar nuevo usando la factory
-        instance = enemyFactory.Create(enemyId, pos, rot);
-        return instance;
     }
-
 
     private EnemyTypeSO GetEnemyTypeForLayer(int layer)
     {
         if (spawnTableData == null || spawnTableData.tables.Count == 0) return null;
 
-        if(layer >= 7)
-        {
-            layer = 7;
-        }
+        if (layer >= 7) layer = 7;
 
         LayerSpawnTable table = spawnTableData.tables
             .OrderBy(t => t.layer)
             .FirstOrDefault(t => layer <= t.layer);
 
-        if (table == null)
-            table = spawnTableData.tables.Last();
+        if (table == null) table = spawnTableData.tables.Last();
 
-        if (table.spawnDataList.Count == 0)
-            return null;
+        if (table.spawnDataList.Count == 0) return null;
 
         var weighted = new Dictionary<EnemyTypeSO, float>();
         foreach (var data in table.spawnDataList)

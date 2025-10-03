@@ -16,7 +16,7 @@ public class EnemyHandler : MonoBehaviour
 
     [Tooltip("Número base de enemigos en la primera ronda. Cada ronda multiplica este número por el índice de ronda. Ejemplo: base = 4 --> ronda 1 = 4, ronda 2 = 8, ronda 3 = 12.")]
     [SerializeField] private int basePerRound = 2;  // 4, 8, 12...
-
+    [SerializeField] private float timeBetweenRounds = 2f;
     public event Action OnAllEnemiesDefeated;
 
     private Coroutine roundsCoroutine;
@@ -51,9 +51,6 @@ public class EnemyHandler : MonoBehaviour
             StopCoroutine(roundsCoroutine);
             roundsCoroutine = null;
         }
-        foreach (var s in spawners)
-            s?.ResetSpawner();
-
         initialized = false;
         aliveCount = 0;
         OnAllEnemiesDefeated = null;
@@ -61,7 +58,6 @@ public class EnemyHandler : MonoBehaviour
 
     private IEnumerator RunRounds()
     {
-       
         if (!initialized || spawners == null || spawners.Count == 0)
         {
             Debug.LogWarning("[EnemyHandler] No hay spawners configurados en la sala.");
@@ -72,48 +68,38 @@ public class EnemyHandler : MonoBehaviour
         {
             currentRound = round;
 
-            int toSpawn = basePerRound;
-
-            int layerBonus = currentLayer / 3;
-            toSpawn += layerBonus;
-            
-
-            if (toSpawn <= 0) toSpawn = 1; 
+            int toSpawn = basePerRound + (currentLayer / 3);
+            if (toSpawn <= 0) toSpawn = 1;
 
             Debug.Log($"[EnemyHandler] Iniciando Ronda {round}. Enemigos a spawnear: {toSpawn}");
 
-            yield return SpawnRound(toSpawn);
+            // Spawnear todos los enemigos en el mismo frame
+            SpawnRound(toSpawn);
 
+            // Esperar a que mueran todos antes de continuar
             yield return new WaitUntil(() => aliveCount <= 0);
+            yield return new WaitForSeconds(timeBetweenRounds);
         }
 
         Debug.Log("[EnemyHandler] Todas las rondas completadas, invocando OnAllEnemiesDefeated.");
         OnAllEnemiesDefeated?.Invoke();
     }
 
-    private IEnumerator SpawnRound(int totalToSpawn)
+    private void SpawnRound(int totalToSpawn)
     {
-        if (totalToSpawn <= 0) yield break;
+        if (totalToSpawn <= 0) return;
 
         int spawnerCount = spawners.Count;
         int basePerSpawner = totalToSpawn / spawnerCount;
         int remainder = totalToSpawn % spawnerCount;
-
-        var coroutines = new List<Coroutine>();
 
         for (int i = 0; i < spawnerCount; i++)
         {
             int countForThis = basePerSpawner + (i < remainder ? 1 : 0);
             if (countForThis <= 0) continue;
 
-            var s = spawners[i];
-            Coroutine c = StartCoroutine(s.SpawnEnemies(countForThis, currentLayer, OnEnemySpawned));
-            coroutines.Add(c);
+            spawners[i].SpawnEnemies(countForThis, currentLayer, OnEnemySpawned);
         }
-
-        // Esperar a que todos los spawners terminen de soltar su tanda
-        foreach (var c in coroutines)
-            yield return c;
     }
 
     private void OnEnemySpawned(EnemyBase enemy)
