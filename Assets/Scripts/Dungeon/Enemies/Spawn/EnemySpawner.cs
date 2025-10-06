@@ -23,6 +23,10 @@ public class EnemySpawner : MonoBehaviour
     {
         InitializeEnemyPoolDictionary();
     }
+    private void Start()
+    {
+        enemyFactory.CreateObject("Rat", spawnPoints[0], spawnPoints[0].position);
+    }
 
     private void InitializeEnemyPoolDictionary()
     {
@@ -41,7 +45,9 @@ public class EnemySpawner : MonoBehaviour
     public void SpawnEnemies(int amount, int layer, Action<EnemyBase> onSpawned)
     {
         if (!isActive || spawnPoints == null || spawnPoints.Count == 0 || amount <= 0) return;
+
         List<Transform> shuffledPoints = RouletteSelection.Shuffle(new List<Transform>(spawnPoints));
+
         for(int i = 0;i<amount; i++)
         {
             Transform point = shuffledPoints[i % shuffledPoints.Count];
@@ -62,7 +68,6 @@ public class EnemySpawner : MonoBehaviour
                 Debug.LogWarning($"[EnemySpawner] El prefab '{enemyType.enemyId}' no tiene EnemyBase.");
                 continue;
             }
-
             // Colocar y escalar
             enemy.transform.SetPositionAndRotation(point.position, point.rotation);
             statScaler?.ApplyScaling(enemy, layer);
@@ -84,17 +89,22 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    private void GetEnemies()
+    {
+
+    }
+
     private EnemyTypeSO GetEnemyTypeForLayer(int layer)
     {
-        if (spawnTableData == null || spawnTableData.tables.Count == 0) return null;
+        if (spawnTableData == null || spawnTableData.tables.Count == 0)
+            return null;
 
         if (layer >= 7) layer = 7;
 
         LayerSpawnTable table = spawnTableData.tables
             .OrderBy(t => t.layer)
-            .FirstOrDefault(t => layer <= t.layer);
-
-        if (table == null) table = spawnTableData.tables.Last();
+            .FirstOrDefault(t => layer <= t.layer)
+            ?? spawnTableData.tables.Last();
 
         if (table.spawnDataList.Count == 0) return null;
 

@@ -66,7 +66,7 @@ public class EnemyHandler : MonoBehaviour
             int toSpawn = baseEnemiesForLayer + currentRound;
             if (toSpawn <= 0) toSpawn = 1;
 
-            Debug.Log($"[EnemyHandler] Iniciando Ronda {round}. Enemigos a spawnear: {toSpawn}");
+            //Debug.Log($"[EnemyHandler] Iniciando Ronda {round}. Enemigos a spawnear: {toSpawn}");
 
             SpawnRound(toSpawn);
 
@@ -74,7 +74,7 @@ public class EnemyHandler : MonoBehaviour
             yield return new WaitForSeconds(timeBetweenRounds);
         }
 
-        Debug.Log("[EnemyHandler] Todas las rondas completadas, invocando OnAllEnemiesDefeated.");
+       // Debug.Log("[EnemyHandler] Todas las rondas completadas, invocando OnAllEnemiesDefeated.");
         OnAllEnemiesDefeated?.Invoke();
     }
 
@@ -89,7 +89,7 @@ public class EnemyHandler : MonoBehaviour
         if (enemy == null) return;
 
         aliveCount++;
-        Debug.Log($"[EnemyHandler] Spawned {enemy.name}, vivos: {aliveCount}");
+       // Debug.Log($"[EnemyHandler] Spawned {enemy.name}, vivos: {aliveCount}");
 
         enemy.OnDeath -= HandleEnemyDeath;
         enemy.OnDeath += HandleEnemyDeath;
@@ -99,6 +99,6 @@ public class EnemyHandler : MonoBehaviour
     {
         e.OnDeath -= HandleEnemyDeath;
         aliveCount--;
-        Debug.Log($"[EnemyHandler] {e.name} murió. Vivos restantes: {aliveCount}");
+       // Debug.Log($"[EnemyHandler] {e.name} murió. Vivos restantes: {aliveCount}");
     }
 }
