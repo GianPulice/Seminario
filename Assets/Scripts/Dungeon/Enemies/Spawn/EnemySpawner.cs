@@ -30,7 +30,15 @@ public class EnemySpawner : MonoBehaviour
     {
         InitializeEnemyPoolDictionary();
     }
- 
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            SpawnEnemies("1",1,1,(e)=> { });
+        }
+    }
+
     private void InitializeEnemyPoolDictionary()
     {
         foreach (var pool in enemyPools)
@@ -95,11 +103,11 @@ public class EnemySpawner : MonoBehaviour
         Action<EnemyBase> deathHandler = null;
         deathHandler = (e) =>
         {
-            e.OnDeath -= deathHandler; // Limpiamos la suscripción
-            pooler.ReturnObjectToPool(e); // Devolvemos al pooler capturado
+            e.OnDeath -= deathHandler;
+            pooler.ReturnObjectToPool(e); 
         };
 
-        // Suscribimos la función anónima a la muerte
+
         enemy.OnDeath += deathHandler;
     }
 

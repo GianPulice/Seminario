@@ -13,7 +13,7 @@ public class ItemPickup : MonoBehaviour, IInteractable
 
     private void Awake()
     {
-     StartCoroutine(RegisterOutline());
+        StartCoroutine(RegisterOutline());
     }
     private void OnDestroy()
     {
@@ -50,8 +50,9 @@ public class ItemPickup : MonoBehaviour, IInteractable
 
     public void HideOutline()
     {
-       OutlineManager.Instance.Hide(gameObject);
-       InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
+
+        OutlineManager.Instance.Hide(gameObject);
+        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
 
     public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
