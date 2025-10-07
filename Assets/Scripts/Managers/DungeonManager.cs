@@ -44,7 +44,7 @@ public class DungeonManager : Singleton<DungeonManager>
 
     private void Start()
     {
-        Debug.Log("[DungeonManager] Esperando que el player toque la primera puerta...");
+       // Debug.Log("[DungeonManager] Esperando que el player toque la primera puerta...");
 
         GenerateRunSequence();
 
@@ -64,7 +64,7 @@ public class DungeonManager : Singleton<DungeonManager>
         if (runStarted) return;
 
         runStarted = true;
-        Debug.Log("[DungeonManager] ¡Run iniciada! Player tocó la primera puerta.");
+       // Debug.Log("[DungeonManager] ¡Run iniciada! Player tocó la primera puerta.");
 
         StartRun();
     }
@@ -73,13 +73,13 @@ public class DungeonManager : Singleton<DungeonManager>
         if (room == null) return;
 
         currentRoom = room;
-        Debug.Log($"[DungeonManager] Entrando a sala {room.Config.roomID} en Layer {CurrentLayer}");
+        //Debug.Log($"[DungeonManager] Entrando a sala {room.Config.roomID} en Layer {CurrentLayer}");
         room.ActivateRoom();
     }
 
     public void OnRoomCleared(RoomController clearedRoom)
     {
-        Debug.Log($"[DungeonManager] Room {clearedRoom.Config.roomID} cleared. Moviendo a la siguiente sala...");
+       // Debug.Log($"[DungeonManager] Room {clearedRoom.Config.roomID} cleared. Moviendo a la siguiente sala...");
         if ((currentRoomIndex + 1) % 4 == 0 && currentRoomIndex + 1 < totalRooms )
         {
             AdvanceLayer();
@@ -203,7 +203,7 @@ public class DungeonManager : Singleton<DungeonManager>
             return;
         }
 
-        Debug.Log($"[DungeonManager] Moviendo al jugador a: {target.name}");
+       // Debug.Log($"[DungeonManager] Moviendo al jugador a: {target.name}");
         player.position = target.position;
     }
     private void TeleportPlayer(Vector3 targetPosition)

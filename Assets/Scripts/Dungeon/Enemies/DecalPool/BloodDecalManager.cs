@@ -14,25 +14,36 @@ public class BloodDecalManager : Singleton<BloodDecalManager>
 
     public void Spawn(Vector3 position, Quaternion rotation)
     {
-        MonoBehaviour decalMB = pooler.GetObjectFromPool<MonoBehaviour>();
+        if (factory == null || pooler == null) return;
+        GameObject decalObj = CreateDecal();
+        DecalComponent decalComp = decalObj.GetComponent<DecalComponent>();
+        decalComp.transform.SetPositionAndRotation(position, rotation);
+        decalComp.gameObject.SetActive(true);
+        StartCoroutine(ReturnAfterDelay(decalComp, decalLifetime));
 
-        if (decalMB == null)
-        {
-            Debug.LogWarning($"[BloodDecalPool] Pool vacío o el objeto no tiene MonoBehaviour.");
-            return;
-        }
-        
-        decalMB.gameObject.transform.SetPositionAndRotation(position, rotation);
-        decalMB.gameObject.SetActive(true);
-
-        StartCoroutine(ReturnAfterDelay(decalMB, decalLifetime));
     }
 
-    private System.Collections.IEnumerator ReturnAfterDelay(MonoBehaviour decal, float delay)
+    private GameObject CreateDecal()
+    {
+        string prefabName = pooler.Prefab.name;
+        return factory.CreateObject(prefabName);
+    }
+
+    private System.Collections.IEnumerator ReturnAfterDelay(DecalComponent decal, float delay)
     {
         yield return new WaitForSeconds(delay);
 
-        // devolver al pooler
-        pooler.ReturnObjectToPool(decal);
+        // Aseguramos que el objeto no haya sido destruido en el interín
+        if (decal != null && pooler != null)
+        {
+            decal.gameObject.SetActive(false);
+            pooler.ReturnObjectToPool(decal);
+        }
+        else if (decal != null)
+        {
+            // Si el pooler es nulo o no se encontró, destruimos el objeto que la Factory creó.
+            Debug.LogWarning("[BloodDecalManager] Pooler nulo. Destruyendo Decal creado por Factory para evitar fugas.");
+            Destroy(decal.gameObject);
+        }
     }
 }

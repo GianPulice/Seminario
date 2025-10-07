@@ -14,6 +14,8 @@ public class DoorController : MonoBehaviour,IInteractable
 
    [SerializeField] private bool isLocked = true;
 
+    private GameObject openVFX;
+
     public InteractionMode InteractionMode => InteractionMode.Press;
     private void Awake()
     {
@@ -67,22 +69,14 @@ public class DoorController : MonoBehaviour,IInteractable
 
     public void ShowOutline()
     {
-        if (doorOutline != null)
-        {
-            doorOutline.OutlineWidth = 2.5f;
-            doorOutline.OutlineColor = isLocked ? closedColor : openColor;
-
-            InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
-        }
+        OutlineManager.Instance.ShowWithCustomColor(gameObject, isLocked ? closedColor : openColor);
+        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
     }
 
     public void HideOutline()
     {
-        if (doorOutline != null)
-        {
-            doorOutline.OutlineWidth = 0f;
-            InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
-        }
+        OutlineManager.Instance.Hide(gameObject);
+        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
 
     public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
@@ -92,7 +86,7 @@ public class DoorController : MonoBehaviour,IInteractable
         string keyText = $"<color=yellow>{PlayerInputs.Instance.GetInteractInput()}</color>";
 
         interactionManagerUIText.text = isLocked
-            ? "Quedan enemigos por eliminar"
+            ? "<color=white>Quedan enemigos por eliminar"
             : $"Presiona {keyText} para pasar a la siguiente sala";
     }
 
