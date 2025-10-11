@@ -92,6 +92,9 @@ public class EnemySpawner : MonoBehaviour
             onSpawned?.Invoke(enemy);
         }
     }
+
+    //Esta funcion es la que se intento usar para el return al pool, hay algunos valores que NO se regresan correctamente,
+    //Ejemplo el flash de la vida no se resetea y la vida se vuelve infinita. por ende hay que arreglarlo.
     private void AttachReturnToPoolOnDeath(EnemyBase enemy,string enemyId)
     {
         if (!enemyPoolDict.TryGetValue(enemyId, out ObjectPooler pooler) || pooler == null)
