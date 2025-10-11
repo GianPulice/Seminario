@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public enum FoodType // FrutosDelBosqueOscuro, SopaDeLaLunaPlateada, CarneDeBestia, CarneCuradaDelAbismo, SusurroDelElixir
 {
@@ -20,11 +21,13 @@ public class Food : MonoBehaviour, IInteractable
 
     [SerializeField] private FoodData foodData;
 
+    private FoodMesh defaultMesh;
+    private FoodMesh foodMesh;
+
+    private PlayerController playerController;
     private CookingManager cookingManager;
     private Table currentTable; // Esta Table hace referencia a la mesa en la cual podemos entregar el pedido
-
-    private Rigidbody rb;
-    private BoxCollider boxCollider;
+    private Slider cookingBar;
     private MeshRenderer meshRenderer;
     private Color originalColor;
 
@@ -46,23 +49,54 @@ public class Food : MonoBehaviour, IInteractable
     public CookingStates CurrentCookingState { get => currentCookingState; }
 
 
+    private class FoodMesh
+    {
+        public GameObject root;
+        public Collider collider;
+        public Rigidbody rb;
+        public MeshRenderer ms;
+
+        public FoodMesh(GameObject root, Collider collider, Rigidbody rb, MeshRenderer ms)
+        {
+            this.root = root;
+            this.collider = collider;
+            this.rb = rb;
+            this.ms = ms;
+        }
+    }
+
+
     void Awake()
     {
         SuscribeToPlayerControllerEvents();
         GetComponents();
-        CoroutineHelper.Instance.StartHelperCoroutine(RegisterOutline());
         Initialize();
+        CoroutineHelper.Instance.StartHelperCoroutine(RegisterOutline());
+    }
+
+    // Simulacion de Update
+    void UpdateFood()
+    {
+        RotateSliderUIToLookAtPlayer();
     }
 
     void OnEnable()
     {
+        SuscribeToUpdateManagerEvent();
         StartCoroutine(CookGameObject());
+    }
+
+    void OnDisable()
+    {
+        UnsuscribeToUpdateManagerEvent();
     }
 
     void OnDestroy()
     {
+        UnsuscribeToUpdateManagerEvent();
         UnsuscribeToPlayerControllerEvents();
-        OutlineManager.Instance.Unregister(gameObject);
+        OutlineManager.Instance.Register(defaultMesh.root);
+        OutlineManager.Instance.Register(foodMesh.root);
     }
 
 
@@ -70,6 +104,11 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (gameObject.activeSelf && !isServedInTable && !isInPlayerDishPosition && cookingManager.AvailableDishPositions.Count > 0)
         {
+            if (cookingBar.gameObject.activeSelf)
+            {
+                cookingBar.gameObject.SetActive(false);
+            }
+
             PlayerView.OnEnabledDishForced?.Invoke(true);
 
             isInPlayerDishPosition = true;
@@ -77,7 +116,10 @@ public class Food : MonoBehaviour, IInteractable
             cookingManager.ReleaseStovePosition(stovePosition);
             playerDishPosition = cookingManager.MoveFoodToDish(this);
 
-            StartCoroutine(DisablePhysics());
+            SetMeshRootActive(defaultMesh, false);
+            StartCoroutine(EnabledOrDisablePhysics(defaultMesh, false));
+            SetMeshRootActive(foodMesh, true);
+            StartCoroutine(EnabledOrDisablePhysics(foodMesh, false));
         }
     }
 
@@ -85,14 +127,18 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (cookingManager.AvailableDishPositions.Count > 0 && !isServedInTable && !isInPlayerDishPosition)
         {
-            OutlineManager.Instance.ShowWithDefaultColor(gameObject);
+            OutlineManager.Instance.ShowWithDefaultColor(defaultMesh.root);
+            OutlineManager.Instance.ShowWithDefaultColor(foodMesh.root);
+
             InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
         }
     }
 
     public void HideOutline()
     {
-        OutlineManager.Instance.Hide(gameObject);
+        OutlineManager.Instance.Hide(defaultMesh.root);
+        OutlineManager.Instance.Hide(foodMesh.root);
+
         InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
 
@@ -117,6 +163,16 @@ public class Food : MonoBehaviour, IInteractable
     }
 
 
+    private void SuscribeToUpdateManagerEvent()
+    {
+        UpdateManager.OnUpdate += UpdateFood;
+    }
+
+    private void UnsuscribeToUpdateManagerEvent()
+    {
+        UpdateManager.OnUpdate -= UpdateFood;
+    }
+
     private void SuscribeToPlayerControllerEvents()
     {
         PlayerController.OnHandOverFood += HandOver;
@@ -139,23 +195,41 @@ public class Food : MonoBehaviour, IInteractable
 
     private void GetComponents()
     {
+        playerController = FindFirstObjectByType<PlayerController>();
         cookingManager = FindFirstObjectByType<CookingManager>();
-        rb = GetComponent<Rigidbody>();
-        boxCollider = GetComponent<BoxCollider>();
-        meshRenderer = GetComponent<MeshRenderer>();
+        cookingBar = GetComponentInChildren<Slider>();
     }
 
     private IEnumerator RegisterOutline()
     {
         yield return new WaitUntil(() => OutlineManager.Instance != null);
 
-        OutlineManager.Instance.Register(gameObject);
+        OutlineManager.Instance.Register(defaultMesh.root);
+        OutlineManager.Instance.Register(foodMesh.root);
     }
 
     private void Initialize()
     {
+        SetupFoodMesh(ref defaultMesh, "DefaultMesh");
+        string cleanName = gameObject.name.Replace("(Clone)", "").Trim();
+        SetupFoodMesh(ref foodMesh, cleanName + "Mesh");
+
+        SetMeshRootActive(defaultMesh, true);
+        SetMeshRootActive(foodMesh, false);
+
+        meshRenderer = defaultMesh.ms;
         originalColor = meshRenderer.material.color;
         currentCookingState = CookingStates.Raw;
+    }
+
+    private void SetupFoodMesh(ref FoodMesh foodMesh, string gameObjectHierarchyName)
+    {
+        GameObject meshRoot = transform.Find(gameObjectHierarchyName).gameObject;
+        Collider collider = meshRoot.GetComponent<Collider>();
+        Rigidbody rb = meshRoot.GetComponent<Rigidbody>();
+        MeshRenderer meshRenderer = meshRoot.GetComponent<MeshRenderer>();
+
+        foodMesh = new FoodMesh(meshRoot, collider, rb, meshRenderer);
     }
 
     // Ejecutar unicamente la corrutina cuando se activa el objeto en caso de que se haya puesto en la hornalla
@@ -165,11 +239,23 @@ public class Food : MonoBehaviour, IInteractable
         {
             stovePosition = cookingManager.CurrentStove;
 
+            cookingBar.maxValue = foodData.TimeToBeenCooked;
+            cookingBar.value = 0;
             cookTimeCounter = 0f;
 
             while (cookTimeCounter <= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned)
             {
                 cookTimeCounter += Time.deltaTime;
+
+                if (cookTimeCounter <= foodData.TimeToBeenCooked)
+                {
+                    cookingBar.value = cookTimeCounter;
+                }
+
+                if (cookTimeCounter >= foodData.TimeToBeenCooked && cookingBar.gameObject.activeSelf)
+                {
+                    cookingBar.gameObject.SetActive(false);
+                }
 
                 if (isInPlayerDishPosition)
                 {
@@ -190,35 +276,67 @@ public class Food : MonoBehaviour, IInteractable
         isInstantiateFirstTime = false;
     }
 
-    private IEnumerator DisablePhysics()
+    private void SetMeshRootActive(FoodMesh mesh, bool value)
     {
-        yield return null; // Esperar un frame
-        rb.isKinematic = true;
-        boxCollider.enabled = false;
+        mesh.root?.SetActive(value);
     }
 
-    private IEnumerator EnabledPhysics()
+    // Si es true activa las fisicas, sino las desactiva
+    private IEnumerator EnabledOrDisablePhysics(FoodMesh mesh, bool value)
     {
-        yield return null; // Esperar un frame
-        rb.isKinematic = false;
-        boxCollider.enabled = true;
+        yield return null;
+
+        if (value)
+        {
+            mesh.rb.isKinematic = false;
+            mesh.collider.enabled = true;
+        }
+
+        else
+        {
+            mesh.rb.isKinematic = true;
+            mesh.collider.enabled = false;
+        }
+    }
+
+    public void RotateSliderUIToLookAtPlayer()
+    {
+        Vector3 playerDirection = (playerController.transform.position - cookingBar.transform.position).normalized;
+        Vector3 lookDirection = new Vector3(playerDirection.x, 0, playerDirection.z);
+
+        if (lookDirection != Vector3.zero)
+        {
+            Quaternion rotation = Quaternion.LookRotation(lookDirection);
+            cookingBar.transform.rotation = rotation;
+        }
     }
 
     private void RestartValues()
     {
         meshRenderer.material.color = originalColor;
 
+        cookingBar.gameObject.SetActive(true);
+
         stovePosition = null;
         playerDishPosition = null;
 
-        rb.isKinematic = false;
-        boxCollider.enabled = true;
+        defaultMesh.rb.isKinematic = false;
+        defaultMesh.collider.enabled = true;
+
+        foodMesh.rb.isKinematic = false;
+        foodMesh.collider.enabled = true;
 
         currentCookingState = CookingStates.Raw;
 
         cookTimeCounter = 0f;
         isInPlayerDishPosition = false;
         isServedInTable = false;
+
+        OutlineManager.Instance.Hide(defaultMesh.root);
+        OutlineManager.Instance.Hide(foodMesh.root);
+
+        SetMeshRootActive(defaultMesh, true);
+        SetMeshRootActive(foodMesh, false);
     }
 
     private void SaveTable(Table table)
@@ -274,8 +392,8 @@ public class Food : MonoBehaviour, IInteractable
                 transform.SetParent(freeSpot);
                 transform.position = freeSpot.position + new Vector3(0, 0.1f, 0);
 
-                rb.isKinematic = false;
-                boxCollider.enabled = true;
+                StartCoroutine(EnabledOrDisablePhysics(foodMesh, true));
+
                 isInPlayerDishPosition = false;
                 isServedInTable = true;
 
@@ -292,7 +410,7 @@ public class Food : MonoBehaviour, IInteractable
         {
             cookingManager.ReleaseDishPosition(playerDishPosition);
             isInPlayerDishPosition = false;
-            StartCoroutine(EnabledPhysics());
+            StartCoroutine(EnabledOrDisablePhysics(foodMesh, true));
         }  
     }
 

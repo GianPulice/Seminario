@@ -1386,7 +1386,7 @@ GameObject:
   - component: {fileID: 402222268849742212}
   - component: {fileID: 402222268850804874}
   - component: {fileID: 1462143980246812510}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SM_Env_Tiles_01 (66)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1685,7 +1685,7 @@ GameObject:
   - component: {fileID: 594640920941472053}
   - component: {fileID: 594640920942497851}
   - component: {fileID: 5625374199347816702}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SM_Env_Tiles_01 (67)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2347,7 +2347,7 @@ GameObject:
   - component: {fileID: 914406124908156284}
   - component: {fileID: 914406124907029116}
   - component: {fileID: 401903995261357024}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SM_Env_RockPile_Square_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2440,7 +2440,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: 8fdd38fd31b49ba458b7fff0d9a0474c, type: 3}
 --- !u!1 &923107405262698468
@@ -4929,10 +4929,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 483c85b90f97f3f41a109abba073601c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawners:
-  - {fileID: 6871929971889897988}
+  spawner: {fileID: 6871929971889897988}
   totalRounds: 3
   basePerRound: 4
+  timeBetweenRounds: 2
 --- !u!114 &3755589667571193282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4953,7 +4953,7 @@ MonoBehaviour:
   - {fileID: 4106339294061643466}
   barrelPrefab: {fileID: 3629124328488994423, guid: 0642a16fd501448418a83435db5f95cd, type: 3}
   chestPrefab: {fileID: 1668090225508558710, guid: 74bc0f805bfe7b04da3ff3111ddfbaea, type: 3}
-  lootMultiplierPerLayer: 0.1
+  lootMultiplierPerLayer: 2.52
 --- !u!114 &4200912619901498306
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20185,7 +20185,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: 9c920b2574c97194aaf465b0c9d63d66, type: 3}
 --- !u!1 &3822583042023950945
@@ -25893,7 +25893,7 @@ GameObject:
   - component: {fileID: 5462105092034489412}
   - component: {fileID: 5462105092033448360}
   - component: {fileID: 829186582741659820}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SM_Env_Stone_Vessel_01 Variant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33654,7 +33654,7 @@ GameObject:
   - component: {fileID: 6502590780755954844}
   - component: {fileID: 6502590780771248556}
   - component: {fileID: 6502590780770006578}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: FX_Fire_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39415,7 +39415,7 @@ GameObject:
   - component: {fileID: 6859890567081854575}
   - component: {fileID: 6859890567080804193}
   - component: {fileID: 2703821281466237089}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SM_Env_Tiles_01 (69)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45994,7 +45994,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2747716953745127493}
   - component: {fileID: 8597257543352204172}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}

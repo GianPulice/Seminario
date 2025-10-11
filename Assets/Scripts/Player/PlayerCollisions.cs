@@ -28,7 +28,7 @@ public class PlayerCollisions
 
     public void OnTriggerEnter(Collider collider)
     {
-        OnTriggerEnterWithPortalDungeon(collider);
+
     }
 
 
@@ -39,14 +39,4 @@ public class PlayerCollisions
     /* ----------------------------------------COLLISION EXIT--------------------------------------------- */
 
     /* ----------------------------------------TRIGGER ENTER---------------------------------------------- */
-
-    private void OnTriggerEnterWithPortalDungeon(Collider collider)
-    {
-        if (collider.gameObject.CompareTag("PortalDungeon"))
-        {
-            collider.gameObject.SetActive(false); // Se desactiva el trigger porque sino ejecuta la corrutina varias veces
-            string[] additiveScenes = { "DungeonUI", "CompartidoUI" };
-            playerController.StartCoroutine(ScenesManager.Instance.LoadScene("Dungeon", additiveScenes));
-        }
-    }
 }

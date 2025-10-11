@@ -12,6 +12,7 @@ public class DropHandler : MonoBehaviour
     {
         if (spawnPoint == null)
             spawnPoint = transform;
+        Init(table, lootDB, spawnPoint);
     }
     public void Init(DropTable t, LootPrefabDatabase db, Transform point)
     {

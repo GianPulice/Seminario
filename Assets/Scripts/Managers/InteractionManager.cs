@@ -12,6 +12,7 @@ public class InteractionManager : Singleton<InteractionManager>
     {
         CreateSingleton(true);
         SuscribeToUpdateManagerEvent();
+        SuscribeToScenesManagerEvent();
         SuscribeToBookManagerUI();
     }
 
@@ -28,9 +29,20 @@ public class InteractionManager : Singleton<InteractionManager>
         UpdateManager.OnUpdate += UpdateInteractionManager;
     }
 
+    private void SuscribeToScenesManagerEvent()
+    {
+        ScenesManager.Instance.OnSceneLoadedEvent += OnCleanReferencesWhenChangeScene;
+    }
+
     private void SuscribeToBookManagerUI()
     {
         BookManagerUI.OnHideOutlinesAndTextsFromInteractableElements += HideAllOutlinesAndTexts;
+    }
+
+    private void OnCleanReferencesWhenChangeScene()
+    {
+        previousTarget = null;
+        currentTarget = null;
     }
 
     private void HideAllOutlinesAndTexts()
@@ -39,9 +51,8 @@ public class InteractionManager : Singleton<InteractionManager>
         previousTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
         currentTarget?.HideOutline();
         currentTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-       
-        previousTarget = null;
-        currentTarget = null;
+
+        OnCleanReferencesWhenChangeScene();
     }
 
     private void DetectTarget()
@@ -54,7 +65,7 @@ public class InteractionManager : Singleton<InteractionManager>
             if (BookManagerUI.Instance.IsBookOpen) return;
         }
 
-            Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
 
         // Si no hay target y antes había uno, limpiamos
         if (previousTarget != null)

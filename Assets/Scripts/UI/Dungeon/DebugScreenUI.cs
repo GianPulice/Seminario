@@ -31,7 +31,7 @@ public class TeleportUIManager : MonoBehaviour
             {
                 string id = tb.spawnID; // necesario para evitar closure bug
                 tb.button.onClick.AddListener(() => TeleportTo(id));
-                Debug.Log($"Listener agregado para {id}");
+               
             }
             else
             {
