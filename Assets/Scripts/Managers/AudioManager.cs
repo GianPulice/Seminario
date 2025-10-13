@@ -31,6 +31,10 @@ public class AudioManager : Singleton<AudioManager>
             Debug.LogWarning("Música no encontrada: " + musicName);
             return;
         }
+        if (musicSource.clip == musicDictionary[musicName] && musicSource.isPlaying)
+            return;
+
+        musicSource.Stop();
 
         musicSource.clip = musicDictionary[musicName];
         musicSource.loop = true;
@@ -49,6 +53,11 @@ public class AudioManager : Singleton<AudioManager>
         SFXSource.PlayOneShot(SFXSource.clip);
     }
 
+    public void StopMusic()
+    {
+        musicSource.Stop();
+        musicSource.clip = null;
+    }
     /*public float returnAudioLength(string sfxName)
     {
         if (SFXDictionary.TryGetValue(sfxName, out AudioClip clip))
