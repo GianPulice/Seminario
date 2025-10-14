@@ -223,6 +223,9 @@ MonoBehaviour:
   weaponController: {fileID: 8620121490210133455}
   shieldHandler: {fileID: 186605720910420545}
   attackStaminaCost: 20
+  useHitDelay: 1
+  hitDelay: 0.728
+  useWeaponTiming: 0
 --- !u!114 &6083476399390222158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -369,6 +372,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sword: {fileID: 7419331012382457579}
   attackCooldown: 1
+  hasCustomTiming: 0
+  customHitDelay: 0.3
   shield: {fileID: 0}
 --- !u!1 &1644272985029411559
 GameObject:

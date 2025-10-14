@@ -6,6 +6,10 @@ public class WeaponController : MonoBehaviour
     [SerializeField] private GameObject sword;
     [SerializeField] private float attackCooldown = 1f;
 
+    [Header("Hit Timing")]
+    [SerializeField] private bool hasCustomTiming = false;
+    [SerializeField] private float customHitDelay = 0.3f;
+
     [Header("References")]
     [SerializeField] private ShieldHandler shield;
 
@@ -80,4 +84,41 @@ public class WeaponController : MonoBehaviour
     }
 
     public float AttackCooldown => attackCooldown;
+    /// <summary>
+    /// Gets the hit delay for this weapon
+    /// </summary>
+    public float GetHitDelay()
+    {
+        if (hasCustomTiming)
+        {
+            return customHitDelay;
+        }
+
+        // Try to get timing from WeaponHitTiming component
+        var hitTiming = GetComponent<WeaponHitTiming>();
+        if (hitTiming != null)
+        {
+            return hitTiming.GetHitDelay();
+        }
+
+        // Fall back to default
+        return 0.3f;
+    }
+
+    /// <summary>
+    /// Sets custom hit delay for this weapon
+    /// </summary>
+    public void SetCustomHitDelay(float delay)
+    {
+        customHitDelay = delay;
+        hasCustomTiming = true;
+    }
+
+    /// <summary>
+    /// Enables or disables custom timing
+    /// </summary>
+    public void SetUseCustomTiming(bool useCustom)
+    {
+        hasCustomTiming = useCustom;
+    }
 }

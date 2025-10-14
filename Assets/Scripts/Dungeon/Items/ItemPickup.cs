@@ -50,9 +50,12 @@ public class ItemPickup : MonoBehaviour, IInteractable
 
     public void HideOutline()
     {
+        if(gameObject != null)
+        {
+            OutlineManager.Instance.Hide(gameObject);
+            InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
 
-        OutlineManager.Instance.Hide(gameObject);
-        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
+        }
     }
 
     public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
