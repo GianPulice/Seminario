@@ -2068,17 +2068,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 186605720910420545, guid: 6be7ba1e6d6486f4d94f64b301c89930, type: 3}
+      propertyPath: debugLogs
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 422702052002452655, guid: 6be7ba1e6d6486f4d94f64b301c89930, type: 3}
       propertyPath: m_Name
       value: DungeonPlayer
-      objectReference: {fileID: 0}
-    - target: {fileID: 1259227023574265200, guid: 6be7ba1e6d6486f4d94f64b301c89930, type: 3}
-      propertyPath: debugLogs
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1259227023574265200, guid: 6be7ba1e6d6486f4d94f64b301c89930, type: 3}
-      propertyPath: currentWeaponDamage
-      value: 100000
       objectReference: {fileID: 0}
     - target: {fileID: 1643119122987109456, guid: 6be7ba1e6d6486f4d94f64b301c89930, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2120,13 +2116,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2815810758429292939, guid: 6be7ba1e6d6486f4d94f64b301c89930, type: 3}
-      propertyPath: m_ApplyRootMotion
+    - target: {fileID: 1769380412219543609, guid: 6be7ba1e6d6486f4d94f64b301c89930, type: 3}
+      propertyPath: target
+      value: 
+      objectReference: {fileID: 1555506423}
+    - target: {fileID: 1769380412219543609, guid: 6be7ba1e6d6486f4d94f64b301c89930, type: 3}
+      propertyPath: showWhenShieldActive
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 6327012420691497770, guid: 6be7ba1e6d6486f4d94f64b301c89930, type: 3}
-      propertyPath: debugLogs
-      value: 0
+    - target: {fileID: 8146353917462150600, guid: 6be7ba1e6d6486f4d94f64b301c89930, type: 3}
+      propertyPath: m_Name
+      value: Shield
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2558,6 +2558,11 @@ Transform:
 Transform:
   m_CorrespondingSourceObject: {fileID: 7016940041642990857, guid: 6763cb4e1af89744cb34f202597b965f, type: 3}
   m_PrefabInstance: {fileID: 1812930867}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1555506423 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6393293356522179803, guid: 6be7ba1e6d6486f4d94f64b301c89930, type: 3}
+  m_PrefabInstance: {fileID: 1011327807}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1634443626
 PrefabInstance:
