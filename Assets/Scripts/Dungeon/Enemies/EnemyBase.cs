@@ -103,8 +103,6 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
         SpawnBloodDecal();
 
         OnDeath?.Invoke(this);
-
-        Destroy(gameObject, 1.5f);
     }
 
     protected void PerceptionUpdate()

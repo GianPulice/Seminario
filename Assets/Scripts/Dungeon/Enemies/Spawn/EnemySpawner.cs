@@ -5,27 +5,38 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
+    [Serializable]
+    public class RoomSpawnPoint
+    {
+        public string roomId;
+        public List<Transform> points = new();
+    }
+
     [Header("Refs")]
     [SerializeField] private AbstractFactory enemyFactory;
     [SerializeField] private List<ObjectPooler> enemyPools = new();
     [SerializeField] private StatScaler statScaler;
     [SerializeField] private EnemySpawnTableData spawnTableData;
-    [Header("Spawnpoints")]
-    [SerializeField] private List<Transform> spawnPoints = new();
+
+    [Header("Spawn Points por habitación")]
+    [SerializeField] private List<RoomSpawnPoint> spawnPoints = new();
 
     private Dictionary<string, ObjectPooler> enemyPoolDict = new();
     private bool isActive = false;
 
 
     public bool IsActive { get => isActive; set => isActive = value; }
-    public Transform SpawnPosition => spawnPoints.Count > 0 ? spawnPoints[0] : null;
     void Awake()
     {
         InitializeEnemyPoolDictionary();
     }
-    private void Start()
+
+    private void Update()
     {
-        enemyFactory.CreateObject("Rat", spawnPoints[0], spawnPoints[0].position);
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            SpawnEnemies("1",1,1,(e)=> { });
+        }
     }
 
     private void InitializeEnemyPoolDictionary()
@@ -34,64 +45,98 @@ public class EnemySpawner : MonoBehaviour
         {
             if (pool.Prefab != null)
             {
-                enemyPoolDict[pool.Prefab.name] = pool;
+                string id = pool.Prefab.name;
+                if (!enemyPoolDict.ContainsKey(id))
+                    enemyPoolDict[id] = pool;
             }
         }
     }
 
-    /// <summary>
-    /// Spawnea N enemigos según la capa (layer) y tabla de spawn.
-    /// </summary>
-    public void SpawnEnemies(int amount, int layer, Action<EnemyBase> onSpawned)
+    public void SpawnEnemies(string roomId, int amount, int layer, Action<EnemyBase> onSpawned)
     {
-        if (!isActive || spawnPoints == null || spawnPoints.Count == 0 || amount <= 0) return;
-
-        List<Transform> shuffledPoints = RouletteSelection.Shuffle(new List<Transform>(spawnPoints));
-
-        for(int i = 0;i<amount; i++)
+        if (amount <= 0)
         {
-            Transform point = shuffledPoints[i % shuffledPoints.Count];
+            Debug.LogWarning($"[EnemySpawner] Spawn cancelado. Active: {isActive}, Amount: {amount}.");
+            return;
+        }
+       
+
+        List<Transform> roomPoints = GetSpawnPointsForRoom(roomId);
+        if (roomPoints == null || roomPoints.Count == 0)
+        {
+            Debug.LogWarning($"[EnemySpawner] No se encontraron spawn points para la room '{roomId}'.");
+            return;
+        }
+        // Mezclamos los puntos de spawn
+        List<Transform> shuffledPoints = RouletteSelection.Shuffle(roomPoints);
+
+        for (int i = 0; i < amount; i++)
+        {
             EnemyTypeSO enemyType = GetEnemyTypeForLayer(layer);
-            if (enemyType == null) continue;
-
-            // Crear o recuperar del pool
-            GameObject obj = enemyFactory.CreateObject(enemyType.enemyId);
-            if (obj == null)
+            if (enemyType == null)
             {
-                Debug.LogWarning($"[EnemySpawner] No se pudo crear objeto para id '{enemyType.enemyId}'");
+                Debug.LogWarning("[EnemySpawner] No se encontró un tipo de enemigo para esta capa.");
                 continue;
             }
 
-            var enemy = obj.GetComponent<EnemyBase>();
-            if (enemy == null)
-            {
-                Debug.LogWarning($"[EnemySpawner] El prefab '{enemyType.enemyId}' no tiene EnemyBase.");
-                continue;
-            }
-            // Colocar y escalar
-            enemy.transform.SetPositionAndRotation(point.position, point.rotation);
-            statScaler?.ApplyScaling(enemy, layer);
+            Transform spawnPoint = shuffledPoints[i % shuffledPoints.Count];
 
-            // Suscribir retorno al pool al morir
-            if (enemyPoolDict.TryGetValue(enemyType.enemyId, out var pooler) && pooler != null)
-            {
-                Action<EnemyBase> deathHandler = null;
-                deathHandler = (e) =>
-                {
-                    e.OnDeath -= deathHandler;
-                    pooler.ReturnObjectToPool(e);
-                };
-                enemy.OnDeath += deathHandler;
-            }
+            // Crear enemigo
+            EnemyBase enemy = CreateEnemy(enemyType.enemyId, spawnPoint, layer);
+            if (enemy == null) continue;
 
-            // Avisar al handler
+            // Vincular retorno al pool
+            AttachReturnToPoolOnDeath(enemy,enemyType.enemyId);
+
+            // Callback al Handler
             onSpawned?.Invoke(enemy);
         }
     }
 
-    private void GetEnemies()
+    //Esta funcion es la que se intento usar para el return al pool, hay algunos valores que NO se regresan correctamente,
+    //Ejemplo el flash de la vida no se resetea y la vida se vuelve infinita. por ende hay que arreglarlo.
+    private void AttachReturnToPoolOnDeath(EnemyBase enemy,string enemyId)
     {
+        if (!enemyPoolDict.TryGetValue(enemyId, out ObjectPooler pooler) || pooler == null)
+        {
+            Debug.LogWarning($"[EnemySpawner] No se encontró pooler para ID: {enemyId}.");
+            return;
+        }
+       
+        Action<EnemyBase> deathHandler = null;
+        deathHandler = (e) =>
+        {
+            e.OnDeath -= deathHandler;
+            pooler.ReturnObjectToPool(e); 
+        };
 
+
+        enemy.OnDeath += deathHandler;
+    }
+
+    private EnemyBase CreateEnemy(string enemyId, Transform spawnPoint, int layer)
+    {
+        GameObject obj = enemyFactory.CreateObject(enemyId, spawnPoint, Vector3.zero);
+        if (obj == null)
+        {
+            Debug.LogWarning($"[EnemySpawner] No se pudo crear objeto para id '{enemyId}'");
+            return null;
+        }
+
+        EnemyBase enemy = obj.GetComponent<EnemyBase>();
+        if (enemy == null)
+        {
+            Debug.LogWarning($"[EnemySpawner] El prefab '{enemyId}' no tiene EnemyBase.");
+            return null;
+        }
+
+        statScaler?.ApplyScaling(enemy, layer);
+        return enemy;
+    }
+    private List<Transform> GetSpawnPointsForRoom(string roomId)
+    {
+        RoomSpawnPoint room = spawnPoints.FirstOrDefault(r => r.roomId == roomId);
+        return room?.points ?? new List<Transform>();
     }
 
     private EnemyTypeSO GetEnemyTypeForLayer(int layer)
@@ -99,7 +144,7 @@ public class EnemySpawner : MonoBehaviour
         if (spawnTableData == null || spawnTableData.tables.Count == 0)
             return null;
 
-        if (layer >= 7) layer = 7;
+        layer = Mathf.Min(layer, 7); // límite máximo
 
         LayerSpawnTable table = spawnTableData.tables
             .OrderBy(t => t.layer)

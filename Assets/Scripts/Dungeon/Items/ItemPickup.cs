@@ -9,11 +9,11 @@ public class ItemPickup : MonoBehaviour, IInteractable
     [SerializeField] private Color interactColor;
     [SerializeField] private bool destroyOnPickup = true;
 
-    public InteractionMode InteractionMode => throw new System.NotImplementedException();
+    public InteractionMode InteractionMode => InteractionMode.Press;
 
     private void Awake()
     {
-     StartCoroutine(RegisterOutline());
+        StartCoroutine(RegisterOutline());
     }
     private void OnDestroy()
     {
@@ -50,18 +50,22 @@ public class ItemPickup : MonoBehaviour, IInteractable
 
     public void HideOutline()
     {
-       OutlineManager.Instance.Hide(gameObject);
-       InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
+        if(gameObject != null)
+        {
+            OutlineManager.Instance.Hide(gameObject);
+            InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
+
+        }
     }
 
     public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
     {
-        throw new System.NotImplementedException();
+        
     }
 
     public void HideMessage(TextMeshProUGUI interactionManagerUIText)
     {
-        throw new System.NotImplementedException();
+        
     }
     private IEnumerator RegisterOutline()
     {

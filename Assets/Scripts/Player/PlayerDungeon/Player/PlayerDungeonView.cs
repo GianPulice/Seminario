@@ -50,6 +50,5 @@ public class PlayerDungeonView : MonoBehaviour
 
     // Animaciones
     public void PlayAttackAnimation() => animator?.SetTrigger("Attack");
-    public void OnAttackFrame() => GetComponent<AttackHitbox>()?.TriggerHit();
 
 }

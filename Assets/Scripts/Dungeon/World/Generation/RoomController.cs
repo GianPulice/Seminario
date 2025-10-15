@@ -29,9 +29,6 @@ public class RoomController : MonoBehaviour
     public bool IsCleared => allEnemiesDefeated;
     public Transform SpawnPoint => roomSpawnPoint;
 
-    // ---------- EVENTS ----------
-    public event Action OnAllEnemiesDefeated;
-
     //--------------- UNITY -------------------
     private void Awake()
     {
@@ -56,10 +53,8 @@ public class RoomController : MonoBehaviour
 
         Debug.Log($"[RoomController] Activando sala {config.roomID} en layer {layer}");
 
-        if (enemyHandler != null)
-        {
-            enemyHandler.Initialize(layer,config);
-        }
+        enemyHandler?.Cleanup();
+        enemyHandler?.Initialize(layer, config);
 
         if (config.allowLoot)
             lootHandler?.SpawnLoot(config.size, layer);
@@ -94,9 +89,6 @@ public class RoomController : MonoBehaviour
         UnlockExitDoors();
 
         DungeonManager.Instance?.OnRoomCleared(this);
-
-        OnAllEnemiesDefeated?.Invoke();
-        OnAllEnemiesDefeated = null;
     }
 
     private void LockExitDoors()
