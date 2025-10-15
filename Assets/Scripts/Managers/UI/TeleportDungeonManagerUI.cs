@@ -58,7 +58,7 @@ public class TeleportDungeonManagerUI : MonoBehaviour
     {
         if (!ignoreFirstButtonSelected)
         {
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             return;
         }
 

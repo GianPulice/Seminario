@@ -7,6 +7,7 @@ public class AudioManager : Singleton<AudioManager>
     [Header("Audio Sources")]
     [SerializeField] private AudioSource musicSource;
     [SerializeField] private AudioSource SFXSource;
+    private List<AudioSource> sfxSourcesPool = new List<AudioSource>(); 
 
     [Header("Clips")]
     [SerializeField] private Sound[] musicClips; // Lista de música con nombre
@@ -14,6 +15,7 @@ public class AudioManager : Singleton<AudioManager>
 
     private Dictionary<string, AudioClip> musicDictionary = new Dictionary<string, AudioClip>();
     private Dictionary<string, AudioClip> SFXDictionary = new Dictionary<string, AudioClip>();
+    private Dictionary<string, AudioSource> activeSFX = new Dictionary<string, AudioSource>(); 
 
 
     void Awake()
@@ -37,7 +39,7 @@ public class AudioManager : Singleton<AudioManager>
         musicSource.Play();
     }
 
-    public void PlaySFX(string sfxName)
+    public void PlayOneShotSFX(string sfxName)
     {
         if (!SFXDictionary.ContainsKey(sfxName))
         {
@@ -49,16 +51,57 @@ public class AudioManager : Singleton<AudioManager>
         SFXSource.PlayOneShot(SFXSource.clip);
     }
 
-    /*public float returnAudioLength(string sfxName)
+    public void PlaySFX(string sfxName)
     {
-        if (SFXDictionary.TryGetValue(sfxName, out AudioClip clip))
+        if (!SFXDictionary.ContainsKey(sfxName))
         {
-            return clip.length;
+            Debug.LogWarning("SFX no encontrado: " + sfxName);
+            return;
         }
 
-        Debug.LogWarning("SFX no encontrado: " + sfxName);
-        return 0f;
-    }*/
+        AudioClip clip = SFXDictionary[sfxName];
+        AudioSource source = GetAvailableAudioSource();
+
+        source.clip = clip;
+        source.loop = false;
+        source.Play();
+
+        activeSFX[sfxName] = source;
+
+        StartCoroutine(ReleaseSourceWhenDone(sfxName, source));
+    }
+
+    public void StopSFX(string sfxName)
+    {
+        if (activeSFX.ContainsKey(sfxName))
+        {
+            AudioSource src = activeSFX[sfxName];
+            if (src != null && src.isPlaying)
+                src.Stop();
+
+            activeSFX.Remove(sfxName);
+        }
+    }
+
+
+    private AudioSource GetAvailableAudioSource()
+    {
+        foreach (AudioSource src in sfxSourcesPool)
+        {
+            if (!src.isPlaying) return src;
+        }
+
+        AudioSource newSource = gameObject.AddComponent<AudioSource>();
+        sfxSourcesPool.Add(newSource);
+        return newSource;
+    }
+
+    private System.Collections.IEnumerator ReleaseSourceWhenDone(string sfxName, AudioSource src)
+    {
+        yield return new WaitUntil(() => !src.isPlaying);
+        if (activeSFX.ContainsKey(sfxName))
+            activeSFX.Remove(sfxName);
+    }
 
     private void InitializeAudiosDictionaries(Dictionary<string, AudioClip> audioDic, Sound[] soundType)
     {

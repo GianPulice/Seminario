@@ -45,7 +45,7 @@ public class MainMenu : MonoBehaviour
     {
         if (!ignoreFirstButtonSelected)
         {
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             return;
         }
 
@@ -74,7 +74,7 @@ public class MainMenu : MonoBehaviour
     // Funcion asignada a boton en la UI
     public void ButtonSettings()
     {
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
 
         foreach (var button in buttonsMainMenu)
         {
@@ -88,7 +88,7 @@ public class MainMenu : MonoBehaviour
     // Funcion asignada a boton en la UI
     public void ButtonCredits()
     {
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
     }
 
     // Funcion asignada a boton en la UI
@@ -103,7 +103,7 @@ public class MainMenu : MonoBehaviour
     {
         ignoreFirstButtonSelected = true;
 
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
 
         foreach (var button in buttonsMainMenu)
         {
@@ -141,7 +141,7 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator LoadSceneAfterButtonClick()
     {
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
 
         if (GameManager.Instance.GameSessionType == GameSessionType.Load && SaveSystemManager.SaveExists())
         {

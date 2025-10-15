@@ -83,7 +83,7 @@ public class SettingsManagerUI : MonoBehaviour
 
         if (buttonAudio.colors == color)
         {
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
 
             SetButtonNormalColorInWhite(buttonVideo);
             SetButtonNormalColorInWhite(buttonControls);
@@ -102,7 +102,7 @@ public class SettingsManagerUI : MonoBehaviour
 
         if (buttonVideo.colors == color)
         {
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
 
             SetButtonNormalColorInWhite(buttonAudio);
             SetButtonNormalColorInWhite(buttonControls);
@@ -121,7 +121,7 @@ public class SettingsManagerUI : MonoBehaviour
 
         if (buttonControls.colors == color)
         {
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
 
             SetButtonNormalColorInWhite(buttonAudio);
             SetButtonNormalColorInWhite(buttonVideo);
