@@ -24,7 +24,7 @@ public class Barrel : MonoBehaviour, IDamageable
     public void TakeHit(int value)
     {
         hitPoints -= value;
-        if(AudioManager.Instance != null) AudioManager.Instance.PlaySFX("BarrelHit");
+        if(AudioManager.Instance != null) AudioManager.Instance.PlayOneShotSFX("BarrelHit");
         if (hitPoints <= 0)
         {
             BreakBarrel();
@@ -40,7 +40,7 @@ public class Barrel : MonoBehaviour, IDamageable
             Destroy(vfx, 0.5f);
         }
 
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySFX("BarrelDestroy");
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayOneShotSFX("BarrelDestroy");
         
         int currentLayer = DungeonManager.Instance.CurrentLayer;
         dropHandler.DropLoot(currentLayer);

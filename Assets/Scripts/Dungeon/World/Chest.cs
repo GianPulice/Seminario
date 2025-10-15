@@ -76,7 +76,7 @@ public class Chest : MonoBehaviour, IInteractable
     {
         opened = true;
         if(AudioManager.Instance != null)
-            AudioManager.Instance.PlaySFX("ChestOpen");
+            AudioManager.Instance.PlayOneShotSFX("ChestOpen");
         if (fxOpen != null)
         {
             var vfx = Instantiate(fxOpen, spawnPoint.position, Quaternion.identity);
