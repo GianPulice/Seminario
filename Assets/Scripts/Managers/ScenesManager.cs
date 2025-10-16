@@ -37,7 +37,7 @@ public class ScenesManager : Singleton<ScenesManager>
         CreateSingleton(true);
         DontDestroyOnLoadPanels();
         SuscribeToUpdateManagerEvent();
-        SuscribeToSceneLoadedEvent();
+        //SuscribeToSceneLoadedEvent();
         SetInitializedScene();
     }
 
@@ -53,6 +53,8 @@ public class ScenesManager : Singleton<ScenesManager>
     {
         loadingScenePanel.SetActive(true);
         isInLoadingScenePanel = true;
+
+        onSceneLoadedEvent?.Invoke();
 
         int randomNumber = UnityEngine.Random.Range(0, scenesManagerData.PanelTips.Count);
         loadingScenePanelText.text = scenesManagerData.PanelTips[randomNumber];
@@ -113,20 +115,20 @@ public class ScenesManager : Singleton<ScenesManager>
         }
     }
 
-    private void SuscribeToSceneLoadedEvent()
+    /*private void SuscribeToSceneLoadedEvent()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
-    }
+    }*/
 
     private void SuscribeToUpdateManagerEvent()
     {
         UpdateManager.OnUpdateAllTime += UpdateScenesManager;
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    /*private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         onSceneLoadedEvent?.Invoke();
-    }
+    }*/
 
     // Esto sirve para que una vez cargada la nueva escena, espere 3 segundos para desactivar el panel, para que permita cargar Awake y Start de la nueva escena cargada
     private IEnumerator DisableLoadingScenePanelAfterSeconds()

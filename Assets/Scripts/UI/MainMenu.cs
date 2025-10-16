@@ -28,6 +28,7 @@ public class MainMenu : MonoBehaviour
     void Start()
     {
         InitializeLoadGameButtonIfLoadDataExists();
+        StartCoroutine(PlayMainMenuMusic());
     }
 
 
@@ -160,5 +161,12 @@ public class MainMenu : MonoBehaviour
     private IEnumerator CloseGameAfterClickButton()
     {
         yield return StartCoroutine(ScenesManager.Instance.ExitGame());
+    }
+
+    private IEnumerator PlayMainMenuMusic()
+    {
+        yield return new WaitUntil(() => AudioManager.Instance != null);
+
+        StartCoroutine(AudioManager.Instance.PlayMusic("MainMenu"));
     }
 }

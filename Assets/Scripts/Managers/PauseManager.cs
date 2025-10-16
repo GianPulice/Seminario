@@ -119,6 +119,9 @@ public class PauseManager : Singleton<PauseManager>
 
     private void ShowPause()
     {
+        AudioManager.Instance.PauseCurrentMusic();
+        StartCoroutine(AudioManager.Instance.PlayMusic("Pause"));
+
         foreach (var button in buttonsPause)
         {
             button.gameObject.SetActive(true);
@@ -133,6 +136,9 @@ public class PauseManager : Singleton<PauseManager>
 
     private void HidePause()
     {
+        AudioManager.Instance.StopMusic("Pause");
+        AudioManager.Instance.ResumeLastMusic();
+
         onClearSelectedCurrentGameObject?.Invoke();
         Time.timeScale = 1f;
         isGamePaused = false;
