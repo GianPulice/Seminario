@@ -21,20 +21,20 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Brick_Moss_Large_03
-  m_Shader: {fileID: -6465566751694194690, guid: 19e269a311c45cd4482cf0ac0e694503,
-    type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 19e269a311c45cd4482cf0ac0e694503, type: 3}
   m_Parent: {fileID: 2100000, guid: 90739f686a9a91948986ead5b451e649, type: 2}
-  m_ModifiedSerializedProperties: 0
+  m_ModifiedSerializedProperties: 16
   m_ValidKeywords:
-  - _ALPHATEST_ON
   - _OVERLAY_UV_CHANNEL_UV0
   m_InvalidKeywords:
+  - _ALPHATEST_ON
   - _NORMALMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 2000
+  stringTagMap:
+    RenderType: Opaque
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
@@ -46,11 +46,13 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _BUILTIN_QueueControl: 0
     - _Enable_Overlay_Texture: 1
     - _Metallic: 0
     - _Smoothness: 0.2
     m_Colors: []
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &3244668625489597163
 MonoBehaviour:
   m_ObjectHideFlags: 11
