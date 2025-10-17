@@ -946,7 +946,7 @@ GameObject:
   - component: {fileID: 1067947118078540509}
   - component: {fileID: 1067947118077491077}
   - component: {fileID: 1741891526432328948}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SM_Env_Tiles_02 (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3193,7 +3193,7 @@ GameObject:
   - component: {fileID: 2990491648685933963}
   - component: {fileID: 2990491648684886227}
   - component: {fileID: 8110062035400224032}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SM_Env_Tiles_02 (12)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4216,7 +4216,7 @@ GameObject:
   - component: {fileID: 3554222657418704939}
   - component: {fileID: 3554222657417655667}
   - component: {fileID: 5588033627411936510}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SM_Env_Tiles_02 (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5814,6 +5814,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9100080729903238194}
+  - component: {fileID: 3417798673414326526}
   m_Layer: 0
   m_Name: Spawnpoint Aisle A
   m_TagString: Untagged
@@ -5836,6 +5837,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5434186903041493563}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3417798673414326526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4378999945748753285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02ac57161259a9648b6158fab71589df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hallwayId: Aisle A
+  isHallwaySpawn: 1
 --- !u!1 &4532325226925891170
 GameObject:
   m_ObjectHideFlags: 0
@@ -12866,7 +12881,7 @@ GameObject:
   - component: {fileID: 6148868851970564942}
   - component: {fileID: 6148868851971616278}
   - component: {fileID: 5603672099898293383}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SM_Env_Tiles_02 (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14634,7 +14649,7 @@ GameObject:
   - component: {fileID: 7604078629149819586}
   - component: {fileID: 7604078629148774298}
   - component: {fileID: 7274651999370951449}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SM_Env_Tiles_02 (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14826,7 +14841,7 @@ GameObject:
   - component: {fileID: 7639409077891608255}
   - component: {fileID: 7639409077890556903}
   - component: {fileID: 1959154023611964918}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SM_Env_Tiles_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14933,6 +14948,7 @@ GameObject:
   - component: {fileID: 7709404967127707448}
   - component: {fileID: 7709404967128740650}
   - component: {fileID: 4112273667459601667}
+  - component: {fileID: 6501479877278900275}
   m_Layer: 0
   m_Name: SM_Prop_Torch_Ornate_Full
   m_TagString: Untagged
@@ -15008,6 +15024,27 @@ MeshRenderer:
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &4112273667459601667
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7709404967130853802}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.22843981, y: 0.80234814, z: 0.20259777}
+  m_Center: {x: 0, y: -0.042693853, z: 0}
+--- !u!65 &6501479877278900275
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -15232,7 +15269,7 @@ GameObject:
   - component: {fileID: 8022952209167330471}
   - component: {fileID: 8022952209166279167}
   - component: {fileID: 8605551569738603126}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SM_Env_Tiles_02 (13)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
