@@ -95,6 +95,7 @@ public class MainMenu : MonoBehaviour
     // Funcion asignada a boton en la UI
     public void ButtonExit()
     {
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         DeviceManager.Instance.IsUIModeActive = false;
         StartCoroutine(CloseGameAfterClickButton());
     }
