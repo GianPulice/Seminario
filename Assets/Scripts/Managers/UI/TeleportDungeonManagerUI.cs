@@ -68,6 +68,7 @@ public class TeleportDungeonManagerUI : MonoBehaviour
     // Funcion asignada a boton en la UI
     public void ButtonYes()
     {
+        DeviceManager.Instance.IsUIModeActive = false;
         string[] additiveScenes = { "DungeonUI", "CompartidoUI" };
         StartCoroutine(ScenesManager.Instance.LoadScene("Dungeon", additiveScenes));
     }

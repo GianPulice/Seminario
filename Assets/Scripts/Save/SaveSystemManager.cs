@@ -46,6 +46,8 @@ public class SaveSystemManager : Singleton<SaveSystemManager>
 
     public static void DeleteAllData()
     {
+        //if (!instance.saveSystemData.UseSaveSystem) return;
+
         if (File.Exists(instance.path))
         {
             File.Delete(instance.path);

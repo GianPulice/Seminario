@@ -106,9 +106,21 @@ public class MainMenu : MonoBehaviour
 
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
 
-        foreach (var button in buttonsMainMenu)
+        for (int i = 0; i < buttonsMainMenu.Count; i++)
         {
-            button.gameObject.SetActive(true);
+            // Significa que el indice no sea el del boton LoadGame
+            if (i != 1)
+            {
+                buttonsMainMenu[i].gameObject.SetActive(true);
+            }
+
+            else
+            {
+                if (SaveSystemManager.SaveExists())
+                {
+                    buttonsMainMenu[i].gameObject.SetActive(true);
+                }
+            }
         }
 
         panelSettings.SetActive(false);
