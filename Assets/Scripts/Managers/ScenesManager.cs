@@ -63,13 +63,9 @@ public class ScenesManager : Singleton<ScenesManager>
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         asyncLoad.allowSceneActivation = false;
 
-        float elapsedTime = 0f;
-
         while (!asyncLoad.isDone)
         {
-            elapsedTime += Time.deltaTime;
-
-            if (asyncLoad.progress >= 0.9f && elapsedTime >= scenesManagerData.DuringTimeLoadingScenePanel)
+            if (asyncLoad.progress >= 0.9f)
             {
                 if (additiveScenes != null)
                 {
@@ -134,7 +130,7 @@ public class ScenesManager : Singleton<ScenesManager>
     // Esto sirve para que una vez cargada la nueva escena, espere 3 segundos para desactivar el panel, para que permita cargar Awake y Start de la nueva escena cargada
     private IEnumerator DisableLoadingScenePanelAfterSeconds()
     {
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(scenesManagerData.DuringTimeLoadingScenePanel);
 
         isInLoadingScenePanel = false;
         loadingScenePanel.SetActive(false);
