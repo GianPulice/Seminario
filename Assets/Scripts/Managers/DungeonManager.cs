@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -54,6 +55,7 @@ public class DungeonManager : Singleton<DungeonManager>
             player.position = startSpawnPoint.position;
         }
         PlayerDungeonHUD.OnLayerChanged?.Invoke(currentLayer);
+        StartCoroutine(PlayDungeonMusic());
     }
     /* ------------------ API ---------------------- */
    
@@ -65,7 +67,7 @@ public class DungeonManager : Singleton<DungeonManager>
         if (runStarted) return;
 
         runStarted = true;
-       // Debug.Log("[DungeonManager] �Run iniciada! Player toc� la primera puerta.");
+        // Debug.Log("[DungeonManager] �Run iniciada! Player toc� la primera puerta.");
 
         StartRun();
     }
@@ -301,5 +303,11 @@ public class DungeonManager : Singleton<DungeonManager>
         history.Enqueue(item);
         if (history.Count > historyLimit)
             history.Dequeue();
+    }
+    private IEnumerator PlayDungeonMusic()
+    {
+        yield return new WaitUntil(() => AudioManager.Instance != null);
+
+        StartCoroutine(AudioManager.Instance.PlayMusic("DungeonBGM"));
     }
 }
