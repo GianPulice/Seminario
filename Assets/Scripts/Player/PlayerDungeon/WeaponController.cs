@@ -15,7 +15,7 @@ public class WeaponController : MonoBehaviour
 
     private Animator animator;
     private float lastAttackTime = -Mathf.Infinity;
-
+    private readonly string[] attackSfxNames = { "Axe_Attack1", "Axe_Attack2"};
     // Animator hashes
     private static readonly int hashAttack = Animator.StringToHash("Attack");
     private static readonly int hashAttackIndex = Animator.StringToHash("AttackIndex");
@@ -53,13 +53,21 @@ public class WeaponController : MonoBehaviour
     private void HandleShieldActivated()
     {
         if (animator != null)
+        {
             animator.SetBool(hashShieldActive, true);
+            AudioManager.Instance.PlayOneShotSFX("Axe_Apper");
+        }
+
     }
 
     private void HandleShieldDeactivated()
     {
         if (animator != null)
+        {
             animator.SetBool(hashShieldActive, false);
+            AudioManager.Instance.PlayOneShotSFX("Axe_Apper");
+
+        }
     }
 
     public bool CanAttack()
@@ -80,6 +88,10 @@ public class WeaponController : MonoBehaviour
 
             animator.SetInteger(hashAttackIndex, lastAttackIndex);
             animator.SetTrigger(hashAttack);
+            if (AudioManager.Exists)
+            {
+               AudioManager.Instance.PlayOneShotSFX(attackSfxNames[lastAttackIndex - 1]);
+            }
         }
     }
 
