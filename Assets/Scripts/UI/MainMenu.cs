@@ -28,7 +28,6 @@ public class MainMenu : MonoBehaviour
     void Start()
     {
         InitializeLoadGameButtonIfLoadDataExists();
-        StartCoroutine(PlayMainMenuMusic());
     }
 
 
@@ -46,7 +45,7 @@ public class MainMenu : MonoBehaviour
     {
         if (!ignoreFirstButtonSelected)
         {
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
+            AudioManager.Instance.PlaySFX("ButtonSelected");
             return;
         }
 
@@ -75,7 +74,7 @@ public class MainMenu : MonoBehaviour
     // Funcion asignada a boton en la UI
     public void ButtonSettings()
     {
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        AudioManager.Instance.PlaySFX("ButtonClickWell");
 
         foreach (var button in buttonsMainMenu)
         {
@@ -89,13 +88,12 @@ public class MainMenu : MonoBehaviour
     // Funcion asignada a boton en la UI
     public void ButtonCredits()
     {
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        AudioManager.Instance.PlaySFX("ButtonClickWell");
     }
 
     // Funcion asignada a boton en la UI
     public void ButtonExit()
     {
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         DeviceManager.Instance.IsUIModeActive = false;
         StartCoroutine(CloseGameAfterClickButton());
     }
@@ -105,23 +103,11 @@ public class MainMenu : MonoBehaviour
     {
         ignoreFirstButtonSelected = true;
 
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        AudioManager.Instance.PlaySFX("ButtonClickWell");
 
-        for (int i = 0; i < buttonsMainMenu.Count; i++)
+        foreach (var button in buttonsMainMenu)
         {
-            // Significa que el indice no sea el del boton LoadGame
-            if (i != 1)
-            {
-                buttonsMainMenu[i].gameObject.SetActive(true);
-            }
-
-            else
-            {
-                if (SaveSystemManager.SaveExists())
-                {
-                    buttonsMainMenu[i].gameObject.SetActive(true);
-                }
-            }
+            button.gameObject.SetActive(true);
         }
 
         panelSettings.SetActive(false);
@@ -155,7 +141,7 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator LoadSceneAfterButtonClick()
     {
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        AudioManager.Instance.PlaySFX("ButtonClickWell");
 
         if (GameManager.Instance.GameSessionType == GameSessionType.Load && SaveSystemManager.SaveExists())
         {
@@ -174,12 +160,5 @@ public class MainMenu : MonoBehaviour
     private IEnumerator CloseGameAfterClickButton()
     {
         yield return StartCoroutine(ScenesManager.Instance.ExitGame());
-    }
-
-    private IEnumerator PlayMainMenuMusic()
-    {
-        yield return new WaitUntil(() => AudioManager.Instance != null);
-
-        StartCoroutine(AudioManager.Instance.PlayMusic("MainMenu"));
     }
 }

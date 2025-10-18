@@ -57,7 +57,7 @@ public class TeleportDungeonManagerUI : MonoBehaviour
     {
         if (!ignoreFirstButtonSelected)
         {
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
+            AudioManager.Instance.PlaySFX("ButtonSelected");
             return;
         }
 
@@ -67,7 +67,6 @@ public class TeleportDungeonManagerUI : MonoBehaviour
     // Funcion asignada a boton en la UI
     public void ButtonYes()
     {
-        DeviceManager.Instance.IsUIModeActive = false;
         string[] additiveScenes = { "DungeonUI", "CompartidoUI" };
         StartCoroutine(ScenesManager.Instance.LoadScene("Dungeon", additiveScenes));
     }

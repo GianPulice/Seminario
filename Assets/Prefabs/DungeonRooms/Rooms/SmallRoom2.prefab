@@ -2967,9 +2967,7 @@ GameObject:
   - component: {fileID: 1152238981272178990}
   - component: {fileID: 1152238981273030908}
   - component: {fileID: 1152238981274135026}
-  - component: {fileID: 7492771820652969568}
-  - component: {fileID: 4270237153999944976}
-  - component: {fileID: 2195318730574009334}
+  - component: {fileID: 8982668332209091063}
   m_Layer: 0
   m_Name: SM_Env_Tiles_01 (155)
   m_TagString: Untagged
@@ -3044,8 +3042,8 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &7492771820652969568
-BoxCollider:
+--- !u!64 &8982668332209091063
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -3062,51 +3060,10 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.140991, y: 5.133383, z: 0.5317917}
-  m_Center: {x: -4.508436, y: 2.5666914, z: 9.590852e-16}
---- !u!65 &4270237153999944976
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1152238981271966884}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.2207813, y: 5.133383, z: 0.5317917}
-  m_Center: {x: -0.5108007, y: 2.5666914, z: 1.1886041e-14}
---- !u!65 &2195318730574009334
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1152238981271966884}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 2.824638, y: 2.1256008, z: 0.5317917}
-  m_Center: {x: -2.5418496, y: 4.0705824, z: 1.8968605e-14}
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: 75a889450418050478eb0be8d312a0c5, type: 3}
 --- !u!1 &1194173468102113968
 GameObject:
   m_ObjectHideFlags: 0
@@ -11964,8 +11921,6 @@ GameObject:
   - component: {fileID: 2802589787755720309}
   - component: {fileID: 2802589787756965799}
   - component: {fileID: 2802589787758057129}
-  - component: {fileID: 5465309215236557652}
-  - component: {fileID: 2946789399301364740}
   m_Layer: 0
   m_Name: SM_Env_Tiles_01 (110)
   m_TagString: Untagged
@@ -12040,48 +11995,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &5465309215236557652
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2802589787756030975}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 5.0162086, y: 4.6721153, z: 0.43715334}
-  m_Center: {x: -2.508112, y: 2.6794224, z: 0.20236695}
---- !u!65 &2946789399301364740
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2802589787756030975}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 5.0162086, y: 0.26468468, z: 5.0162086}
-  m_Center: {x: -2.508112, y: 4.8831377, z: 2.4918947}
 --- !u!1 &2812465561240763541
 GameObject:
   m_ObjectHideFlags: 0
@@ -20093,7 +20006,6 @@ GameObject:
   - component: {fileID: 3744452048140835778}
   - component: {fileID: 3744452048140090522}
   - component: {fileID: 3744452048138631678}
-  - component: {fileID: 2689842924180006772}
   m_Layer: 0
   m_Name: SM_Env_Sewer_Canal_Drain_02
   m_TagString: Untagged
@@ -20168,27 +20080,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &2689842924180006772
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3744452048140929916}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 4.7691116, y: 1.1440241, z: 0.18485014}
-  m_Center: {x: -2.4999998, y: -0.3363261, z: 0.0650686}
 --- !u!1 &3814890008046866641
 GameObject:
   m_ObjectHideFlags: 0
@@ -22744,8 +22635,6 @@ GameObject:
   - component: {fileID: 4481236048021177641}
   - component: {fileID: 4481236048018359547}
   - component: {fileID: 4481236048019439093}
-  - component: {fileID: 4396435450561771301}
-  - component: {fileID: 589855051253688564}
   m_Layer: 0
   m_Name: SM_Env_Tiles_01 (109)
   m_TagString: Untagged
@@ -22820,48 +22709,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &4396435450561771301
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4481236048021455011}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 5.0162086, y: 4.6721153, z: 0.43715334}
-  m_Center: {x: -2.508112, y: 2.6794224, z: 0.20236695}
---- !u!65 &589855051253688564
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4481236048021455011}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 5.0162086, y: 0.26468468, z: 5.0162086}
-  m_Center: {x: -2.508112, y: 4.8831377, z: 2.4918947}
 --- !u!1 &4530975521177944998
 GameObject:
   m_ObjectHideFlags: 0
@@ -40983,9 +40830,6 @@ GameObject:
   - component: {fileID: 7193023569291960997}
   - component: {fileID: 7193023569291240311}
   - component: {fileID: 7193023569290140281}
-  - component: {fileID: 2192579525237777443}
-  - component: {fileID: 5091971324850639927}
-  - component: {fileID: 4852905955052420597}
   m_Layer: 0
   m_Name: SM_Env_Tiles_01 (104)
   m_TagString: Untagged
@@ -41060,69 +40904,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &2192579525237777443
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7193023569292175151}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 5.0162086, y: 4.6721153, z: 0.43715334}
-  m_Center: {x: -2.508112, y: 2.6794224, z: 0.20236695}
---- !u!65 &5091971324850639927
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7193023569292175151}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.1121974, y: 5.01548, z: 5.0162086}
-  m_Center: {x: -5.039118, y: 2.50774, z: 2.4918947}
---- !u!65 &4852905955052420597
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7193023569292175151}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 5.0162086, y: 0.26468468, z: 5.0162086}
-  m_Center: {x: -2.508112, y: 4.8831377, z: 2.4918947}
 --- !u!1 &7213806602240906842
 GameObject:
   m_ObjectHideFlags: 0
@@ -41581,7 +41362,6 @@ GameObject:
   - component: {fileID: 7427207323319717458}
   - component: {fileID: 7427207323318380810}
   - component: {fileID: 7427207323317480558}
-  - component: {fileID: 8621591729763062682}
   m_Layer: 0
   m_Name: SM_Env_Sewer_Canal_Drain_02 (1)
   m_TagString: Untagged
@@ -41656,27 +41436,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8621591729763062682
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7427207323319361260}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 4.7691116, y: 1.1440241, z: 0.27675614}
-  m_Center: {x: -2.5000038, y: -0.3363261, z: 0.019115517}
 --- !u!1 &7452014124357123773
 GameObject:
   m_ObjectHideFlags: 0

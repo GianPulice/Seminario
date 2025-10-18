@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 
 public class CookingManager : MonoBehaviour
 {
@@ -32,11 +31,6 @@ public class CookingManager : MonoBehaviour
         EnqueueStovesPositions();
         EnqueueDishPositions();
         InitializeFoodPoolDictionary();
-    }
-
-    void Start()
-    {
-        StartCoroutine(PlayTabernMusic());
     }
 
     void OnDestroy()
@@ -175,12 +169,5 @@ public class CookingManager : MonoBehaviour
                 foodPoolDictionary[foodType] = foodPools[i];
             }
         }
-    }
-
-    private IEnumerator PlayTabernMusic()
-    {
-        yield return new WaitUntil(() => AudioManager.Instance != null);
-
-        StartCoroutine(AudioManager.Instance.PlayMusic("TabernBGM"));
     }
 }
