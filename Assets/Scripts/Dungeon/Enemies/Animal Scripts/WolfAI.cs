@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.AI;
 using System.Collections;
 
 public class WolfAI : EnemyBase
@@ -18,11 +17,21 @@ public class WolfAI : EnemyBase
         base.Awake();
     }
 
-    private void Update()
+    private void OnEnable()
+    {
+        UpdateManager.OnUpdate += WoflUpdate;
+    }
+
+    private void OnDisable()
+    {
+        UpdateManager.OnUpdate -= WoflUpdate;
+    }
+
+    private void WoflUpdate()
     {
         if (IsDead || isAttacking) return;
 
-        // ⬇️ Bloque nuevo: no dar órdenes al agent mientras dura el knockback
+        // Pausa durante el knockback
         var kb = GetComponent<EnemyKnockback>();
         if (kb != null && kb.IsActive)
         {
@@ -34,24 +43,34 @@ public class WolfAI : EnemyBase
 
         PerceptionUpdate();
 
-        // Siempre persigue al jugador
-        agent.isStopped = false;
-        agent.SetDestination(player.position);
+        // Siempre persigue al jugador si no está atacando
+        if (player != null) // Añadido chequeo por si el jugador muere
+        {
+            agent.isStopped = false;
+            agent.SetDestination(player.position);
 
-        float dist = Vector3.Distance(transform.position, player.position);
+            float dist = Vector3.Distance(transform.position, player.position);
 
-        if (dist <= attackRange && attackCooldownTimer >= enemyData.AttackCooldown && CanSeePlayer)
+            if (dist <= attackRange && attackCooldownTimer >= enemyData.AttackCooldown && CanSeePlayer)
+            {
+                agent.isStopped = true;
+                StartCoroutine(JumpAndBite());
+            }
+        }
+        else
         {
             agent.isStopped = true;
-            StartCoroutine(JumpAndBite());
         }
     }
-
     private IEnumerator JumpAndBite()
     {
         isAttacking = true;
         yield return new WaitForSeconds(leapDelay);
-        audioSource.PlayOneShot(atkClip);
+
+        if (audioSource != null && atkClip != null)
+        {
+            audioSource.PlayOneShot(atkClip);
+        }
 
         Collider[] hits = Physics.OverlapSphere(transform.position, attackRange, LayerMask.GetMask("Player"));
         foreach (var hit in hits)
@@ -64,9 +83,10 @@ public class WolfAI : EnemyBase
         attackCooldownTimer = 0f;
         isAttacking = false;
     }
-    public override void ResetEnemy()
+
+    public override void ResetEnemy(Vector3 spawnPosition)
     {
-        base.ResetEnemy();
+        base.ResetEnemy(spawnPosition);
 
         attackCooldownTimer = 0f;
         isAttacking = false;
@@ -84,7 +104,8 @@ public class WolfAI : EnemyBase
     {
         if (enemyData == null) return;
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, enemyData.DistanceToPlayer);
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+
         LineOfSight.DrawLOSOnGizmos(transform, visionAngle, visionRange);
     }
 #endif

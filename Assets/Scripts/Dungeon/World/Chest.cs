@@ -4,7 +4,6 @@ using TMPro;
 
 [RequireComponent(typeof(Collider))]
 [RequireComponent(typeof(DropHandler))]
-[RequireComponent(typeof(Outline))] // Requerir componente Outline
 public class Chest : MonoBehaviour, IInteractable
 {
     [Header("CONFIGURACIÓN REQUERIDA")]

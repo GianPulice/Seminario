@@ -52,17 +52,8 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
             return;
         }
         originalData = enemyData;
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
-        {
-            player = playerObj.transform;
-            playerDamageable = playerObj.GetComponent<IDamageable>();
-        }
 
-        agent = GetComponent<NavMeshAgent>();
-        damageFlash = GetComponent<DamageFlash>();
-        dropHandler = GetComponent<DropHandler>();
-        audioSource = GetComponent<AudioSource>();
+        GetComponents();
 
         CurrentHP = enemyData.HP;
         IsDead = false;
@@ -131,20 +122,34 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
             }
         }
     }
-
-    public virtual void ResetEnemy()
+    public virtual void ResetEnemy(Vector3 spawnPosition)
     {
-        CurrentHP = enemyData.HP;
+        if (agent != null)
+        {
+            agent.enabled = false;          // Desactivar para teletransportar
+            transform.position = spawnPosition;
+            agent.enabled = true;           // Reactivar en la nueva posición
+            agent.ResetPath();              // Limpiar cualquier ruta antigua
+        }
+        else
+        {
+            transform.position = spawnPosition;
+        }
+
         IsDead = false;
+        CurrentHP = enemyData.HP; 
 
         if (agent != null)
         {
-            agent.isStopped = false;
-            agent.ResetPath();
-            agent.speed = enemyData.Speed;
+            agent.speed = enemyData.Speed; 
+            agent.isStopped = false;    
         }
+               
         canSeePlayer = false;
         loseSightTimer = 0f;
+
+        // Es posible que necesites un método en DamageFlash como 'ResetFlash()'
+        // damageFlash?.ResetFlash(); 
     }
 
     private void SpawnBloodDecal()
@@ -158,6 +163,21 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
             Quaternion rot = Quaternion.Euler(90f, UnityEngine.Random.Range(0f, 360f), 0f);
             BloodDecalManager.Instance.Spawn(spawnPos, rot);
         }
+    }
+
+    private void GetComponents()
+    {
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            player = playerObj.transform;
+            playerDamageable = playerObj.GetComponent<IDamageable>();
+        }
+
+        agent = GetComponent<NavMeshAgent>();
+        damageFlash = GetComponent<DamageFlash>();
+        dropHandler = GetComponent<DropHandler>();
+        audioSource = GetComponent<AudioSource>();
     }
 
 }

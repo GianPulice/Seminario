@@ -14,7 +14,6 @@ public class DoorController : MonoBehaviour,IInteractable
 
    [SerializeField] private bool isLocked = true;
 
-    private GameObject openVFX;
 
     public InteractionMode InteractionMode => InteractionMode.Press;
     private void Awake()

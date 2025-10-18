@@ -18,24 +18,39 @@ public class RatAI : EnemyBase
     private float attackCooldownTimer;
     private bool isAttacking;
 
-    private void Start()
+    protected override void Awake()
     {
-        agent = GetComponent<NavMeshAgent>();
-        agent.speed = enemyData.Speed;
-        agent.acceleration = 30f;
-        agent.angularSpeed = 720f;
-        agent.stoppingDistance = enemyData.DistanceToPlayer;
-        agent.autoBraking = false;
-        agent.isStopped = true;
+        base.Awake(); 
 
+        
+        if (agent != null)
+        {
+            agent.acceleration = 30f;
+            agent.angularSpeed = 720f;
+            agent.stoppingDistance = enemyData.DistanceToPlayer;
+            agent.autoBraking = false;
+        }
+
+        // Se inicializa aquí y también en ResetState para asegurar
         dirTimer = directionChangeInterval;
     }
 
-    private void Update()
+  
+    private void OnEnable()
     {
-        if (player == null || isAttacking) return;
+        UpdateManager.OnUpdate += RatUpdate;
+    }
 
-        // ⬇️ Bloque nuevo: pausa durante el knockback
+    private void OnDisable()
+    {
+        UpdateManager.OnUpdate -= RatUpdate;
+    }
+
+    private void RatUpdate()
+    {
+        if (player == null || isAttacking || IsDead) return; // Añadido chequeo de IsDead
+
+        // Pausa durante el knockback
         var kb = GetComponent<EnemyKnockback>();
         if (kb != null && kb.IsActive)
         {
@@ -47,7 +62,7 @@ public class RatAI : EnemyBase
 
         PerceptionUpdate();
 
-        if (canSeePlayer)
+        if (canSeePlayer&&agent != null)
             ChasePlayer();
         else
             ErraticMove();
@@ -55,11 +70,10 @@ public class RatAI : EnemyBase
 
     private void ChasePlayer()
     {
-        float dist = Vector3.Distance(transform.position, player.position);
-
         agent.isStopped = false;
         agent.SetDestination(player.position);
 
+        float dist = Vector3.Distance(transform.position, player.position);
         if (dist <= enemyData.DistanceToPlayer)
         {
             agent.isStopped = true;
@@ -69,7 +83,8 @@ public class RatAI : EnemyBase
 
     private void ErraticMove()
     {
-        agent.speed = enemyData.Speed * 1.2f;
+        agent.speed = 0;
+        agent.speed = enemyData.Speed * 1.2f; 
 
         dirTimer -= Time.deltaTime;
         if (dirTimer <= 0f)
@@ -102,11 +117,15 @@ public class RatAI : EnemyBase
     {
         if (attackCooldownTimer < enemyData.AttackCooldown) return;
 
-        Vector3 hitDir = (player.position - transform.position).normalized; // desde atacante -> jugador
+        Vector3 hitDir = (player.position - transform.position).normalized;
         DamageContext.Set(DamageSourceType.EnemyMelee, transform, player.position, hitDir);
         playerDamageable.TakeDamage(enemyData.Damage);
-        DamageContext.Clear(); // opcional, por prolijidad
-        audioSource.PlayOneShot(atkClip);
+        DamageContext.Clear(); 
+
+        if (audioSource != null && atkClip != null)
+        {
+            audioSource.PlayOneShot(atkClip);
+        }
 
         attackCooldownTimer = 0f;
         StartCoroutine(AttackDelay());
@@ -118,10 +137,11 @@ public class RatAI : EnemyBase
         yield return new WaitForSeconds(0.3f);
         isAttacking = false;
     }
-    public override void ResetEnemy()
+    public override void ResetEnemy(Vector3 spawnPosition)
     {
-        base.ResetEnemy();
+        base.ResetEnemy(spawnPosition); 
 
+       
         attackCooldownTimer = 0f;
         isAttacking = false;
         dirTimer = directionChangeInterval;
@@ -129,8 +149,8 @@ public class RatAI : EnemyBase
 
         if (agent != null)
         {
-            agent.speed = enemyData.Speed;
-            agent.isStopped = true;
+            agent.speed = enemyData.Speed; 
+            agent.isStopped = false; 
         }
     }
 
@@ -140,6 +160,7 @@ public class RatAI : EnemyBase
         if (enemyData == null) return;
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, enemyData.DistanceToPlayer);
+
         LineOfSight.DrawLOSOnGizmos(transform, visionAngle, visionRange);
     }
 #endif

@@ -22,8 +22,6 @@ public class ObjectPooler : MonoBehaviour
         if (pool.Count > 0)
         {
             MonoBehaviour obj = pool.Dequeue();
-            if (obj is EnemyBase enemy)
-                enemy.ResetEnemy();
             obj.gameObject.SetActive(true);
             return obj as T;
         }
