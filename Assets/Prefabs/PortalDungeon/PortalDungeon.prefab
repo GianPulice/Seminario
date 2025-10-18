@@ -118,7 +118,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7163587702796595486}
   - component: {fileID: 3936560264679556758}
-  m_Layer: 10
+  - component: {fileID: 1231841159307904065}
+  m_Layer: 0
   m_Name: PortalDungeon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -140,6 +141,7 @@ Transform:
   m_Children:
   - {fileID: 3369933021506850392}
   - {fileID: 4366131226110987334}
+  - {fileID: 7748536206117625923}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3936560264679556758
@@ -155,7 +157,81 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   openDistance: 2
-  openSpeed: 2
+  openSpeed: 3
+--- !u!65 &1231841159307904065
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3161982986409929794}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.2482376, y: 1, z: 1.4044869}
+  m_Center: {x: 0.05133295, y: 0, z: -0.07890237}
+--- !u!1 &4633603670883621436
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7748536206117625923}
+  - component: {fileID: 3428020532538753078}
+  m_Layer: 15
+  m_Name: TriggerCollider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7748536206117625923
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4633603670883621436}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.2822046, y: -0.27942222, z: -0.18877064}
+  m_LocalScale: {x: 1, y: 0.22931404, z: 0.2132915}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7163587702796595486}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &3428020532538753078
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4633603670883621436}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.47413158, y: 4.336744, z: 4.7311907}
+  m_Center: {x: -2.2557077, y: 1.218222, z: 0.41472673}
 --- !u!1 &5755784752253141212
 GameObject:
   m_ObjectHideFlags: 0

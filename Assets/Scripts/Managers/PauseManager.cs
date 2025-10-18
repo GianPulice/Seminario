@@ -62,7 +62,7 @@ public class PauseManager : Singleton<PauseManager>
     {
         if (!ignoreFirstSelectedSound)
         {
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             return;
         }
 
@@ -72,19 +72,19 @@ public class PauseManager : Singleton<PauseManager>
     // Funciones asignadas a botones de la UI
     public void ButtonResume()
     {
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         HidePause();
     }
 
     public void ButtonSettings()
     {
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         ShowSettings();
     }
 
     public void ButtonMainMenu()
     {
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         Time.timeScale = 1f;
 
         SaveLastSceneName();
@@ -95,14 +95,14 @@ public class PauseManager : Singleton<PauseManager>
 
     public void ButtonExit()
     {
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         StartCoroutine(ExitGameAfterSeconds());
     }
 
     public void ButtonBack()
     {
         ignoreFirstSelectedSound = true;
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         HideSettings();
     }
 
@@ -119,6 +119,9 @@ public class PauseManager : Singleton<PauseManager>
 
     private void ShowPause()
     {
+        AudioManager.Instance.PauseCurrentMusic();
+        StartCoroutine(AudioManager.Instance.PlayMusic("Pause"));
+
         foreach (var button in buttonsPause)
         {
             button.gameObject.SetActive(true);
@@ -133,6 +136,9 @@ public class PauseManager : Singleton<PauseManager>
 
     private void HidePause()
     {
+        AudioManager.Instance.StopMusic("Pause");
+        AudioManager.Instance.ResumeLastMusic();
+
         onClearSelectedCurrentGameObject?.Invoke();
         Time.timeScale = 1f;
         isGamePaused = false;
@@ -169,7 +175,7 @@ public class PauseManager : Singleton<PauseManager>
     {
         if (PlayerInputs.Instance.Pause())
         {
-            AudioManager.Instance.PlaySFX("ButtonClickWell");
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
             (isGamePaused ? (Action)HidePause : ShowPause)();
         }
     }
