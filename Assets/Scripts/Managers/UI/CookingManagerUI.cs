@@ -87,7 +87,7 @@ public class CookingManagerUI : MonoBehaviour
     {
         if (!ignoreFirstButtonSelected)
         {
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             return;
         }
 
@@ -128,7 +128,7 @@ public class CookingManagerUI : MonoBehaviour
     {
         if (!Enum.TryParse(ingredientType, out IngredientType ingredient)) return;
 
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
 
         if (selectedIngredients.Contains(ingredient))
         {
@@ -182,7 +182,7 @@ public class CookingManagerUI : MonoBehaviour
                 if (canCraft)
                 {
                     // Cocinar
-                    AudioManager.Instance.PlaySFX("ButtonClickWell");
+                    AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
                     onButtonGetFood?.Invoke(recipe.FoodType.ToString());
 
                     Debug.Log($"Cocinaste {recipe.FoodType}!");
