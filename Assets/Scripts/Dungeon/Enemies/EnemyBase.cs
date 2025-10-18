@@ -131,6 +131,22 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
             }
         }
     }
+
+    public virtual void ResetEnemy()
+    {
+        CurrentHP = enemyData.HP;
+        IsDead = false;
+
+        if (agent != null)
+        {
+            agent.isStopped = false;
+            agent.ResetPath();
+            agent.speed = enemyData.Speed;
+        }
+        canSeePlayer = false;
+        loseSightTimer = 0f;
+    }
+
     private void SpawnBloodDecal()
     {
         if (BloodDecalManager.Instance == null) return;
