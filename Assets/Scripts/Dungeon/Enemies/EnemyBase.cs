@@ -148,8 +148,10 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
         canSeePlayer = false;
         loseSightTimer = 0f;
 
-        // Es posible que necesites un método en DamageFlash como 'ResetFlash()'
-        // damageFlash?.ResetFlash(); 
+        if (damageFlash != null)
+        {
+            damageFlash.ResetFlash();
+        }
     }
 
     private void SpawnBloodDecal()
