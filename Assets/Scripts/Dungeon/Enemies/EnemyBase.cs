@@ -143,6 +143,11 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
             agent.ResetPath();
             agent.speed = enemyData.Speed;
         }
+        if (damageFlash != null) 
+        {
+            damageFlash.ResetFlash();
+        }
+            
         canSeePlayer = false;
         loseSightTimer = 0f;
     }
