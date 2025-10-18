@@ -64,6 +64,20 @@ public class WolfAI : EnemyBase
         attackCooldownTimer = 0f;
         isAttacking = false;
     }
+    public override void ResetEnemy()
+    {
+        base.ResetEnemy();
+
+        attackCooldownTimer = 0f;
+        isAttacking = false;
+
+        if (agent != null)
+        {
+            agent.speed = enemyData.Speed;
+            agent.isStopped = false;
+        }
+    }
+
 
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()

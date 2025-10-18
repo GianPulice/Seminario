@@ -121,6 +121,19 @@ public class BearAI : EnemyBase
             }
         }
     }
+    public override void ResetEnemy()
+    {
+        base.ResetEnemy();
+
+        attackCooldownTimer = 0f;
+        isAttacking = false;
+
+        if (agent != null)
+        {
+            agent.speed = enemyData.Speed;
+            agent.isStopped = false;
+        }
+    }
 
     #endregion
 

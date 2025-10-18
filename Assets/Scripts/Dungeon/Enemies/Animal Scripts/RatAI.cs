@@ -118,6 +118,21 @@ public class RatAI : EnemyBase
         yield return new WaitForSeconds(0.3f);
         isAttacking = false;
     }
+    public override void ResetEnemy()
+    {
+        base.ResetEnemy();
+
+        attackCooldownTimer = 0f;
+        isAttacking = false;
+        dirTimer = directionChangeInterval;
+        currentOffset = Vector3.zero;
+
+        if (agent != null)
+        {
+            agent.speed = enemyData.Speed;
+            agent.isStopped = true;
+        }
+    }
 
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()

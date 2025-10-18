@@ -167,7 +167,7 @@ public class TeleportDungeonUI : MonoBehaviour, IInteractable
         if (collider.gameObject.layer == LayerMask.NameToLayer("Clients"))
         {
             clientsInside++;
-            if (clientsInside == 1 && !isOpenByPlayer) 
+            if (clientsInside == 1 && !isOpenByPlayer)
             {
                 StartCoroutine(MoveDoorsCoroutine(DoorAnimationType.Open));
             }
@@ -179,10 +179,10 @@ public class TeleportDungeonUI : MonoBehaviour, IInteractable
         if (collider.gameObject.layer == LayerMask.NameToLayer("Clients"))
         {
             clientsInside--;
-            clientsInside = Mathf.Max(clientsInside, 0); 
+            clientsInside = Mathf.Max(clientsInside, 0);
             if (clientsInside == 0 && !isOpenByPlayer)
             {
-                StartCoroutine(MoveDoorsCoroutine(DoorAnimationType.Close));   
+                StartCoroutine(MoveDoorsCoroutine(DoorAnimationType.Close));
             }
         }
     }
