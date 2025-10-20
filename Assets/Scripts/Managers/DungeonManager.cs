@@ -127,14 +127,14 @@ public class DungeonManager : Singleton<DungeonManager>
     public void OnPlayerDeath()
     {
         Debug.Log("[DungeonManager] OnPlayerDeath llamado. Reset de historiales.");
-        TeleportPlayer(startSpawnPoint.position);
         ClearHistories();
+        TeleportPlayer(startSpawnPoint.position);
     }
     public void TeleportToLobby()
     {
         Debug.Log("[DungeonManager] Teleport manual al Lobby desde UI.");
-        TeleportPlayer(startSpawnPoint.position);
         ResetDungeonState();
+        TeleportPlayer(startSpawnPoint.position);
     }
     public void AdvanceLayer()
     {

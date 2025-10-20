@@ -6,6 +6,8 @@ public class PlayerDungeonHUD
     public static Action<float, float> OnHealthChanged; // currentHP, maxHP
     public static Action OnPlayerDeath;
 
+    public static Action OnRetryGame;
+
     public static Action<float, float> OnStaminaChanged;
 
     public static Action<int> OnLayerChanged;
