@@ -1780,8 +1780,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7650f823862fd1440a54bafd4235d30c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  factory: {fileID: 869440024}
-  pooler: {fileID: 1949418394}
+  decalPrefab: {fileID: 8146034578120852093, guid: f234383ce6dd0a54ab672b55e67deb00, type: 3}
+  initialSize: 20
   decalLifetime: 2.5
 --- !u!1 &869440022
 GameObject:
@@ -3503,7 +3503,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 5255721267045534704, guid: 53f82fc37b056a4408fc746ea90a3637, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 53f82fc37b056a4408fc746ea90a3637, type: 3}
