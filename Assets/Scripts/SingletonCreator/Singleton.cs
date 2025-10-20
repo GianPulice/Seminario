@@ -10,7 +10,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         {
             if (instance == null)
             {
-                Debug.LogWarning($"Singleton {typeof(T).Name} instance is null! Make sure the singleton is properly initialized.");
+                //Debug.LogWarning($"Singleton {typeof(T).Name} instance is null! Make sure the singleton is properly initialized.");
             }
             return instance;
         }

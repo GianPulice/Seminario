@@ -1,9 +1,8 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
-using UnityEditor;
 
 public class ScenesManager : Singleton<ScenesManager>
 {
@@ -38,7 +37,6 @@ public class ScenesManager : Singleton<ScenesManager>
         CreateSingleton(true);
         DontDestroyOnLoadPanels();
         SuscribeToUpdateManagerEvent();
-        //SuscribeToSceneLoadedEvent();
         SetInitializedScene();
     }
 
@@ -52,8 +50,8 @@ public class ScenesManager : Singleton<ScenesManager>
     // Para pasar de una escena a otra con pantalla de carga
     public IEnumerator LoadScene(string sceneName, string[] additiveScenes)
     {
-        loadingScenePanel.SetActive(true);
         isInLoadingScenePanel = true;
+        loadingScenePanel.SetActive(true);
 
         onSceneLoadedEvent?.Invoke();
 
@@ -63,20 +61,22 @@ public class ScenesManager : Singleton<ScenesManager>
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         asyncLoad.allowSceneActivation = false;
 
+        bool additiveScenesLoaded = false; 
+
         while (!asyncLoad.isDone)
         {
-            if (asyncLoad.progress >= 0.9f)
+            if (asyncLoad.progress >= 0.9f && !additiveScenesLoaded)
             {
                 if (additiveScenes != null)
                 {
-                    for (int i = 0; i < additiveScenes.Length; i++)
+                    foreach (var additive in additiveScenes)
                     {
-                        AsyncOperation additiveLoad = LoadSceneAdditive(additiveScenes[i]);
+                        LoadSceneAdditive(additive);
                     }
                 }
 
+                additiveScenesLoaded = true;
                 StartCoroutine(DisableLoadingScenePanelAfterSeconds());
-
                 asyncLoad.allowSceneActivation = true;
             }
 
@@ -87,8 +87,8 @@ public class ScenesManager : Singleton<ScenesManager>
     // Para cerrar el juego con pantalla de carga
     public IEnumerator ExitGame()
     {
-        exitGamePanel.SetActive(true);
         isInExitGamePanel = true;
+        exitGamePanel.SetActive(true);
 
         yield return new WaitForSecondsRealtime(scenesManagerData.DuringTimeExitGamePanel);
 
@@ -112,20 +112,10 @@ public class ScenesManager : Singleton<ScenesManager>
         }
     }
 
-    /*private void SuscribeToSceneLoadedEvent()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }*/
-
     private void SuscribeToUpdateManagerEvent()
     {
         UpdateManager.OnUpdateAllTime += UpdateScenesManager;
     }
-
-    /*private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        onSceneLoadedEvent?.Invoke();
-    }*/
 
     // Esto sirve para que una vez cargada la nueva escena, espere 3 segundos para desactivar el panel, para que permita cargar Awake y Start de la nueva escena cargada
     private IEnumerator DisableLoadingScenePanelAfterSeconds()
@@ -150,7 +140,6 @@ public class ScenesManager : Singleton<ScenesManager>
 
             case "Tabern":
                 DeviceManager.Instance.IsUIModeActive = false;
-             
                 LoadSceneAdditive("TabernUI");
                 LoadSceneAdditive("CompartidoUI");
                 break;
