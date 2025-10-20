@@ -6,7 +6,6 @@ using UnityEngine.EventSystems;
 public class TeleportDungeonManagerUI : MonoBehaviour
 {
     private PlayerModel playerModel;
-    private TeleportDungeonUI teleportDungeonUI;
 
     [SerializeField] private GameObject panelTeleport;
     [SerializeField] private List<GameObject> buttonsTeleportPanel;
@@ -76,10 +75,8 @@ public class TeleportDungeonManagerUI : MonoBehaviour
     // Funcion asignada a boton en la UI
     public void ButtonNo()
     {
-        StartCoroutine(teleportDungeonUI.MoveDoorsCoroutine(DoorAnimationType.Close));
         onClearSelectedCurrentGameObject?.Invoke();
         ignoreFirstButtonSelected = true;
-        teleportDungeonUI.IsOpenByPlayer = false;
         playerModel.IsInTeleportPanel = false;
         DeviceManager.Instance.IsUIModeActive = false;
         panelTeleport.SetActive(false);
@@ -136,7 +133,6 @@ public class TeleportDungeonManagerUI : MonoBehaviour
     private void GetComponents()
     {
         playerModel = FindFirstObjectByType<PlayerModel>();
-        teleportDungeonUI = FindFirstObjectByType<TeleportDungeonUI>();
     }
 
     private void CheckLastSelectedButtonIfAdminPanelIsOpen()

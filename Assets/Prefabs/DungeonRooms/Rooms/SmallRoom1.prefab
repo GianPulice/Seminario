@@ -36571,10 +36571,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 483c85b90f97f3f41a109abba073601c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawners:
-  - {fileID: 5080969011622476001}
+  spawner: {fileID: 5080969011622476001}
   totalRounds: 3
   basePerRound: 4
+  timeBetweenRounds: 2
 --- !u!114 &2799706077172398670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54115,7 +54115,7 @@ PrefabInstance:
     - target: {fileID: 2818378804358538514, guid: d223b76c1ae0bd74f94497b6b691092d, type: 3}
       propertyPath: doorOutline
       value: 
-      objectReference: {fileID: 9169901909750290375}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -54137,17 +54137,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 160306821386337479, guid: d223b76c1ae0bd74f94497b6b691092d, type: 3}
   m_PrefabInstance: {fileID: 3091590740167221088}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &9169901909750290375 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6171479971527805095, guid: d223b76c1ae0bd74f94497b6b691092d, type: 3}
-  m_PrefabInstance: {fileID: 3091590740167221088}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &6515969399241486023
 PrefabInstance:
   m_ObjectHideFlags: 0

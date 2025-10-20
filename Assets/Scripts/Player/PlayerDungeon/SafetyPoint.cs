@@ -9,7 +9,6 @@ public class SafetyPoint : MonoBehaviour
 
     private PlayerDungeonModel playerRef;
     private PlayerHealth playerHealth;
-    private Rigidbody rb;
 
     private Vector3 lastSafePosition;
     private bool hasBeenTeleported = false;
@@ -18,14 +17,16 @@ public class SafetyPoint : MonoBehaviour
     {
         playerRef = GetComponent<PlayerDungeonModel>();
         playerHealth = GetComponent<PlayerHealth>();
-        rb = GetComponent<Rigidbody>();
 
         lastSafePosition = transform.position;
         nextSaveTime = Time.time;
     }
     private void Update()
     {
-        FallCheck();
+        if (DungeonManager.Instance.RunStarted)
+        {
+         FallCheck();
+        }
     }
     public void TeleportInitiate(int damageAmount)
     {

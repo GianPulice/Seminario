@@ -103,8 +103,6 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
         SpawnBloodDecal();
 
         OnDeath?.Invoke(this);
-
-        Destroy(gameObject, 1.5f);
     }
 
     protected void PerceptionUpdate()
@@ -135,14 +133,14 @@ public abstract class EnemyBase : MonoBehaviour,IDamageable
     }
     private void SpawnBloodDecal()
     {
-        if (BloodDecalPool.Instance == null) return;
+        if (BloodDecalManager.Instance == null) return;
 
         Vector3 origin = transform.position + Vector3.up * 1f;
         if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 10f, LayerMask.GetMask("whatIsGround")))
         {
             Vector3 spawnPos = hit.point + Vector3.up * 0.01f;
             Quaternion rot = Quaternion.Euler(90f, UnityEngine.Random.Range(0f, 360f), 0f);
-            BloodDecalPool.Instance.Spawn(spawnPos, rot);
+            BloodDecalManager.Instance.Spawn(spawnPos, rot);
         }
     }
 
