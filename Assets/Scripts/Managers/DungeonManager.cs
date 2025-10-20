@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DungeonManager : Singleton<DungeonManager>
@@ -28,7 +30,7 @@ public class DungeonManager : Singleton<DungeonManager>
     private bool runStarted = false;
 
 
-    /* -------------------- PROPIEDADES PÚBLICAS -------------------- */
+    /* -------------------- PROPIEDADES Pï¿½BLICAS -------------------- */
     public Transform Player => player;
     public Transform StartSpawnPoint => startSpawnPoint;
     public int CurrentLayer => currentLayer;
@@ -44,7 +46,7 @@ public class DungeonManager : Singleton<DungeonManager>
 
     private void Start()
     {
-        Debug.Log("[DungeonManager] Esperando que el player toque la primera puerta...");
+       // Debug.Log("[DungeonManager] Esperando que el player toque la primera puerta...");
 
         GenerateRunSequence();
 
@@ -53,6 +55,7 @@ public class DungeonManager : Singleton<DungeonManager>
             player.position = startSpawnPoint.position;
         }
         PlayerDungeonHUD.OnLayerChanged?.Invoke(currentLayer);
+        StartCoroutine(PlayDungeonMusic());
     }
     /* ------------------ API ---------------------- */
    
@@ -64,7 +67,7 @@ public class DungeonManager : Singleton<DungeonManager>
         if (runStarted) return;
 
         runStarted = true;
-        Debug.Log("[DungeonManager] ¡Run iniciada! Player tocó la primera puerta.");
+        // Debug.Log("[DungeonManager] ï¿½Run iniciada! Player tocï¿½ la primera puerta.");
 
         StartRun();
     }
@@ -73,13 +76,27 @@ public class DungeonManager : Singleton<DungeonManager>
         if (room == null) return;
 
         currentRoom = room;
-        Debug.Log($"[DungeonManager] Entrando a sala {room.Config.roomID} en Layer {CurrentLayer}");
+        //Debug.Log($"[DungeonManager] Entrando a sala {room.Config.roomID} en Layer {CurrentLayer}");
+        
+        // Notify save system about room entry
+        if (HallwaySaveCoordinator.Instance != null)
+        {
+            HallwaySaveCoordinator.Instance.OnEnterRoom(room.Config.roomID, currentLayer);
+        }
+        
         room.ActivateRoom();
     }
 
     public void OnRoomCleared(RoomController clearedRoom)
     {
-        Debug.Log($"[DungeonManager] Room {clearedRoom.Config.roomID} cleared. Moviendo a la siguiente sala...");
+       // Debug.Log($"[DungeonManager] Room {clearedRoom.Config.roomID} cleared. Moviendo a la siguiente sala...");
+       
+        // Notify save system about room completion
+        if (HallwaySaveCoordinator.Instance != null)
+        {
+            HallwaySaveCoordinator.Instance.OnRoomCompleted(clearedRoom.Config.roomID, currentLayer);
+        }
+        
         if ((currentRoomIndex + 1) % 4 == 0 && currentRoomIndex + 1 < totalRooms )
         {
             AdvanceLayer();
@@ -110,14 +127,14 @@ public class DungeonManager : Singleton<DungeonManager>
     public void OnPlayerDeath()
     {
         Debug.Log("[DungeonManager] OnPlayerDeath llamado. Reset de historiales.");
-        TeleportPlayer(startSpawnPoint.position);
         ClearHistories();
+        TeleportPlayer(startSpawnPoint.position);
     }
     public void TeleportToLobby()
     {
         Debug.Log("[DungeonManager] Teleport manual al Lobby desde UI.");
-        TeleportPlayer(startSpawnPoint.position);
         ResetDungeonState();
+        TeleportPlayer(startSpawnPoint.position);
     }
     public void AdvanceLayer()
     {
@@ -125,8 +142,40 @@ public class DungeonManager : Singleton<DungeonManager>
         Debug.Log($"[DungeonManager] Avanzando a capa {currentLayer}");
         PlayerDungeonHUD.OnLayerChanged?.Invoke(currentLayer);
     }
+
+    /// <summary>
+    /// Gets the current dungeon run history for save system integration
+    /// </summary>
+    public (List<string> roomsSinceLast, List<string> hallwaysSinceLast) GetCurrentRunHistory()
+    {
+        var roomsSinceLast = new List<string>();
+        var hallwaysSinceLast = new List<string>();
+
+        // Add recent rooms and hallways from the current run
+        foreach (var item in recentRooms)
+        {
+            if (roomRefs.ContainsValue(item))
+            {
+                var key = roomRefs.FirstOrDefault(x => x.Value == item).Key;
+                if (!string.IsNullOrEmpty(key))
+                    roomsSinceLast.Add(key);
+            }
+        }
+
+        foreach (var item in recentHallways)
+        {
+            if (hallwayRefs.ContainsValue(item))
+            {
+                var key = hallwayRefs.FirstOrDefault(x => x.Value == item).Key;
+                if (!string.IsNullOrEmpty(key))
+                    hallwaysSinceLast.Add(key);
+            }
+        }
+
+        return (roomsSinceLast, hallwaysSinceLast);
+    }
    
-    /* -------------------- MÉTODOS PRIVADOS -------------------- */
+    /* -------------------- Mï¿½TODOS PRIVADOS -------------------- */
 
     private void InitializeDictionaries()
     {
@@ -149,7 +198,7 @@ public class DungeonManager : Singleton<DungeonManager>
 
         for (int i = 0; i < totalRooms; i++)
         {
-            // --- Habitación ---
+            // --- Habitaciï¿½n ---
             var room = GetRandomFromDict(roomRefs, recentRooms);
             runSequence.Add(room);
             AddToHistory(recentRooms, room);
@@ -170,7 +219,7 @@ public class DungeonManager : Singleton<DungeonManager>
 
         if (runSequence.Count == 0)
         {
-            Debug.LogError("[DungeonManager] runSequence vacío al iniciar la run.");
+            Debug.LogError("[DungeonManager] runSequence vacï¿½o al iniciar la run.");
             return;
         }
 
@@ -181,7 +230,7 @@ public class DungeonManager : Singleton<DungeonManager>
     {
         if (index >= runSequence.Count)
         {
-            Debug.LogError("[DungeonManager] Índice fuera de rango en runSequence.");
+            Debug.LogError("[DungeonManager] ï¿½ndice fuera de rango en runSequence.");
             return;
         }
 
@@ -203,7 +252,7 @@ public class DungeonManager : Singleton<DungeonManager>
             return;
         }
 
-        Debug.Log($"[DungeonManager] Moviendo al jugador a: {target.name}");
+       // Debug.Log($"[DungeonManager] Moviendo al jugador a: {target.name}");
         player.position = target.position;
     }
     private void TeleportPlayer(Vector3 targetPosition)
@@ -246,7 +295,7 @@ public class DungeonManager : Singleton<DungeonManager>
 
         candidates = RouletteSelection.Shuffle(candidates);
 
-        return candidates[0]; // Tomamos el primero después del shuffle
+        return candidates[0]; // Tomamos el primero despuï¿½s del shuffle
     }
 
     private void AddToHistory(Queue<Transform> history, Transform item)
@@ -254,5 +303,11 @@ public class DungeonManager : Singleton<DungeonManager>
         history.Enqueue(item);
         if (history.Count > historyLimit)
             history.Dequeue();
+    }
+    private IEnumerator PlayDungeonMusic()
+    {
+        yield return new WaitUntil(() => AudioManager.Instance != null);
+
+        StartCoroutine(AudioManager.Instance.PlayMusic("DungeonBGM"));
     }
 }

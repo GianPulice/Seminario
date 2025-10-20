@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
+using UnityEditor;
 
 public class ScenesManager : Singleton<ScenesManager>
 {
@@ -149,6 +150,7 @@ public class ScenesManager : Singleton<ScenesManager>
 
             case "Tabern":
                 DeviceManager.Instance.IsUIModeActive = false;
+             
                 LoadSceneAdditive("TabernUI");
                 LoadSceneAdditive("CompartidoUI");
                 break;

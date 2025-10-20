@@ -4,7 +4,6 @@ using TMPro;
 
 [RequireComponent(typeof(Collider))]
 [RequireComponent(typeof(DropHandler))]
-[RequireComponent(typeof(Outline))] // Requerir componente Outline
 public class Chest : MonoBehaviour, IInteractable
 {
     [Header("CONFIGURACIÓN REQUERIDA")]
@@ -29,15 +28,21 @@ public class Chest : MonoBehaviour, IInteractable
     private bool opened;
     private Collider col;
     private DropHandler dropHandler;
-    private Outline outline;
 
     public InteractionMode InteractionMode => InteractionMode.Press;
 
     private void Awake()
     {
-       GetComponents();
+        GetComponents();
+        StartCoroutine(RegisterOutline());
     }
-
+    private void OnDestroy()
+    {
+        if (OutlineManager.Exists)
+        {
+            OutlineManager.Instance.Unregister(gameObject);
+        }
+    }
     public void Interact(bool isPressed)
     {
         if (opened) return;
@@ -46,36 +51,34 @@ public class Chest : MonoBehaviour, IInteractable
 
     public void ShowOutline()
     {
-        if (outline != null && !opened)
+        if (!opened)
         {
-            outline.OutlineWidth = 5f;
+
+            OutlineManager.Instance.ShowWithCustomColor(gameObject, Color.yellow);
             InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
         }
     }
 
     public void HideOutline()
     {
-        if (outline != null)
-        {
-            outline.OutlineWidth = 0f;
-            InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
-        }
+        OutlineManager.Instance.Hide(gameObject);
+        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
 
-   
+
     public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
     {
-       
+
     }
 
     public void HideMessage(TextMeshProUGUI interactionManagerUIText)
     {
-       
+
     }
     private IEnumerator CO_OpenChest()
     {
         opened = true;
-        if(AudioManager.Instance != null)
+        if (AudioManager.Instance != null)
             AudioManager.Instance.PlayOneShotSFX("ChestOpen");
         if (fxOpen != null)
         {
@@ -88,12 +91,12 @@ public class Chest : MonoBehaviour, IInteractable
         //Espero a que termine la animación
         yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
 
-        SpawnLoot(); 
+        SpawnLoot();
 
         if (destroyAfterOpen)
         {
             col.enabled = false;
-            Destroy(gameObject,waitTimeBeforeDestroy);
+            Destroy(gameObject, waitTimeBeforeDestroy);
         }
     }
 
@@ -107,15 +110,15 @@ public class Chest : MonoBehaviour, IInteractable
     {
         col = GetComponent<Collider>();
         dropHandler = GetComponent<DropHandler>();
-        outline = GetComponent<Outline>();
 
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
 
-        if (outline != null)
-        {
-            outline.OutlineWidth = 0f;
-            outline.OutlineColor = Color.yellow;
-        }
+    }
+    private IEnumerator RegisterOutline()
+    {
+        yield return new WaitUntil(() => OutlineManager.Exists);
+
+        OutlineManager.Instance.Register(gameObject);
     }
 }

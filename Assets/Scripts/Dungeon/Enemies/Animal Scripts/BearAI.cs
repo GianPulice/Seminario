@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class BearAI : EnemyBase
 {
@@ -18,8 +17,15 @@ public class BearAI : EnemyBase
     {
         base.Awake();
     }
-
-    private void Update()
+    private void OnEnable()
+    {
+        UpdateManager.OnUpdate += BearUpdate;
+    }
+    private void OnDisable()
+    {
+        UpdateManager.OnUpdate -= BearUpdate;
+    }
+    private void BearUpdate()
     {
         if (IsDead || isAttacking) return;
 
@@ -119,6 +125,19 @@ public class BearAI : EnemyBase
                 hit.GetComponent<IDamageable>()?.TakeDamage(enemyData.Damage);
                 DamageContext.Clear(); // opcional, por prolijidad
             }
+        }
+    }
+    public override void ResetEnemy(Vector3 spawnpoint)
+    {
+        base.ResetEnemy(spawnpoint);
+
+        attackCooldownTimer = 0f;
+        isAttacking = false;
+
+        if (agent != null)
+        {
+            agent.speed = enemyData.Speed;
+            agent.isStopped = false;
         }
     }
 

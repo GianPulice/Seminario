@@ -40,6 +40,16 @@ public class DamageFlash : MonoBehaviour
         StopAllCoroutines();
         StartCoroutine(FlashRoutine());
     }
+    public void ResetFlash()
+    {
+        StopAllCoroutines();
+
+        if (block == null) block = new MaterialPropertyBlock();
+        if (rendererRef == null) rendererRef = GetComponent<Renderer>();
+
+        block.SetColor(ColorID, originalColor);
+        rendererRef.SetPropertyBlock(block);
+    }
 
     private IEnumerator FlashRoutine()
     {

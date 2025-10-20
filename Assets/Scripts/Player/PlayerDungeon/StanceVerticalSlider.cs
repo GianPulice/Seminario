@@ -1,88 +1,92 @@
 using UnityEngine;
 
-/// <summary>
-/// Desliza SOLO el eje Y (local) del 'target' cuando el escudo se activa/desactiva.
-/// Úsalo tanto para el ancla del arma como para el ancla del escudo.
-/// </summary>
-public class StanceVerticalSlider : MonoBehaviour
+[AddComponentMenu("Combat/Stance Reactive Mover")]
+public class StanceReactiveMover : MonoBehaviour
 {
     [Header("References")]
     [Tooltip("ShieldHandler a escuchar. Si está vacío, busca en padres.")]
     public ShieldHandler shield;
 
-    [Tooltip("Transform a deslizar. Si está vacío, usa este GameObject.")]
+    [Tooltip("Transform que se moverá o rotará.")]
     public Transform target;
 
     [Header("Behaviour")]
-    [Tooltip("Si TRUE, el target sube (se muestra) cuando el escudo está ACTIVO, y baja cuando está INACTIVO.\nSi FALSE, al revés (útil para el arma).")]
-    public bool showWhenShieldActive = false;
+    [Tooltip("Si TRUE, el target se muestra cuando el escudo está activo.")]
+    public bool showWhenShieldActive = true;
 
-    [Tooltip("Desplazamiento vertical (en local) hacia ABAJO para la pose 'baja'.\nNegativo = baja respecto a la pose de combate.")]
-    public float loweredOffsetY = -0.35f;
+    [Tooltip("Si TRUE, invierte el comportamiento típico del arma (baja cuando el escudo sube).")]
+    public bool isAxe = false;
 
-    [Tooltip("Tiempo de suavizado SmoothDamp (segundos). 0.06–0.12 suele ir bien.")]
-    public float smoothTime = 0.08f;
+    [Tooltip("Desplazamiento local cuando está oculto.")]
+    public Vector3 loweredOffset = new Vector3(0f, -0.35f, -0.1f);
 
-    [Header("Debug")]
-    public bool snapOnStart = true; // coloca el target en el estado correcto al iniciar
+    [Header("Smoothness")]
+    [Tooltip("Velocidad de interpolación cuando el escudo se activa (sube).")]
+    public float smoothActivate = 12f;
 
-    private float combatY;          // Y local "arriba"
-    private float loweredY;         // Y local "abajo" = combatY + loweredOffsetY
-    private float targetY;          // Y objetivo actual
-    private float yVelocity;        // estado interno de SmoothDamp
+    [Tooltip("Velocidad de interpolación cuando el escudo se desactiva (baja).")]
+    public float smoothDeactivate = 6f;
+
+    [Tooltip("Interpolar también la rotación.")]
+    public bool affectRotation = false;
+
+    // Internos
+    private Vector3 combatPos;
+    private Quaternion combatRot;
+    private Vector3 loweredPos;
+    private Quaternion loweredRot;
+    private bool targetLowered;
+    private float currentSmooth;
 
     private void Awake()
     {
         if (!target) target = transform;
         if (!shield) shield = GetComponentInParent<ShieldHandler>();
 
-        // Capturamos la Y de combate al arrancar
-        combatY = target.localPosition.y;
-        loweredY = combatY + loweredOffsetY;
+        // Guardar poses base
+        combatPos = target.localPosition;
+        combatRot = target.localRotation;
+        loweredPos = combatPos + loweredOffset;
+        loweredRot = combatRot;
 
         if (shield != null)
         {
-            shield.OnShieldActivated += HandleShieldOn;
-            shield.OnShieldDeactivated += HandleShieldOff;
-        }
+            shield.OnShieldActivated += () => UpdateTargetState(true);
+            shield.OnShieldDeactivated += () => UpdateTargetState(false);
 
-        // Estado inicial
-        bool shieldActive = shield != null && shield.IsActive;
-        targetY = ComputeTargetY(shieldActive);
-        if (snapOnStart) SnapToTarget();
+            // Inicializa al estado actual del escudo
+            UpdateTargetState(shield.IsActive);
+        }
     }
 
     private void OnDestroy()
     {
         if (shield != null)
         {
-            shield.OnShieldActivated -= HandleShieldOn;
-            shield.OnShieldDeactivated -= HandleShieldOff;
+            shield.OnShieldActivated -= () => UpdateTargetState(true);
+            shield.OnShieldDeactivated -= () => UpdateTargetState(false);
         }
     }
 
-    private void HandleShieldOn() => targetY = ComputeTargetY(true);
-    private void HandleShieldOff() => targetY = ComputeTargetY(false);
-
-    private float ComputeTargetY(bool shieldActive)
+    private void UpdateTargetState(bool shieldActive)
     {
-        // si showWhenShieldActive==true => “sube cuando escudo activo”
-        bool shouldShow = showWhenShieldActive ? shieldActive : !shieldActive;
-        return shouldShow ? combatY : loweredY;
-    }
+        // Si es hacha, invertimos la lógica automáticamente
+        bool effectiveShow = isAxe ? !shieldActive : shieldActive;
 
-    private void SnapToTarget()
-    {
-        Vector3 lp = target.localPosition;
-        lp.y = targetY;
-        target.localPosition = lp;
+        bool shouldShow = showWhenShieldActive ? effectiveShow : !effectiveShow;
+        targetLowered = !shouldShow;
+
+        // Configurar la suavidad según la dirección del movimiento
+        currentSmooth = targetLowered ? smoothDeactivate : smoothActivate;
     }
 
     private void LateUpdate()
     {
-        // SmoothDamp SOLO en Y local
-        Vector3 lp = target.localPosition;
-        lp.y = Mathf.SmoothDamp(lp.y, targetY, ref yVelocity, smoothTime);
-        target.localPosition = lp;
+        Vector3 targetPos = targetLowered ? loweredPos : combatPos;
+        Quaternion targetRot = targetLowered ? loweredRot : combatRot;
+
+        target.localPosition = Vector3.Lerp(target.localPosition, targetPos, Time.deltaTime * currentSmooth);
+        if (affectRotation)
+            target.localRotation = Quaternion.Slerp(target.localRotation, targetRot, Time.deltaTime * currentSmooth);
     }
 }

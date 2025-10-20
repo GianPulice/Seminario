@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class CombatHandler : MonoBehaviour
 {
@@ -12,9 +13,15 @@ public class CombatHandler : MonoBehaviour
 
     [Header("Stamina Costs")]
     [SerializeField] private float attackStaminaCost = 20f;
+    [Header("Hit Timing")]
+    [SerializeField] private bool useHitDelay = true;
+    [SerializeField] private float hitDelay = 0.3f;
+    [SerializeField] private bool useWeaponTiming = true;
+
 
     private float lastAttackTime = -999f;
     private bool isAttacking;
+    private Coroutine hitDelayCoroutine;
 
     private void Awake()
     {
@@ -33,7 +40,15 @@ public class CombatHandler : MonoBehaviour
         isAttacking = true;
         view?.PlayAttackAnimation();
         weaponController?.PerformAttack();
-        PerformHit();
+        
+        if (useHitDelay)
+        {
+            StartHitDelayCoroutine();
+        }
+        else
+        {
+            PerformHit();
+        }
 
         Invoke(nameof(ResetAttack), model.AttackCooldown * 0.9f);
     }
@@ -51,6 +66,49 @@ public class CombatHandler : MonoBehaviour
         attackHitbox?.TriggerHit();
     }
 
+    private void StartHitDelayCoroutine()
+    {
+        // Stop any existing hit delay coroutine
+        if (hitDelayCoroutine != null)
+        {
+            StopCoroutine(hitDelayCoroutine);
+        }
+
+        // Get the delay time (use weapon timing if available)
+        float delayTime = GetHitDelayTime();
+
+        // Start the hit delay coroutine
+        hitDelayCoroutine = StartCoroutine(HitDelayCoroutine(delayTime));
+    }
+
+    private float GetHitDelayTime()
+    {
+        if (useWeaponTiming && weaponController != null)
+        {
+            // Get weapon-specific timing from WeaponController
+            return weaponController.GetHitDelay();
+        }
+
+        // Fall back to default timing
+        return hitDelay;
+    }
+
+    private IEnumerator HitDelayCoroutine(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        PerformHit();
+        hitDelayCoroutine = null;
+    }
+
+    private void OnDestroy()
+    {
+        // Clean up coroutine if object is destroyed
+        if (hitDelayCoroutine != null)
+        {
+            StopCoroutine(hitDelayCoroutine);
+        }
+    }
+
     private void GetComponents()
     {
         model = GetComponent<PlayerDungeonModel>();
@@ -63,4 +121,7 @@ public class CombatHandler : MonoBehaviour
 
     public bool IsAttacking => isAttacking;
     public bool IsShieldActive => shieldHandler != null && shieldHandler.IsActive;
+    public void SetHitDelay(float newDelay) => hitDelay = newDelay;
+    public void SetUseHitDelay(bool useDelay) => useHitDelay = useDelay;
+    public float GetCurrentHitDelay() => GetHitDelayTime();
 }
