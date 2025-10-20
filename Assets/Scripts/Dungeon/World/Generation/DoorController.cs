@@ -1,6 +1,5 @@
 using UnityEngine;
 using TMPro;
-using System.Collections;
 public class DoorController : MonoBehaviour,IInteractable
 {
     [Header("Room Connection")]
@@ -14,17 +13,12 @@ public class DoorController : MonoBehaviour,IInteractable
 
    [SerializeField] private bool isLocked = true;
 
-    private GameObject openVFX;
-
     public InteractionMode InteractionMode => InteractionMode.Press;
     private void Awake()
     {
-        StartCoroutine(RegisterOutline());
+        GetComponents();
     }
-    private void OnDestroy()
-    {
-        OutlineManager.Instance.Unregister(gameObject);
-    }
+
     public void Unlock()
     {
         if (!isLocked) return;
@@ -44,13 +38,15 @@ public class DoorController : MonoBehaviour,IInteractable
         Debug.Log("[DoorController] Puerta bloqueada.");
     }
 
+    public Vector3 GetSpawnPoint() => transform.position;
+    public bool IsLocked => isLocked;
+
     public void Interact(bool isPressed)
     {
         Debug.Log("Interactuando con la puerta");
 
         if (isLocked)
         {
-
             Debug.Log("[DoorController] Intento de interactuar, pero está bloqueada.");
             return;
         }
@@ -69,14 +65,22 @@ public class DoorController : MonoBehaviour,IInteractable
 
     public void ShowOutline()
     {
-        OutlineManager.Instance.ShowWithCustomColor(gameObject, isLocked ? closedColor : openColor);
-        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
+        if (doorOutline != null)
+        {
+            doorOutline.OutlineWidth = 2.5f;
+            doorOutline.OutlineColor = isLocked ? closedColor : openColor;
+
+            InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
+        }
     }
 
     public void HideOutline()
     {
-        OutlineManager.Instance.Hide(gameObject);
-        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
+        if (doorOutline != null)
+        {
+            doorOutline.OutlineWidth = 0f;
+            InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
+        }
     }
 
     public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
@@ -86,7 +90,7 @@ public class DoorController : MonoBehaviour,IInteractable
         string keyText = $"<color=yellow>{PlayerInputs.Instance.GetInteractInput()}</color>";
 
         interactionManagerUIText.text = isLocked
-            ? "<color=white>Quedan enemigos por eliminar"
+            ? "Quedan enemigos por eliminar"
             : $"Presiona {keyText} para pasar a la siguiente sala";
     }
 
@@ -95,9 +99,9 @@ public class DoorController : MonoBehaviour,IInteractable
         if (interactionManagerUIText == null) return;
         interactionManagerUIText.text = "";
     }
-    private IEnumerator RegisterOutline()
+    private void GetComponents()
     {
-        yield return new WaitUntil(() => OutlineManager.Instance != null);
-        OutlineManager.Instance.Register(gameObject);
+        doorOutline = GetComponent<Outline>();
+      
     }
 }

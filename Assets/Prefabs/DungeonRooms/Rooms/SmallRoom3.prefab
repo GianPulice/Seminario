@@ -12830,10 +12830,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 483c85b90f97f3f41a109abba073601c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawner: {fileID: 7272602838406315361}
+  spawners:
+  - {fileID: 7272602838406315361}
   totalRounds: 3
   basePerRound: 4
-  timeBetweenRounds: 2
 --- !u!114 &7038139261149574431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36024,7 +36024,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5779734138894944690
 Transform:
@@ -53070,7 +53070,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7855050803097980385
 Transform:

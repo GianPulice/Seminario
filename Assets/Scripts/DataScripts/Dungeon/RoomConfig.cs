@@ -17,14 +17,27 @@ public class RoomConfig : ScriptableObject
     public int lootSpawnPointCount;
     public int trapSpawnPointCount;
 
+    [Header("Variantes de Contenido")]
+    public GameObject[] possibleEnemies;
+    public GameObject[] possibleLoot;
+    public GameObject[] possibleTraps;
+    public GameObject[] ambientVariants;
+
     [Header("Configuración Visual")]
     public Material[] possibleFloorMaterials;
     public Material[] possibleWallMaterials;
     public Light[] possibleLightingSetups;
 
     [Header("Opciones de Gameplay")]
+    public bool allowFog = true;
     public bool allowTraps = true;
     public bool allowLoot = true;
+    public bool isBossRoom = false;
+    public bool hasSpecialEvent = false;
+
+    [Header("Audio Ambiente")]
+    public AudioClip[] possibleAmbientSounds;
+    [Range(0, 1)] public float ambientVolume = 0.3f;
 
     public int GetEnemyCountForLayer(int layer)
     {

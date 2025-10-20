@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class RoomController : MonoBehaviour
 {
@@ -29,11 +28,13 @@ public class RoomController : MonoBehaviour
     public bool IsCleared => allEnemiesDefeated;
     public Transform SpawnPoint => roomSpawnPoint;
 
+    // ---------- EVENTS ----------
+    public event Action OnAllEnemiesDefeated;
+
     //--------------- UNITY -------------------
     private void Awake()
     {
-       if(enemyHandler != null)
-            enemyHandler.OnAllEnemiesDefeated += HandleRoomCleared;
+        InitializeHandlers();
     }
     private void OnDestroy()
     {
@@ -53,8 +54,11 @@ public class RoomController : MonoBehaviour
 
         Debug.Log($"[RoomController] Activando sala {config.roomID} en layer {layer}");
 
-        enemyHandler?.Cleanup();
-        enemyHandler?.Initialize(layer, config);
+        if (enemyHandler != null)
+        {
+            enemyHandler.Initialize(layer);
+            enemyHandler.OnAllEnemiesDefeated += HandleRoomCleared;
+        }
 
         if (config.allowLoot)
             lootHandler?.SpawnLoot(config.size, layer);
@@ -70,7 +74,12 @@ public class RoomController : MonoBehaviour
 
         isActive = false;
 
-        enemyHandler?.Cleanup();
+        if (enemyHandler != null)
+        {
+            enemyHandler.OnAllEnemiesDefeated -= HandleRoomCleared;
+            enemyHandler.Cleanup();
+        }
+
         lootHandler?.Cleanup();
         trapHandler?.Cleanup();
     }
@@ -78,6 +87,28 @@ public class RoomController : MonoBehaviour
     public void ResetRoom()
     {
         DeactivateRoom();
+        InitializeHandlers();
+    }
+    private void InitializeHandlers()
+    {
+        if (enemyHandler == null)
+        {
+            enemyHandler = GetComponentInChildren<EnemyHandler>();
+            if (enemyHandler == null)
+                Debug.LogError($"[RoomController] EnemyHandler not found in children of {name}");
+        }
+        if (lootHandler == null)
+        {
+            lootHandler = GetComponentInChildren<LootHandler>();
+            if (lootHandler == null)
+                Debug.LogWarning($"[RoomController] LootHandler not found in children of {name}");
+        }
+        if (trapHandler == null)
+        {
+            trapHandler = GetComponentInChildren<TrapHandler>();
+            if (trapHandler == null)
+                Debug.LogWarning($"[RoomController] TrapHandler not found in children of {name}");
+        }
     }
     private void HandleRoomCleared()
     {
@@ -89,6 +120,9 @@ public class RoomController : MonoBehaviour
         UnlockExitDoors();
 
         DungeonManager.Instance?.OnRoomCleared(this);
+       
+        OnAllEnemiesDefeated?.Invoke();
+        OnAllEnemiesDefeated = null;
     }
 
     private void LockExitDoors()
