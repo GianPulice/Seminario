@@ -2,6 +2,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System;
+using UnityEditor;
 
 public class ScenesManager : Singleton<ScenesManager>
 {
@@ -16,10 +18,14 @@ public class ScenesManager : Singleton<ScenesManager>
 
     [SerializeField] private TextMeshProUGUI loadingScenePanelText;
 
+    private event Action onSceneLoadedEvent;
+
     private Scene currentScene;
 
     private bool isInLoadingScenePanel = false; 
     private bool isInExitGamePanel = false;
+
+    public Action OnSceneLoadedEvent { get => onSceneLoadedEvent; set => onSceneLoadedEvent = value; }
 
     public string CurrentSceneName { get => currentScene.name; }
 
@@ -32,6 +38,7 @@ public class ScenesManager : Singleton<ScenesManager>
         CreateSingleton(true);
         DontDestroyOnLoadPanels();
         SuscribeToUpdateManagerEvent();
+        //SuscribeToSceneLoadedEvent();
         SetInitializedScene();
     }
 
@@ -48,19 +55,17 @@ public class ScenesManager : Singleton<ScenesManager>
         loadingScenePanel.SetActive(true);
         isInLoadingScenePanel = true;
 
-        int randomNumber = Random.Range(0, scenesManagerData.PanelTips.Count);
+        onSceneLoadedEvent?.Invoke();
+
+        int randomNumber = UnityEngine.Random.Range(0, scenesManagerData.PanelTips.Count);
         loadingScenePanelText.text = scenesManagerData.PanelTips[randomNumber];
 
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         asyncLoad.allowSceneActivation = false;
 
-        float elapsedTime = 0f;
-
         while (!asyncLoad.isDone)
         {
-            elapsedTime += Time.deltaTime;
-
-            if (asyncLoad.progress >= 0.9f && elapsedTime >= scenesManagerData.DuringTimeLoadingScenePanel)
+            if (asyncLoad.progress >= 0.9f)
             {
                 if (additiveScenes != null)
                 {
@@ -107,15 +112,25 @@ public class ScenesManager : Singleton<ScenesManager>
         }
     }
 
+    /*private void SuscribeToSceneLoadedEvent()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }*/
+
     private void SuscribeToUpdateManagerEvent()
     {
         UpdateManager.OnUpdateAllTime += UpdateScenesManager;
     }
 
+    /*private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        onSceneLoadedEvent?.Invoke();
+    }*/
+
     // Esto sirve para que una vez cargada la nueva escena, espere 3 segundos para desactivar el panel, para que permita cargar Awake y Start de la nueva escena cargada
     private IEnumerator DisableLoadingScenePanelAfterSeconds()
     {
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(scenesManagerData.DuringTimeLoadingScenePanel);
 
         isInLoadingScenePanel = false;
         loadingScenePanel.SetActive(false);
@@ -135,6 +150,7 @@ public class ScenesManager : Singleton<ScenesManager>
 
             case "Tabern":
                 DeviceManager.Instance.IsUIModeActive = false;
+             
                 LoadSceneAdditive("TabernUI");
                 LoadSceneAdditive("CompartidoUI");
                 break;

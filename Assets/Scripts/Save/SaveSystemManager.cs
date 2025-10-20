@@ -26,7 +26,7 @@ public class SaveSystemManager : Singleton<SaveSystemManager>
 
     public static SaveData LoadGame()
     {
-        if (!instance.saveSystemData.UseSaveSystem) return null;
+        if (!instance.saveSystemData.UseSaveSystem) return new SaveData();
 
         if (File.Exists(instance.path))
         {
@@ -46,6 +46,8 @@ public class SaveSystemManager : Singleton<SaveSystemManager>
 
     public static void DeleteAllData()
     {
+        //if (!instance.saveSystemData.UseSaveSystem) return;
+
         if (File.Exists(instance.path))
         {
             File.Delete(instance.path);

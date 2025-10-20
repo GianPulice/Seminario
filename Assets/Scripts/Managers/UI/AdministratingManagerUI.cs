@@ -13,10 +13,6 @@ public class AdministratingManagerUI : MonoBehaviour
     [SerializeField] private GameObject panelIngredients;
     [SerializeField] private GameObject panelUpgrades; 
 
-    [SerializeField] private AudioSource buttonClickWell;
-    [SerializeField] private AudioSource buttonClickWrong;
-    [SerializeField] private AudioSource buttonSelected;
-
     private List<ZoneUnlock> zoneUnlocks = new List<ZoneUnlock>();
     private Image currentImageZoneUnlock;
     private TextMeshProUGUI textPriceCurrentZoneUnlock;
@@ -84,7 +80,7 @@ public class AdministratingManagerUI : MonoBehaviour
     {
         if (!ignoreFirstButtonSelected)
         {
-            buttonSelected.Play();
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             return;
         }
 
@@ -104,7 +100,7 @@ public class AdministratingManagerUI : MonoBehaviour
     public void ButtonStartTabern()
     {
         onStartTabern?.Invoke();
-        buttonClickWell.Play();
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
     }
 
     // Funcion asignada a boton UI
@@ -116,14 +112,14 @@ public class AdministratingManagerUI : MonoBehaviour
 
             if (MoneyManager.Instance.CurrentMoney >= price)
             {
-                buttonClickWell.Play();
+                AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
                 IngredientInventoryManager.Instance.IncreaseIngredientStock(ingredient);
                 MoneyManager.Instance.SubMoney(price);
             }
 
             else
             {
-                buttonClickWrong.Play();
+                AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
             }
         }
     }
@@ -137,14 +133,14 @@ public class AdministratingManagerUI : MonoBehaviour
 
         if (MoneyManager.Instance.CurrentMoney >= price)
         {
-            buttonClickWell.Play();
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
             zoneUnlocks[index].UnlockZone();
             MoneyManager.Instance.SubMoney(price);
         }
 
         else
         {
-            buttonClickWrong.Play();
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
         }
     }
 
@@ -158,8 +154,8 @@ public class AdministratingManagerUI : MonoBehaviour
         if (buttonsPanelAdministrating[0].colors == color) 
         {
             onSetSelectedCurrentGameObject?.Invoke(buttonsTabern[0]);
-            
-            buttonSelected.Play();
+
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[1]);
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[2]);
             panelIngredients.SetActive(false);
@@ -181,7 +177,7 @@ public class AdministratingManagerUI : MonoBehaviour
             // Aca se podria agregar que selecione el ultimo que tenia antes
             onSetSelectedCurrentGameObject?.Invoke(buttonsIngredients[0]);
 
-            buttonSelected.Play();
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
 
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[0]);
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[2]);
@@ -205,7 +201,7 @@ public class AdministratingManagerUI : MonoBehaviour
             onSetSelectedCurrentGameObject?.Invoke(buttonsUpgrades[0]);
             ShowCurrentZoneInformation(0);
 
-            buttonSelected.Play();            
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
 
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[0]);
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[1]);

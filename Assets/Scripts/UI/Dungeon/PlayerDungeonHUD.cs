@@ -11,6 +11,7 @@ public class PlayerDungeonHUD
     public static Action<int> OnLayerChanged;
 
     public static Action<string> OnShowTeleportConfirm;
+    public static Action OnHideTeleportConfirm;
 
     public static Action OnLockPlayerInput;
     public static Action OnUnlockPlayerInput;

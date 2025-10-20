@@ -1,14 +1,9 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 public class DoorController : MonoBehaviour,IInteractable
 {
-    //[Header("Animation")]
-    //[SerializeField] private Animator doorAnimator;
-    //[SerializeField] private string openTrigger = "Open";
-    //[SerializeField] private string closeTrigger = "Close";
-
     [Header("Room Connection")]
-    [SerializeField] private RoomController connectedRoom;
     [SerializeField] private bool isExitDoor = true;
     [SerializeField] private bool isFirstDoor = false;
 
@@ -19,25 +14,21 @@ public class DoorController : MonoBehaviour,IInteractable
 
    [SerializeField] private bool isLocked = true;
 
+
     public InteractionMode InteractionMode => InteractionMode.Press;
     private void Awake()
     {
-        GetComponents();
+        StartCoroutine(RegisterOutline());
     }
-
+    private void OnDestroy()
+    {
+        OutlineManager.Instance.Unregister(gameObject);
+    }
     public void Unlock()
     {
         if (!isLocked) return;
 
         isLocked = false;
-
-        // Play opening animation
-        //if (doorAnimator != null)
-        //    doorAnimator.SetTrigger(openTrigger);
-
-        // Play VFX
-        //if (openVFX != null)
-        //    openVFX.Play();
 
         Debug.Log("[DoorController] Puerta desbloqueada.");
     }
@@ -48,19 +39,9 @@ public class DoorController : MonoBehaviour,IInteractable
 
         isLocked = true;
 
-        //// Play closing animation
-        //if (doorAnimator != null)
-        //    doorAnimator.SetTrigger(closeTrigger);
-
-        //// Play VFX
-        //if (closeVFX != null)
-        //    closeVFX.Play();
 
         Debug.Log("[DoorController] Puerta bloqueada.");
     }
-
-    public Vector3 GetSpawnPoint() => transform.position;
-    public bool IsLocked => isLocked;
 
     public void Interact(bool isPressed)
     {
@@ -68,18 +49,17 @@ public class DoorController : MonoBehaviour,IInteractable
 
         if (isLocked)
         {
+
             Debug.Log("[DoorController] Intento de interactuar, pero está bloqueada.");
             return;
         }
 
-        // Si es la primera puerta y la run no ha comenzado, iniciar la run.
         if (isFirstDoor && !DungeonManager.Instance.RunStarted)
         {
             DungeonManager.Instance.StartDungeonRun();
             return;
         }
-        // Si la puerta es una salida y no está bloqueada (porque la sala ya se despejó),
-        // el jugador puede pasar a la siguiente sala.
+       
         if (isExitDoor)
         {
             DungeonManager.Instance.MoveToNext();
@@ -88,22 +68,14 @@ public class DoorController : MonoBehaviour,IInteractable
 
     public void ShowOutline()
     {
-        if (doorOutline != null)
-        {
-            doorOutline.OutlineWidth = 2.5f;
-            doorOutline.OutlineColor = isLocked ? closedColor : openColor;
-
-            InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
-        }
+        OutlineManager.Instance.ShowWithCustomColor(gameObject, isLocked ? closedColor : openColor);
+        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
     }
 
     public void HideOutline()
     {
-        if (doorOutline != null)
-        {
-            doorOutline.OutlineWidth = 0f;
-            InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
-        }
+        OutlineManager.Instance.Hide(gameObject);
+        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
 
     public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
@@ -113,7 +85,7 @@ public class DoorController : MonoBehaviour,IInteractable
         string keyText = $"<color=yellow>{PlayerInputs.Instance.GetInteractInput()}</color>";
 
         interactionManagerUIText.text = isLocked
-            ? "Quedan enemigos por eliminar"
+            ? "<color=white>Quedan enemigos por eliminar"
             : $"Presiona {keyText} para pasar a la siguiente sala";
     }
 
@@ -122,9 +94,9 @@ public class DoorController : MonoBehaviour,IInteractable
         if (interactionManagerUIText == null) return;
         interactionManagerUIText.text = "";
     }
-    private void GetComponents()
+    private IEnumerator RegisterOutline()
     {
-        doorOutline = GetComponent<Outline>();
-       //doorAnimator = GetComponent<Animator>();
+        yield return new WaitUntil(() => OutlineManager.Instance != null);
+        OutlineManager.Instance.Register(gameObject);
     }
 }

@@ -11,14 +11,20 @@ public class ItemEffect : MonoBehaviour
     private Vector3 startPosition;
     private float bobTime = 0f;
 
+    private void Awake()
+    {
+        startPosition = transform.position;
+    }
+
     void FixedUpdate()
     {
-        // Rotar el item
-        transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
+        transform.Rotate(Vector3.up, rotationSpeed * Time.fixedDeltaTime);
 
-        // Efecto de flotación
         bobTime += Time.deltaTime * bobSpeed;
-        float newY = startPosition.y + Mathf.Sin(bobTime) * bobHeight;
+        float offsetY = Mathf.Sin(bobTime) * bobHeight;
+
+        float newY = startPosition.y + offsetY;
         transform.position = new Vector3(transform.position.x, newY, transform.position.z);
+
     }
 }

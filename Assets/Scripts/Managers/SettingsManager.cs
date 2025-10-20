@@ -52,10 +52,9 @@ public class SettingsManager : Singleton<SettingsManager>
     {
         LoadAudioValuesFromPlayerPrefs();
         LoadVideoValuesFromPlayerPrefs();
-        LoadControlsValuesFromPlayerPrefs();
+        LoadControlValuesFromPlayerPrefs();
         ApplyAudioSettings();
         ApplyVideoSettings();
-        //ApplyControlSettings();
     }
 
 
@@ -204,22 +203,20 @@ public class SettingsManager : Singleton<SettingsManager>
         SetVSync(vSync);
     }
 
-    private void LoadControlsValuesFromPlayerPrefs()
+    private void LoadControlValuesFromPlayerPrefs()
     {
-        float defaultMouse = 10f;
-        float defaultJoystick = 10f;
+        sensitivityMouseX = PlayerPrefs.GetFloat("SensitivityMouseX", PlayerInputs.Instance.KeyboardInputs.SensitivityX);
+        sensitivityMouseY = PlayerPrefs.GetFloat("SensitivityMouseY", PlayerInputs.Instance.KeyboardInputs.SensitivityY);
+        sensitivityJoystickX = PlayerPrefs.GetFloat("SensitivityJoystickX", PlayerInputs.Instance.JoystickInputs.SensitivityX);
+        sensitivityJoystickY = PlayerPrefs.GetFloat("SensitivityJoystickY", PlayerInputs.Instance.JoystickInputs.SensitivityY);
 
-        sensitivityMouseX = PlayerPrefs.GetFloat("SensitivityMouseX", defaultMouse);
-        sensitivityMouseY = PlayerPrefs.GetFloat("SensitivityMouseY", defaultMouse);
-        sensitivityJoystickX = PlayerPrefs.GetFloat("SensitivityJoystickX", defaultJoystick);
-        sensitivityJoystickY = PlayerPrefs.GetFloat("SensitivityJoystickY", defaultJoystick);
-    }
-
-    private void ApplyControlSettings()
-    {
-        SetSensitivityMouseX(sensitivityMouseX);
-        SetSensitivityMouseY(sensitivityMouseY);
-        SetSensitivityJoystickX(sensitivityJoystickX);
-        SetSensitivityJoystickY(sensitivityJoystickY);
+        // Aplicamos a PlayerInputs
+        if (PlayerInputs.Instance != null)
+        {
+            PlayerInputs.Instance.KeyboardInputs.SensitivityX = sensitivityMouseX;
+            PlayerInputs.Instance.KeyboardInputs.SensitivityY = sensitivityMouseY;
+            PlayerInputs.Instance.JoystickInputs.SensitivityX = sensitivityJoystickX;
+            PlayerInputs.Instance.JoystickInputs.SensitivityY = sensitivityJoystickY;
+        }
     }
 }

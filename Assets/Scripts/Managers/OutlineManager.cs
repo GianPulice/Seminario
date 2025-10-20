@@ -16,6 +16,8 @@ public class OutlineManager : Singleton<OutlineManager>
 
     public void Register(GameObject obj)
     {
+        if (obj == null) return;
+
         if (!outlines.ContainsKey(obj))
         {
             Outline outline = obj.AddComponent<Outline>();
@@ -27,6 +29,8 @@ public class OutlineManager : Singleton<OutlineManager>
 
     public void Unregister(GameObject obj)
     {
+        if (obj == null) return;
+
         if (outlines.ContainsKey(obj))
         {
             outlines.Remove(obj);
@@ -35,6 +39,8 @@ public class OutlineManager : Singleton<OutlineManager>
 
     public void ShowWithDefaultColor(GameObject obj)
     {
+        if (obj == null) return;
+
         if (outlines.TryGetValue(obj, out Outline outline))
         {
             outline.OutlineWidth = outlineManagerData.ActiveWidth;
@@ -43,6 +49,8 @@ public class OutlineManager : Singleton<OutlineManager>
 
     public void ShowWithCustomColor(GameObject obj, Color color)
     {
+        if (obj == null) return;
+
         if (outlines.TryGetValue(obj, out Outline outline))
         {
             outline.OutlineColor = color;
@@ -52,6 +60,8 @@ public class OutlineManager : Singleton<OutlineManager>
 
     public void Hide(GameObject obj)
     {
+        if (obj == null) return;
+
         if (outlines.TryGetValue(obj, out Outline outline))
         {
             outline.OutlineWidth = 0;

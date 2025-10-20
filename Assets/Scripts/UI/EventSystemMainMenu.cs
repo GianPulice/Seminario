@@ -2,12 +2,13 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class EventSystemMainMenu : MonoBehaviour
 {
     private EventSystem eventSystem;
 
-    private List<GameObject> buttonsMainMenu = new List<GameObject>();
+    [SerializeField] private List<GameObject> buttonsMainMenu = new List<GameObject>();
 
 
     void Awake()
@@ -46,8 +47,9 @@ public class EventSystemMainMenu : MonoBehaviour
 
     private IEnumerator InitializeFirstSelectedButtonByDefault()
     {
-        // Esperar 2 segundos para que cargue la escena additiva de MainMenu
-        yield return new WaitForSeconds(2);
+        yield return new WaitUntil(() => SceneManager.GetSceneByName("MainMenuUI").isLoaded);
+
+        yield return new WaitUntil(() => buttonsMainMenu != null && buttonsMainMenu.Count > 0);
 
         eventSystem.SetSelectedGameObject(buttonsMainMenu[0]);
     }

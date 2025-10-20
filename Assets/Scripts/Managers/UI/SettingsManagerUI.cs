@@ -3,8 +3,13 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 
-public class SettingsManagerUI : Singleton<SettingsManagerUI>
+public class SettingsManagerUI : MonoBehaviour
 {
+    /// <summary>
+    /// Analizar el tema de que las resoluciones que pone sean unicamente las compatibles con tu monitor y agregar mas alternativas de FPS
+    /// Tambien no se guardan correctamente los valores de las settings, es decir se guardan pero no se ven reflejados
+    /// </summary>
+
     [Header("General:")]
     [SerializeField] private GameObject panelAudio;
     [SerializeField] private GameObject panelVideo;
@@ -42,8 +47,8 @@ public class SettingsManagerUI : Singleton<SettingsManagerUI>
 
     void Awake()
     {
-        CreateSingleton(false);
         SuscribeToMainMenuEvent();
+        SuscribeToPauseManagerEvent();
         SuscribeToUpdateManagerEvent();
     }
 
@@ -51,18 +56,19 @@ public class SettingsManagerUI : Singleton<SettingsManagerUI>
     {
         InitializeAudioOptions();
         InitializeVideoOptions();
-        InitializeControlsOptions();
+        InitializeControlOptions();
     }
 
     // Simulacion de Update
     void UpdateSettingsManagerUI()
     {
-        //CheckJoystickInputsToInteractWithPanels();
+        CheckJoystickInputsToInteractWithPanels();
     }
 
     void OnDestroy()
     {
         UnsuscribeToMainMenuEvent();
+        UnsuscribeToPauseManagerEvent();
         UnsuscribeToUpdateEvent();
     }
 
@@ -77,7 +83,7 @@ public class SettingsManagerUI : Singleton<SettingsManagerUI>
 
         if (buttonAudio.colors == color)
         {
-            //buttonSelected.Play();
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
 
             SetButtonNormalColorInWhite(buttonVideo);
             SetButtonNormalColorInWhite(buttonControls);
@@ -96,7 +102,7 @@ public class SettingsManagerUI : Singleton<SettingsManagerUI>
 
         if (buttonVideo.colors == color)
         {
-            //buttonSelected.Play();
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
 
             SetButtonNormalColorInWhite(buttonAudio);
             SetButtonNormalColorInWhite(buttonControls);
@@ -115,7 +121,7 @@ public class SettingsManagerUI : Singleton<SettingsManagerUI>
 
         if (buttonControls.colors == color)
         {
-            //buttonSelected.Play();
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
 
             SetButtonNormalColorInWhite(buttonAudio);
             SetButtonNormalColorInWhite(buttonVideo);
@@ -135,6 +141,16 @@ public class SettingsManagerUI : Singleton<SettingsManagerUI>
     private void UnsuscribeToMainMenuEvent()
     {
         MainMenu.OnButtonSettingsClickToShowCorrectPanel -= SetPanelAudio;
+    }
+
+    private void SuscribeToPauseManagerEvent()
+    {
+        PauseManager.OnButtonSettingsClickToShowCorrectPanel += SetPanelAudio;
+    }
+
+    private void UnsuscribeToPauseManagerEvent()
+    {
+        PauseManager.OnButtonSettingsClickToShowCorrectPanel -= SetPanelAudio;
     }
 
     private void SuscribeToUpdateManagerEvent()
@@ -188,11 +204,28 @@ public class SettingsManagerUI : Singleton<SettingsManagerUI>
     private void InitializeVideoOptions()
     {
         // ---- Resoluciones ----
-        dropdownResolution.ClearOptions();
+        /*dropdownResolution.ClearOptions();
         List<string> resOptions = new List<string>();
         Resolution[] resolutions = Screen.resolutions;
         foreach (var res in resolutions)
             resOptions.Add(res.width + " x " + res.height);
+        dropdownResolution.AddOptions(resOptions);*/
+
+        dropdownResolution.ClearOptions();
+        List<string> resOptions = new List<string>();
+        Resolution[] resolutions = Screen.resolutions;
+        HashSet<string> addedRes = new HashSet<string>(); // Para evitar duplicados
+
+        foreach (var res in resolutions)
+        {
+            string resText = res.width + " x " + res.height;
+            if (!addedRes.Contains(resText))
+            {
+                resOptions.Add(resText);
+                addedRes.Add(resText);
+            }
+        }
+
         dropdownResolution.AddOptions(resOptions);
 
         // ---- Calidad ----
@@ -245,50 +278,52 @@ public class SettingsManagerUI : Singleton<SettingsManagerUI>
         SettingsManager.Instance.SetResolution(res.width, res.height, mode);
     }
 
-    private void InitializeControlsOptions()
+    private void InitializeControlOptions()
     {
-        sensitivityMouseXSlider.minValue = 1f;
-        sensitivityMouseXSlider.maxValue = 20f;
-        sensitivityMouseYSlider.minValue = 1f;
-        sensitivityMouseYSlider.maxValue = 20f;
-        sensitivityJoystickXSlider.minValue = 1f;
-        sensitivityJoystickXSlider.maxValue = 20f;
-        sensitivityJoystickYSlider.minValue = 1f;
-        sensitivityJoystickYSlider.maxValue = 20f;
+        float defaultMin = 1f;
+        float defaultMax = 400f;
+
+        sensitivityMouseXSlider.minValue = defaultMin;
+        sensitivityMouseXSlider.maxValue = defaultMax;
+        sensitivityMouseYSlider.minValue = defaultMin;
+        sensitivityMouseYSlider.maxValue = defaultMax;
+        sensitivityJoystickXSlider.minValue = defaultMin;
+        sensitivityJoystickXSlider.maxValue = defaultMax;
+        sensitivityJoystickYSlider.minValue = defaultMin;
+        sensitivityJoystickYSlider.maxValue = defaultMax;
 
         sensitivityMouseXSlider.value = SettingsManager.Instance.SensitivityMouseX;
         sensitivityMouseYSlider.value = SettingsManager.Instance.SensitivityMouseY;
         sensitivityJoystickXSlider.value = SettingsManager.Instance.SensitivityJoystickX;
         sensitivityJoystickYSlider.value = SettingsManager.Instance.SensitivityJoystickY;
 
-        sensitivityMouseXSlider.onValueChanged.AddListener(SettingsManager.Instance.SetSensitivityMouseX);
-        sensitivityMouseYSlider.onValueChanged.AddListener(SettingsManager.Instance.SetSensitivityMouseY);
-        sensitivityJoystickXSlider.onValueChanged.AddListener(SettingsManager.Instance.SetSensitivityJoystickX);
-        sensitivityJoystickYSlider.onValueChanged.AddListener(SettingsManager.Instance.SetSensitivityJoystickY);
-
         UpdateTextControls(sensitivityMouseXText, sensitivityMouseXSlider.value);
         UpdateTextControls(sensitivityMouseYText, sensitivityMouseYSlider.value);
         UpdateTextControls(sensitivityJoystickXText, sensitivityJoystickXSlider.value);
         UpdateTextControls(sensitivityJoystickYText, sensitivityJoystickYSlider.value);
 
+        // Listeners
         sensitivityMouseXSlider.onValueChanged.AddListener(value =>
         {
-            SettingsManager.Instance.SensitivityMouseX = value;
+            SettingsManager.Instance.SetSensitivityMouseX(value);
             UpdateTextControls(sensitivityMouseXText, value);
         });
+
         sensitivityMouseYSlider.onValueChanged.AddListener(value =>
         {
-            SettingsManager.Instance.SensitivityMouseY = value;
+            SettingsManager.Instance.SetSensitivityMouseY(value);
             UpdateTextControls(sensitivityMouseYText, value);
         });
+
         sensitivityJoystickXSlider.onValueChanged.AddListener(value =>
         {
-            SettingsManager.Instance.SensitivityJoystickX = value;
+            SettingsManager.Instance.SetSensitivityJoystickX(value);
             UpdateTextControls(sensitivityJoystickXText, value);
         });
+
         sensitivityJoystickYSlider.onValueChanged.AddListener(value =>
         {
-            SettingsManager.Instance.SensitivityJoystickY = value;
+            SettingsManager.Instance.SetSensitivityJoystickY(value);
             UpdateTextControls(sensitivityJoystickYText, value);
         });
     }
@@ -319,7 +354,7 @@ public class SettingsManagerUI : Singleton<SettingsManagerUI>
         currentButton.colors = color;
     }
 
-    /*private void CheckJoystickInputsToInteractWithPanels()
+    private void CheckJoystickInputsToInteractWithPanels()
     {
         if (panelAudio.activeSelf || panelVideo.activeSelf || panelControls.activeSelf)
         {
@@ -378,5 +413,5 @@ public class SettingsManagerUI : Singleton<SettingsManagerUI>
             SetPanelVideo();
             return;
         }
-    }*/
+    }
 }

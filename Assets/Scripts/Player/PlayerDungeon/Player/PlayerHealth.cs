@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerHealth : MonoBehaviour, IDamageable
 {
     [Header("Health Stats")]
-    [SerializeField] private float maxHP = 100f;
+    [SerializeField] private int maxHP = 100;
     [SerializeField] private float healAmount = 10f;
     [SerializeField] private float healInterval = 30f;
 
@@ -21,6 +21,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     private ShieldHandler shieldHandler;
 
     public float CurrentHP => currentHP;
+    public int MaxHP => maxHP;    
     public bool IsDead => isDead;
 
     //---Events---
@@ -74,7 +75,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         }
 
         DamageContext.Clear();
+        CheckDeath();
 
+    }
+
+    private void CheckDeath()
+    {
         if (currentHP <= 0 && !isDead)
         {
             currentHP = 0;

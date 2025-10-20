@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.AI;
 using System.Collections;
+using TMPro;
 
 public class Table : MonoBehaviour, IInteractable
 {
@@ -184,7 +185,7 @@ public class Table : MonoBehaviour, IInteractable
         }
     }
 
-    public void ShowMessage(TMPro.TextMeshProUGUI interactionManagerUIText)
+    public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
     {
         string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
 
@@ -224,7 +225,7 @@ public class Table : MonoBehaviour, IInteractable
         }
     }
 
-    public void HideMessage(TMPro.TextMeshProUGUI interactionManagerUIText)
+    public void HideMessage(TextMeshProUGUI interactionManagerUIText)
     {
         interactionManagerUIText.text = string.Empty;
     }

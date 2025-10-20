@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DungeonManager : Singleton<DungeonManager>
@@ -7,19 +9,16 @@ public class DungeonManager : Singleton<DungeonManager>
     [SerializeField] private Transform player;
 
     [Header("Dungeon Pools")]
-    [SerializeField] private List<Transform> roomPrefabsList;     // 8 disponibles
-    [SerializeField] private List<Transform> hallwayPrefabsList;  // 4 disponibles
-
-    [Header("Dungeon Settings")]
-    [SerializeField] private List<RoomController> rooms;
+    [SerializeField] private List<Transform> roomTransformList;     // 8 disponibles
+    [SerializeField] private List<Transform> hallwayTransformList;  // 4 disponibles
 
     [Header("Run Settings")]
     [SerializeField] private Transform startSpawnPoint;
     [SerializeField] private int historyLimit = 2;
     [SerializeField] private int totalRooms = 18;
 
-    private Dictionary<string, Transform> roomPrefabs = new();
-    private Dictionary<string, Transform> hallwayPrefabs = new();
+    private Dictionary<string, Transform> roomRefs = new();
+    private Dictionary<string, Transform> hallwayRefs = new();
     private List<Transform> runSequence = new();
 
     private int currentRoomIndex = 0;
@@ -31,7 +30,7 @@ public class DungeonManager : Singleton<DungeonManager>
     private bool runStarted = false;
 
 
-    /* -------------------- PROPIEDADES PÚBLICAS -------------------- */
+    /* -------------------- PROPIEDADES Pï¿½BLICAS -------------------- */
     public Transform Player => player;
     public Transform StartSpawnPoint => startSpawnPoint;
     public int CurrentLayer => currentLayer;
@@ -47,7 +46,7 @@ public class DungeonManager : Singleton<DungeonManager>
 
     private void Start()
     {
-        Debug.Log("[DungeonManager] Esperando que el player toque la primera puerta...");
+       // Debug.Log("[DungeonManager] Esperando que el player toque la primera puerta...");
 
         GenerateRunSequence();
 
@@ -56,6 +55,7 @@ public class DungeonManager : Singleton<DungeonManager>
             player.position = startSpawnPoint.position;
         }
         PlayerDungeonHUD.OnLayerChanged?.Invoke(currentLayer);
+        StartCoroutine(PlayDungeonMusic());
     }
     /* ------------------ API ---------------------- */
    
@@ -67,7 +67,7 @@ public class DungeonManager : Singleton<DungeonManager>
         if (runStarted) return;
 
         runStarted = true;
-        Debug.Log("[DungeonManager] ¡Run iniciada! Player tocó la primera puerta.");
+        // Debug.Log("[DungeonManager] ï¿½Run iniciada! Player tocï¿½ la primera puerta.");
 
         StartRun();
     }
@@ -76,13 +76,27 @@ public class DungeonManager : Singleton<DungeonManager>
         if (room == null) return;
 
         currentRoom = room;
-        Debug.Log($"[DungeonManager] Entrando a sala {room.Config.roomID} en Layer {CurrentLayer}");
+        //Debug.Log($"[DungeonManager] Entrando a sala {room.Config.roomID} en Layer {CurrentLayer}");
+        
+        // Notify save system about room entry
+        if (HallwaySaveCoordinator.Instance != null)
+        {
+            HallwaySaveCoordinator.Instance.OnEnterRoom(room.Config.roomID, currentLayer);
+        }
+        
         room.ActivateRoom();
     }
 
     public void OnRoomCleared(RoomController clearedRoom)
     {
-        Debug.Log($"[DungeonManager] Room {clearedRoom.Config.roomID} cleared. Moviendo a la siguiente sala...");
+       // Debug.Log($"[DungeonManager] Room {clearedRoom.Config.roomID} cleared. Moviendo a la siguiente sala...");
+       
+        // Notify save system about room completion
+        if (HallwaySaveCoordinator.Instance != null)
+        {
+            HallwaySaveCoordinator.Instance.OnRoomCompleted(clearedRoom.Config.roomID, currentLayer);
+        }
+        
         if ((currentRoomIndex + 1) % 4 == 0 && currentRoomIndex + 1 < totalRooms )
         {
             AdvanceLayer();
@@ -113,14 +127,14 @@ public class DungeonManager : Singleton<DungeonManager>
     public void OnPlayerDeath()
     {
         Debug.Log("[DungeonManager] OnPlayerDeath llamado. Reset de historiales.");
-        TeleportPlayer(startSpawnPoint.position);
         ClearHistories();
+        TeleportPlayer(startSpawnPoint.position);
     }
     public void TeleportToLobby()
     {
         Debug.Log("[DungeonManager] Teleport manual al Lobby desde UI.");
+        ResetDungeonState();
         TeleportPlayer(startSpawnPoint.position);
-        ClearHistories();
     }
     public void AdvanceLayer()
     {
@@ -128,19 +142,51 @@ public class DungeonManager : Singleton<DungeonManager>
         Debug.Log($"[DungeonManager] Avanzando a capa {currentLayer}");
         PlayerDungeonHUD.OnLayerChanged?.Invoke(currentLayer);
     }
+
+    /// <summary>
+    /// Gets the current dungeon run history for save system integration
+    /// </summary>
+    public (List<string> roomsSinceLast, List<string> hallwaysSinceLast) GetCurrentRunHistory()
+    {
+        var roomsSinceLast = new List<string>();
+        var hallwaysSinceLast = new List<string>();
+
+        // Add recent rooms and hallways from the current run
+        foreach (var item in recentRooms)
+        {
+            if (roomRefs.ContainsValue(item))
+            {
+                var key = roomRefs.FirstOrDefault(x => x.Value == item).Key;
+                if (!string.IsNullOrEmpty(key))
+                    roomsSinceLast.Add(key);
+            }
+        }
+
+        foreach (var item in recentHallways)
+        {
+            if (hallwayRefs.ContainsValue(item))
+            {
+                var key = hallwayRefs.FirstOrDefault(x => x.Value == item).Key;
+                if (!string.IsNullOrEmpty(key))
+                    hallwaysSinceLast.Add(key);
+            }
+        }
+
+        return (roomsSinceLast, hallwaysSinceLast);
+    }
    
-    /* -------------------- MÉTODOS PRIVADOS -------------------- */
+    /* -------------------- Mï¿½TODOS PRIVADOS -------------------- */
 
     private void InitializeDictionaries()
     {
-        roomPrefabs.Clear();
-        hallwayPrefabs.Clear();
+        roomRefs.Clear();
+        hallwayRefs.Clear();
 
-        for (int i = 0; i < roomPrefabsList.Count; i++)
-            roomPrefabs.Add("Room_" + i, roomPrefabsList[i]);
+        for (int i = 0; i < roomTransformList.Count; i++)
+            roomRefs.Add("Room_" + i, roomTransformList[i]);
 
-        for (int i = 0; i < hallwayPrefabsList.Count; i++)
-            hallwayPrefabs.Add("Hallway_" + i, hallwayPrefabsList[i]);
+        for (int i = 0; i < hallwayTransformList.Count; i++)
+            hallwayRefs.Add("Hallway_" + i, hallwayTransformList[i]);
     }
 
     private void GenerateRunSequence()
@@ -152,15 +198,15 @@ public class DungeonManager : Singleton<DungeonManager>
 
         for (int i = 0; i < totalRooms; i++)
         {
-            // --- Habitación ---
-            var room = GetRandomFromDict(roomPrefabs, recentRooms);
+            // --- Habitaciï¿½n ---
+            var room = GetRandomFromDict(roomRefs, recentRooms);
             runSequence.Add(room);
             AddToHistory(recentRooms, room);
 
             // --- Pasillo ---
             if (i < totalRooms - 1)
             {
-                var hallway = GetRandomFromDict(hallwayPrefabs, recentHallways);
+                var hallway = GetRandomFromDict(hallwayRefs, recentHallways);
                 runSequence.Add(hallway);
                 AddToHistory(recentHallways, hallway);
             }
@@ -170,11 +216,13 @@ public class DungeonManager : Singleton<DungeonManager>
     private void StartRun()
     {
         currentRoomIndex = 0;
+
         if (runSequence.Count == 0)
         {
-            Debug.LogError("[DungeonManager] runSequence vacío al iniciar la run.");
+            Debug.LogError("[DungeonManager] runSequence vacï¿½o al iniciar la run.");
             return;
         }
+
         PlayerDungeonHUD.OnLayerChanged?.Invoke(currentLayer);
         LoadRoomFromRunSequence(currentRoomIndex);
     }
@@ -182,7 +230,7 @@ public class DungeonManager : Singleton<DungeonManager>
     {
         if (index >= runSequence.Count)
         {
-            Debug.LogError("[DungeonManager] Índice fuera de rango en runSequence.");
+            Debug.LogError("[DungeonManager] ï¿½ndice fuera de rango en runSequence.");
             return;
         }
 
@@ -204,7 +252,7 @@ public class DungeonManager : Singleton<DungeonManager>
             return;
         }
 
-        Debug.Log($"[DungeonManager] Moviendo al jugador a: {target.name}");
+       // Debug.Log($"[DungeonManager] Moviendo al jugador a: {target.name}");
         player.position = target.position;
     }
     private void TeleportPlayer(Vector3 targetPosition)
@@ -221,7 +269,18 @@ public class DungeonManager : Singleton<DungeonManager>
         currentRoomIndex = 0;
         currentLayer = 1;
     }
+    private void ResetDungeonState()
+    {
+        ClearHistories();
+        runStarted = false;
+        currentRoom = null;
+        currentRoomIndex = 0;
+        currentLayer = 1;
 
+        GenerateRunSequence();
+
+        Debug.Log("[DungeonManager] Estado de dungeon reseteado. Esperando nueva run...");
+    }
     private Transform GetRandomFromDict(Dictionary<string, Transform> dict, Queue<Transform> history)
     {
         List<Transform> candidates = new List<Transform>(dict.Values);
@@ -236,7 +295,7 @@ public class DungeonManager : Singleton<DungeonManager>
 
         candidates = RouletteSelection.Shuffle(candidates);
 
-        return candidates[0]; // Tomamos el primero después del shuffle
+        return candidates[0]; // Tomamos el primero despuï¿½s del shuffle
     }
 
     private void AddToHistory(Queue<Transform> history, Transform item)
@@ -244,5 +303,11 @@ public class DungeonManager : Singleton<DungeonManager>
         history.Enqueue(item);
         if (history.Count > historyLimit)
             history.Dequeue();
+    }
+    private IEnumerator PlayDungeonMusic()
+    {
+        yield return new WaitUntil(() => AudioManager.Instance != null);
+
+        StartCoroutine(AudioManager.Instance.PlayMusic("DungeonBGM"));
     }
 }

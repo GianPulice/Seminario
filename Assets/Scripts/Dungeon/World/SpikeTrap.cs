@@ -11,10 +11,7 @@ public class SpikeTrap : MonoBehaviour
     [SerializeField] private float cooldownTime = 2f;
 
     [Header("Timing")]
-    [SerializeField] private float damageDelay = 0.5f; // <-- NUEVO: ventana para esquivar
-
-    [Header("Dirección del disparo (local)")]
-    [SerializeField] private Vector3 spikeDirection = Vector3.up; // piso: up | techo: down | pared: forward/left/right
+    [SerializeField] private float damageDelay = 0.5f; // ventana para esquivar
 
     [Header("References")]
     [SerializeField] private Transform spikeMesh;  // el objeto que se mueve
@@ -24,8 +21,8 @@ public class SpikeTrap : MonoBehaviour
     private float cooldownTimer = 0f;
 
     // control de daño diferido
-    private PlayerDungeonModel currentTarget;      // jugador que activó la trampa
-    private Coroutine pendingDamageRoutine;        // para cancelar si sale del trigger
+    private PlayerDungeonModel currentTarget;
+    private Coroutine pendingDamageRoutine;
 
     private void Start()
     {
@@ -40,7 +37,8 @@ public class SpikeTrap : MonoBehaviour
 
     private void Update()
     {
-        if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
+        if (cooldownTimer > 0f)
+            cooldownTimer -= Time.deltaTime;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -49,24 +47,19 @@ public class SpikeTrap : MonoBehaviour
 
         if (other.TryGetComponent<PlayerDungeonModel>(out var player))
         {
-            // activamos la trampa (mueve pinchos ya)
             isActive = true;
             currentTarget = player;
 
-            // mover pinchos hacia afuera según dirección local configurable
-            Vector3 worldDir = transform.TransformDirection(spikeDirection.normalized);
-            Vector3 targetLocalPos = originalLocalPos + spikeMesh.InverseTransformDirection(worldDir) * spikeDistance;
+            // Dirección en la que apuntan los pinchos (local Z+ del spikeMesh)
+            Vector3 targetLocalPos = originalLocalPos + (spikeMesh.localRotation * Vector3.up) * spikeDistance;
 
             StartCoroutine(SpikeMovement(targetLocalPos));
-
-            // programar daño diferido
             pendingDamageRoutine = StartCoroutine(DelayedDamage());
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        // si el mismo jugador sale antes del delay, se cancela el daño
         if (currentTarget != null && other.GetComponent<PlayerDungeonModel>() == currentTarget)
         {
             if (pendingDamageRoutine != null)
@@ -74,7 +67,7 @@ public class SpikeTrap : MonoBehaviour
                 StopCoroutine(pendingDamageRoutine);
                 pendingDamageRoutine = null;
             }
-            currentTarget = null; // queda activada pero sin objetivo: no hace daño esta vez
+            currentTarget = null;
         }
     }
 
@@ -82,7 +75,6 @@ public class SpikeTrap : MonoBehaviour
     {
         yield return new WaitForSeconds(damageDelay);
 
-        // sólo daña si el objetivo sigue siendo válido (sigue dentro)
         if (currentTarget != null)
         {
             currentTarget.TakeDamage(damage);
@@ -103,7 +95,7 @@ public class SpikeTrap : MonoBehaviour
             yield return null;
         }
 
-        // pequeño tiempo extendida
+        // espera
         yield return new WaitForSeconds(resetDelay);
 
         // vuelta
@@ -115,14 +107,14 @@ public class SpikeTrap : MonoBehaviour
             yield return null;
         }
 
-        // limpieza / cooldown
+        // limpieza
         cooldownTimer = cooldownTime;
         isActive = false;
         currentTarget = null;
 
         if (pendingDamageRoutine != null)
         {
-            StopCoroutine(pendingDamageRoutine); // por las dudas
+            StopCoroutine(pendingDamageRoutine);
             pendingDamageRoutine = null;
         }
     }
@@ -130,12 +122,14 @@ public class SpikeTrap : MonoBehaviour
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
-        // visualiza la dirección local configurada
-        Gizmos.color = Color.red;
-        Vector3 p = spikeMesh ? spikeMesh.position : transform.position;
-        Vector3 dir = transform.TransformDirection(spikeDirection.normalized);
-        Gizmos.DrawLine(p, p + dir * 1.0f);
-        Gizmos.DrawSphere(p + dir * 1.0f, 0.05f);
+        if (spikeMesh)
+        {
+            Gizmos.color = Color.red;
+            Vector3 p = spikeMesh.position;
+            Vector3 dir = spikeMesh.forward;
+            Gizmos.DrawLine(p, p + dir * 1.0f);
+            Gizmos.DrawSphere(p + dir * 1.0f, 0.05f);
+        }
     }
 #endif
 }

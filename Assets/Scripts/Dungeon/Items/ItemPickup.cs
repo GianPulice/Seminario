@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -5,17 +6,19 @@ using UnityEngine;
 public class ItemPickup : MonoBehaviour, IInteractable
 {
     [SerializeField] private ItemData itemData;
+    [SerializeField] private Color interactColor;
     [SerializeField] private bool destroyOnPickup = true;
 
-    private Outline outline;
-
-    public InteractionMode InteractionMode => throw new System.NotImplementedException();
+    public InteractionMode InteractionMode => InteractionMode.Press;
 
     private void Awake()
     {
-        outline = GetComponent<Outline>();
+        StartCoroutine(RegisterOutline());
     }
-
+    private void OnDestroy()
+    {
+        OutlineManager.Instance.Unregister(gameObject);
+    }
     public void Interact(bool isPressed)
     {
         switch (itemData.type)
@@ -40,29 +43,33 @@ public class ItemPickup : MonoBehaviour, IInteractable
 
     public void ShowOutline()
     {
-        if (outline != null)
-        {
-            outline.OutlineWidth = 5f;
-            InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
-        }
+        OutlineManager.Instance.ShowWithCustomColor(gameObject, interactColor);
+        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
+
     }
 
     public void HideOutline()
     {
-        if (outline != null)
+        if(gameObject != null)
         {
-            outline.OutlineWidth = 0f;
+            OutlineManager.Instance.Hide(gameObject);
             InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
+
         }
     }
 
     public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
     {
-        throw new System.NotImplementedException();
+        
     }
 
     public void HideMessage(TextMeshProUGUI interactionManagerUIText)
     {
-        throw new System.NotImplementedException();
+        
+    }
+    private IEnumerator RegisterOutline()
+    {
+        yield return new WaitUntil(() => OutlineManager.Instance != null);
+        OutlineManager.Instance.Register(gameObject);
     }
 }

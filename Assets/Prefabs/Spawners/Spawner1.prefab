@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 7887455072199509804}
   - component: {fileID: 5230142200929748044}
   - component: {fileID: 6781351402847274416}
-  - component: {fileID: 3142625103387820402}
   m_Layer: 0
   m_Name: Spawner1
   m_TagString: Untagged
@@ -49,8 +48,61 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyFactory: {fileID: 5653556251869384128}
   statScaler: {fileID: 6781351402847274416}
-  spawnTableData: {fileID: 0}
-  spawnPoints: []
+  spawnTableData: {fileID: 11400000, guid: 81fa1d47c1244674496dbe2303d025e8, type: 2}
+  spawnPoints:
+  - roomId: 1
+    points:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  - roomId: 2
+    points:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  - roomId: 3
+    points:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  - roomId: 4
+    points:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  - roomId: 5
+    points:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  - roomId: 6
+    points:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
 --- !u!114 &6781351402847274416
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -65,27 +117,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   modifiers:
   - {fileID: 11400000, guid: f5a40600728f80d42b1a10ad58bb3c50, type: 2}
---- !u!135 &3142625103387820402
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 189518784287509402}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 8
-  m_Center: {x: -2.0371199, y: 0, z: 0}
 --- !u!1 &5255721267045534704
 GameObject:
   m_ObjectHideFlags: 0

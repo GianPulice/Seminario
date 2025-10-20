@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 6628602004225051997}
   - component: {fileID: 1527059465943773584}
   - component: {fileID: 7890458307418230478}
-  - component: {fileID: 7800188800207904516}
   - component: {fileID: 1217707561925280191}
   - component: {fileID: 7273996430040220249}
   - component: {fileID: 118291439567565097}
+  - component: {fileID: 7661096424213063105}
   m_Layer: 10
   m_Name: BeastMeat
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 2.52, y: -0.61, z: 0}
-  m_LocalScale: {x: 0.125, y: 0.125, z: 0.125}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -44,7 +44,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2946134255287635992}
-  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 1588110511326799053, guid: 3f6c51ff26634f045b5e05c7f4a23062, type: 3}
 --- !u!23 &7890458307418230478
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -67,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4d002eb7d2dc4e84398139cc7da1e4f4, type: 2}
+  - {fileID: 2100000, guid: e204439977f084240a2a7e1d41bcc576, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -89,29 +89,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &7800188800207904516
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2946134255287635992}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!114 &1217707561925280191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,3 +137,24 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!65 &7661096424213063105
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2946134255287635992}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.010061456, y: 0.010270793, z: 0.019784942}
+  m_Center: {x: -0.000013000332, y: 0.000097367214, z: -0.000074340496}

@@ -6,6 +6,10 @@ using UnityEngine;
 
 public class BookManagerUI : Singleton<BookManagerUI>
 {
+    /// <summary>
+    /// Averiguar porque aveces tira errror y aveces no
+    /// </summary>
+
     private List<IBookableUI> bookElementsUI = new List<IBookableUI>();
 
     private static event Action onHideOutlinesAndTextsFromInteractableElements;
@@ -75,6 +79,7 @@ public class BookManagerUI : Singleton<BookManagerUI>
     private void OpenOrCloseBook()
     {
         if (PauseManager.Instance.IsGamePaused) return;
+        if (bookElementsUI == null) return;
 
         onHideOutlinesAndTextsFromInteractableElements?.Invoke();
 
@@ -100,6 +105,7 @@ public class BookManagerUI : Singleton<BookManagerUI>
     {
         if (!isBookOpen) return;
         if (PauseManager.Instance.IsGamePaused) return;
+        if (bookElementsUI == null) return;
 
         float rightStickX = Input.GetAxis("RightStickHorizontal");
 

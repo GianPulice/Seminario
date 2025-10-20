@@ -28,6 +28,9 @@ public class EventSystemTabern : MonoBehaviour
 
         AdministratingManagerUI.OnSetSelectedCurrentGameObject += SetSelectedCurrentGameObject;
         AdministratingManagerUI.OnClearSelectedCurrentGameObject += ClearCurrentSelectedGameObject;
+
+        TeleportDungeonManagerUI.OnSetSelectedCurrentGameObject += SetSelectedCurrentGameObject;
+        TeleportDungeonManagerUI.OnClearSelectedCurrentGameObject += ClearCurrentSelectedGameObject;
     }
 
     private void UnsuscribeToUIEvents()
@@ -40,6 +43,9 @@ public class EventSystemTabern : MonoBehaviour
 
         AdministratingManagerUI.OnSetSelectedCurrentGameObject -= SetSelectedCurrentGameObject;
         AdministratingManagerUI.OnClearSelectedCurrentGameObject -= ClearCurrentSelectedGameObject;
+
+        TeleportDungeonManagerUI.OnSetSelectedCurrentGameObject -= SetSelectedCurrentGameObject;
+        TeleportDungeonManagerUI.OnClearSelectedCurrentGameObject -= ClearCurrentSelectedGameObject;
     }
 
     private void GetComponents()

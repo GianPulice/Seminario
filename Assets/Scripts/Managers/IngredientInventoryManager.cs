@@ -77,6 +77,13 @@ public class IngredientInventoryManager : Singleton<IngredientInventoryManager>
         return ingredientInventory.TryGetValue(ingredient, out var stock) ? stock : 0;
     }
 
+    public void SetStock(IngredientType ingredient, int amount)
+    {
+        if (amount < 0) amount = 0;
+        ingredientInventory[ingredient] = amount;
+        SaveInventory();
+    }
+
     public FoodRecipeData GetRecipe(FoodType foodType)
     {
         return recipeDict.TryGetValue(foodType, out var recipe) ? recipe : null;
@@ -119,8 +126,6 @@ public class IngredientInventoryManager : Singleton<IngredientInventoryManager>
                     var stock = ingredientData.InitializeStock;
                     ingredientInventory[type] = stock;
                 }
-
-                return;
             }
 
             else
@@ -133,6 +138,8 @@ public class IngredientInventoryManager : Singleton<IngredientInventoryManager>
                 }
             }
         }
+
+        SaveInventory();
     }
 
     private void SaveInventory()

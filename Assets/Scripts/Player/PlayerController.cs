@@ -158,6 +158,7 @@ public class PlayerController : MonoBehaviour
         if (PlayerInputs.Instance == null) return;
         if (PauseManager.Instance == null) return;
         if (PauseManager.Instance.IsGamePaused) return;
+        if (playerModel.IsCooking || playerModel.IsAdministrating || playerModel.IsInTeleportPanel) return;
 
         ShowOrHideDish();
         OpenBook();
@@ -167,7 +168,6 @@ public class PlayerController : MonoBehaviour
     {
         if (BookManagerUI.Instance == null) return;
         if (BookManagerUI.Instance.IsBookOpen) return;
-        if (playerModel.IsCooking || playerModel.IsAdministrating) return;
 
         if (PlayerInputs.Instance.ShowOrHideDish())
         {
@@ -191,8 +191,6 @@ public class PlayerController : MonoBehaviour
 
     private void OpenBook()
     {
-        if (playerModel.IsCooking || playerModel.IsAdministrating) return;
-
         if (PlayerInputs.Instance.Book())
         {
             onOpenOrCloseBook?.Invoke();

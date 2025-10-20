@@ -11,12 +11,14 @@ public class PlayerCam : MonoBehaviour
     private bool isTeleportPannelOpened = false;
     private void Awake()
     {
-        PlayerDungeonHUD.OnShowTeleportConfirm += TeleportMessageToggle;
+        PlayerDungeonHUD.OnShowTeleportConfirm += TeleportMessageShow;
+        PlayerDungeonHUD.OnHideTeleportConfirm += HideTeleportMessage;
     }
 
     private void OnDestroy()
     {
-        PlayerDungeonHUD.OnShowTeleportConfirm -= TeleportMessageToggle;
+        PlayerDungeonHUD.OnShowTeleportConfirm -= TeleportMessageShow;
+        PlayerDungeonHUD.OnHideTeleportConfirm -= HideTeleportMessage;
     }
 
     private void Update()
@@ -51,8 +53,12 @@ public class PlayerCam : MonoBehaviour
             orientation.rotation = Quaternion.Euler(0f, _yRotation, 0f);
     }
 
-    private void TeleportMessageToggle(string nada)
+    private void TeleportMessageShow(string nada)
     {
-        isTeleportPannelOpened = !isTeleportPannelOpened;
+        isTeleportPannelOpened = true;
+    }
+    private void HideTeleportMessage()
+    {
+        isTeleportPannelOpened = false;
     }
 }

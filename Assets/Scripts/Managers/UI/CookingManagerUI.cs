@@ -15,8 +15,6 @@ public class CookingManagerUI : MonoBehaviour
     /// <summary>
     /// Agregar ruido de cancelacion si no tiene ingredientes para cocinar una receta
     /// </summary>
-    [SerializeField] private AudioSource buttonClick;
-    [SerializeField] private AudioSource buttonSelected;
 
     [SerializeField] private List<RecipeInformationUI> recipesInformationUI;
 
@@ -89,7 +87,7 @@ public class CookingManagerUI : MonoBehaviour
     {
         if (!ignoreFirstButtonSelected)
         {
-            buttonSelected.Play();
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             return;
         }
 
@@ -130,7 +128,7 @@ public class CookingManagerUI : MonoBehaviour
     {
         if (!Enum.TryParse(ingredientType, out IngredientType ingredient)) return;
 
-        buttonClick.Play();
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
 
         if (selectedIngredients.Contains(ingredient))
         {
@@ -184,7 +182,7 @@ public class CookingManagerUI : MonoBehaviour
                 if (canCraft)
                 {
                     // Cocinar
-                    buttonClick.Play();
+                    AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
                     onButtonGetFood?.Invoke(recipe.FoodType.ToString());
 
                     Debug.Log($"Cocinaste {recipe.FoodType}!");

@@ -36,12 +36,12 @@ public class PlayerInputs : Singleton<PlayerInputs>
 
     public Vector2 MouseRotation()
     {
-        return new Vector2(Input.GetAxis("Mouse X") * keyboardInputs.SensitivityX * 1f, Input.GetAxis("Mouse Y") * keyboardInputs.SensitivityY * 1f);
+        return new Vector2(Input.GetAxis("Mouse X") * keyboardInputs.SensitivityX, Input.GetAxis("Mouse Y") * keyboardInputs.SensitivityY);
     }
 
     public Vector2 JoystickRotation()
     {
-        return new Vector2(joystick.x * joystickInputs.SensitivityX * 1f, joystick.y * joystickInputs.SensitivityY * 1f);
+        return new Vector2(joystick.x * joystickInputs.SensitivityX, joystick.y * joystickInputs.SensitivityY);
     }
 
 
@@ -54,6 +54,7 @@ public class PlayerInputs : Singleton<PlayerInputs>
     public bool Attack() => Input.GetKeyDown(keyboardInputs.Attack) || Input.GetKeyDown(joystickInputs.Attack); //Click izquierdo
     public bool Shield() => Input.GetKeyDown(keyboardInputs.Shield) || Input.GetKeyDown(joystickInputs.Shield);
     public bool RunHeld() => Input.GetKey(keyboardInputs.Run) || Input.GetKey(joystickInputs.Run);
+    public bool _Debug() => Input.GetKeyDown(keyboardInputs.Debug);
 
     /* -------------------------------------------BOTH----------------------------------------- */
 

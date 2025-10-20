@@ -23,7 +23,7 @@ public class TeleportUI : MonoBehaviour
 
     private void HandleShowTeleportConfirm(string message)
     {
-         messageText.text = $"Do you want to {message.ToLower()}?";
+        messageText.text = $"Do you want to {message.ToLower()}?";
         teleportConfirmUI.SetActive(true);
 
         DeviceManager.Instance.IsUIModeActive = true;
@@ -49,7 +49,11 @@ public class TeleportUI : MonoBehaviour
     {
         teleportConfirmUI.SetActive(false);
 
-        DeviceManager.Instance.IsUIModeActive = false;
+        if (DeviceManager.Instance != null)
+        {
+            DeviceManager.Instance.IsUIModeActive = false;
+        }
+        PlayerDungeonHUD.OnHideTeleportConfirm?.Invoke();
     }
 
     private void SubscribeEvents()

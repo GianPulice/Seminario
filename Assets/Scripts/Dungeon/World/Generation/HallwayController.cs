@@ -20,6 +20,6 @@ public class HallwayController : MonoBehaviour
         {
             door.Unlock();
         }
-        Debug.Log($"[HallwayController] Se desbloquearon {doors.Length} puertas en el hallway {gameObject.name}");
+       // Debug.Log($"[HallwayController] Se desbloquearon {doors.Length} puertas en el hallway {gameObject.name}");
     }
 }
