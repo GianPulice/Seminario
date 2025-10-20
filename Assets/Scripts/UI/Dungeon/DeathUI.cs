@@ -37,7 +37,7 @@ public class DeathUI : MonoBehaviour
     {
         gameObject.SetActive(false);
 
-        PlayerDungeonHUD.OnRetryGame?.Invoke();
+        //PlayerDungeonHUD.OnRetryGame?.Invoke();
 
         Debug.Log("Botón Reintentar presionado. Evento PlayerDungeonHUD.OnRetryGame invocado.");
 
