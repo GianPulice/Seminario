@@ -124,10 +124,10 @@ public class ClientStateLeave<T> : State<T>
         }
 
         // Si la mesa es null ejecuta este bloque, quiere decir que todas las mesas estaban ocupadas y se quedo esperando afuera
-        else
+        /*else
         {
             clientView.SetSpriteTypeName("SpriteHungry");
             MoneyManager.Instance.SubMoney(GratuityManager.Instance.GratuityManagerData.MissedClientCost);
-        }
+        }*/
     }
 }

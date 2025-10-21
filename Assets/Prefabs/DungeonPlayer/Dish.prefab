@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3492763917286192}
   - component: {fileID: 2756341997347427355}
   - component: {fileID: 4343807644716005835}
+  - component: {fileID: 5510947174561327209}
   m_Layer: 7
   m_Name: Dish
   m_TagString: Untagged
@@ -103,8 +104,29 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 7292684172148260772, guid: ae75e4152d579a241a312a2cc1c846c1, type: 3}
+--- !u!65 &5510947174561327209
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6720850544606930402}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.0033610035, y: 0.0002215314, z: 0.0032790129}
+  m_Center: {x: 0.000023599863, y: -0.000999802, z: 0.000025138408}

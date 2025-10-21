@@ -28,7 +28,7 @@ public class FoodSupport : MonoBehaviour, IInteractable
         if (currentFood != null)
         {
             PlayerController.OnSupportFood?.Invoke(currentFood);
-            currentFood.transform.position = transform.position + new Vector3(0, 0.075f, 0);
+            currentFood.transform.position = transform.position + new Vector3(0, 0.375f, 0);
             currentFood.transform.SetParent(transform);
             currentFood = null;
         }
@@ -41,7 +41,7 @@ public class FoodSupport : MonoBehaviour, IInteractable
             // Verifica que las posiciones de la bandeja tengan hijos (COMIDAS) y el soporte no tenga ningun hijo (comidas)
             if (child.childCount > 0 && gameObject.transform.childCount < 1)
             {
-                currentFood = child.GetChild(0).gameObject;
+                currentFood = child.gameObject;
                 OutlineManager.Instance.ShowWithDefaultColor(gameObject);
             }
         }
@@ -51,16 +51,6 @@ public class FoodSupport : MonoBehaviour, IInteractable
     {
         currentFood = null;
         OutlineManager.Instance.Hide(gameObject);
-
-        /*foreach (Transform child in playerController.PlayerView.Dish.transform)
-        {
-            // Verifica que las posiciones de la bandeja NO tengan hijos (COMIDAS)
-            if (child.childCount < 1)
-            {
-                currentFood = null;
-                OutlineManager.Instance.Hide(gameObject);
-            }
-        }*/
     }
 
     public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
@@ -79,15 +69,6 @@ public class FoodSupport : MonoBehaviour, IInteractable
     public void HideMessage(TextMeshProUGUI interactionManagerUIText)
     {
         interactionManagerUIText.text = string.Empty;
-
-        /*foreach (Transform child in playerController.PlayerView.Dish.transform)
-        {
-            // Verifica que las posiciones de la bandeja NO tengan hijos (COMIDAS)
-            if (child.childCount < 1)
-            {
-                interactionManagerUIText.text = string.Empty;
-            }
-        }*/
     }
 
 

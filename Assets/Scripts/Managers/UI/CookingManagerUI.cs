@@ -82,6 +82,15 @@ public class CookingManagerUI : MonoBehaviour
         }
     }
 
+    // Funcion asignada a botones en la UI para deseleccionar el selected GameObject del EventSystem con Mouse en los botones de ingredientes
+    public void DeselectButtonIngredientAsSelectedGameObjectIfExitHover()
+    {
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+        }
+    }
+
     // Funcion asignada a botones en la UI para reproducir el sonido selected
     public void PlayAudioButtonSelectedWhenChangeSelectedGameObjectExceptFirstTime()
     {

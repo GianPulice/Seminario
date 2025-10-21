@@ -49,7 +49,7 @@ public class Food : MonoBehaviour, IInteractable
     public CookingStates CurrentCookingState { get => currentCookingState; }
 
 
-    private class FoodMesh
+    public class FoodMesh
     {
         public GameObject root;
         public Collider collider;
@@ -95,8 +95,8 @@ public class Food : MonoBehaviour, IInteractable
     {
         UnsuscribeToUpdateManagerEvent();
         UnsuscribeToPlayerControllerEvents();
-        OutlineManager.Instance.Register(defaultMesh.root);
-        OutlineManager.Instance.Register(foodMesh.root);
+        OutlineManager.Instance.Unregister(defaultMesh.root);
+        OutlineManager.Instance.Unregister(foodMesh.root);
     }
 
 
@@ -117,9 +117,9 @@ public class Food : MonoBehaviour, IInteractable
             playerDishPosition = cookingManager.MoveFoodToDish(this);
 
             SetMeshRootActive(defaultMesh, false);
-            StartCoroutine(EnabledOrDisablePhysics(defaultMesh, false));
+            EnabledOrDisablePhysics(defaultMesh, false);
             SetMeshRootActive(foodMesh, true);
-            StartCoroutine(EnabledOrDisablePhysics(foodMesh, false));
+            EnabledOrDisablePhysics(foodMesh, false);
         }
     }
 
@@ -282,10 +282,8 @@ public class Food : MonoBehaviour, IInteractable
     }
 
     // Si es true activa las fisicas, sino las desactiva
-    private IEnumerator EnabledOrDisablePhysics(FoodMesh mesh, bool value)
+    private void EnabledOrDisablePhysics(FoodMesh mesh, bool value)
     {
-        yield return null;
-
         if (value)
         {
             mesh.rb.isKinematic = false;
@@ -299,7 +297,7 @@ public class Food : MonoBehaviour, IInteractable
         }
     }
 
-    public void RotateSliderUIToLookAtPlayer()
+    private void RotateSliderUIToLookAtPlayer()
     {
         Vector3 playerDirection = (playerController.transform.position - cookingBar.transform.position).normalized;
         Vector3 lookDirection = new Vector3(playerDirection.x, 0, playerDirection.z);
@@ -392,7 +390,7 @@ public class Food : MonoBehaviour, IInteractable
                 transform.SetParent(freeSpot);
                 transform.position = freeSpot.position + new Vector3(0, 0.1f, 0);
 
-                StartCoroutine(EnabledOrDisablePhysics(foodMesh, true));
+                EnabledOrDisablePhysics(foodMesh, true);
 
                 isInPlayerDishPosition = false;
                 isServedInTable = true;
@@ -410,8 +408,8 @@ public class Food : MonoBehaviour, IInteractable
         {
             cookingManager.ReleaseDishPosition(playerDishPosition);
             isInPlayerDishPosition = false;
-            StartCoroutine(EnabledOrDisablePhysics(foodMesh, true));
-        }  
+            EnabledOrDisablePhysics(foodMesh, true);
+        }
     }
 
     private void ThrowFoodToTrash()

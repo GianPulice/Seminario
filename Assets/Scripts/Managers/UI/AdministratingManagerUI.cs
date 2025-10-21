@@ -75,6 +75,17 @@ public class AdministratingManagerUI : MonoBehaviour
         }
     }
 
+    // Funcion asignada a botones en la UI para deseleccionar el selected GameObject del EventSystem con Mouse
+    public void DeselectButtonAsSelectedGameObjectIfExitHover()
+    {
+        if (EventSystem.current != null)
+        {
+            if (panelTabern.activeSelf) EventSystem.current.SetSelectedGameObject(null);
+            if (panelIngredients.activeSelf) EventSystem.current.SetSelectedGameObject(null);
+            if (panelUpgrades.activeSelf) EventSystem.current.SetSelectedGameObject(null);
+        }
+    }
+
     // Funcion asignada a botones en la UI para reproducir el sonido selected
     public void PlayAudioButtonSelectedWhenChangeSelectedGameObjectExceptFirstTime()
     {
@@ -153,7 +164,7 @@ public class AdministratingManagerUI : MonoBehaviour
 
         if (buttonsPanelAdministrating[0].colors == color) 
         {
-            onSetSelectedCurrentGameObject?.Invoke(buttonsTabern[0]);
+            //onSetSelectedCurrentGameObject?.Invoke(buttonsTabern[0]);
 
             AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[1]);
@@ -175,7 +186,7 @@ public class AdministratingManagerUI : MonoBehaviour
         if (buttonsPanelAdministrating[1].colors == color)
         {
             // Aca se podria agregar que selecione el ultimo que tenia antes
-            onSetSelectedCurrentGameObject?.Invoke(buttonsIngredients[0]);
+            //onSetSelectedCurrentGameObject?.Invoke(buttonsIngredients[0]);
 
             AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
 
@@ -198,7 +209,7 @@ public class AdministratingManagerUI : MonoBehaviour
         if (buttonsPanelAdministrating[2].colors == color)
         {
             // Aca se podria agregar que selecione el ultimo que tenia antes
-            onSetSelectedCurrentGameObject?.Invoke(buttonsUpgrades[0]);
+            //onSetSelectedCurrentGameObject?.Invoke(buttonsUpgrades[0]);
             ShowCurrentZoneInformation(0);
 
             AudioManager.Instance.PlayOneShotSFX("ButtonSelected");

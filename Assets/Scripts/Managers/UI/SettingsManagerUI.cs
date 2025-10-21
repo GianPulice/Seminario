@@ -7,7 +7,6 @@ public class SettingsManagerUI : MonoBehaviour
 {
     /// <summary>
     /// Analizar el tema de que las resoluciones que pone sean unicamente las compatibles con tu monitor y agregar mas alternativas de FPS
-    /// Tambien no se guardan correctamente los valores de las settings, es decir se guardan pero no se ven reflejados
     /// </summary>
 
     [Header("General:")]
@@ -88,8 +87,8 @@ public class SettingsManagerUI : MonoBehaviour
             SetButtonNormalColorInWhite(buttonVideo);
             SetButtonNormalColorInWhite(buttonControls);
 
-            SetButtonNormalColorInGreen(buttonAudio);
             DisableAllPanels();
+            SetButtonNormalColorInGreen(buttonAudio);
             panelAudio.SetActive(true);
         }
     }
@@ -97,7 +96,7 @@ public class SettingsManagerUI : MonoBehaviour
     public void SetPanelVideo()
     {
         // Color blanco
-        ColorBlock color = buttonAudio.colors;
+        ColorBlock color = buttonVideo.colors;
         color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
 
         if (buttonVideo.colors == color)
@@ -107,8 +106,8 @@ public class SettingsManagerUI : MonoBehaviour
             SetButtonNormalColorInWhite(buttonAudio);
             SetButtonNormalColorInWhite(buttonControls);
 
-            SetButtonNormalColorInGreen(buttonVideo);
             DisableAllPanels();
+            SetButtonNormalColorInGreen(buttonVideo);
             panelVideo.SetActive(true);
         }
     }
@@ -116,7 +115,7 @@ public class SettingsManagerUI : MonoBehaviour
     public void SetPanelControls()
     {
         // Color blanco
-        ColorBlock color = buttonAudio.colors;
+        ColorBlock color = buttonControls.colors;
         color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
 
         if (buttonControls.colors == color)
@@ -126,8 +125,8 @@ public class SettingsManagerUI : MonoBehaviour
             SetButtonNormalColorInWhite(buttonAudio);
             SetButtonNormalColorInWhite(buttonVideo);
 
-            SetButtonNormalColorInGreen(buttonControls);
             DisableAllPanels();
+            SetButtonNormalColorInGreen(buttonControls);
             panelControls.SetActive(true);
         }
     }
@@ -203,14 +202,6 @@ public class SettingsManagerUI : MonoBehaviour
 
     private void InitializeVideoOptions()
     {
-        // ---- Resoluciones ----
-        /*dropdownResolution.ClearOptions();
-        List<string> resOptions = new List<string>();
-        Resolution[] resolutions = Screen.resolutions;
-        foreach (var res in resolutions)
-            resOptions.Add(res.width + " x " + res.height);
-        dropdownResolution.AddOptions(resOptions);*/
-
         dropdownResolution.ClearOptions();
         List<string> resOptions = new List<string>();
         Resolution[] resolutions = Screen.resolutions;
@@ -248,6 +239,36 @@ public class SettingsManagerUI : MonoBehaviour
         toggleFullscreen.onValueChanged.AddListener(OnFullscreenChanged);
         toggleVSync.onValueChanged.AddListener(SettingsManager.Instance.SetVSync);
         toggleShowFPS.onValueChanged.AddListener(SettingsManager.Instance.SetShowFPS);
+
+        int currentResIndex = 0;
+        for (int i = 0; i < resolutions.Length; i++)
+        {
+            if (resolutions[i].width == SettingsManager.Instance.CurrentResolution.width &&
+                resolutions[i].height == SettingsManager.Instance.CurrentResolution.height)
+            {
+                currentResIndex = i;
+                break;
+            }
+        }
+        dropdownResolution.value = currentResIndex;
+        dropdownResolution.RefreshShownValue();
+
+        // Calidad actual
+        dropdownQuality.value = SettingsManager.Instance.QualityLevel;
+        dropdownQuality.RefreshShownValue();
+
+        // FPS actual
+        int fps = SettingsManager.Instance.TargetFPS;
+        dropdownFPS.value = fps switch
+        {
+            30 => 0,
+            60 => 1,
+            120 => 2,
+            144 => 3,
+            -1 => 4,
+            _ => 1
+        };
+        dropdownFPS.RefreshShownValue();
     }
 
     private void OnResolutionChanged(int index)
