@@ -26,8 +26,12 @@ public class IngredientInventoryManagerUI : MonoBehaviour//, IBookableUI
     // Simulacion de Update
     void UpdateIngredientInventoryManagerUI()
     {
+        //CheckInputs();
+    }
+
+    void Update()
+    {
         CheckInputs();
-        //
     }
 
     void OnDestroy()
