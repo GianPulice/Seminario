@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class IngredientInventoryManagerUI : MonoBehaviour, IBookableUI
+public class IngredientInventoryManagerUI : MonoBehaviour//, IBookableUI
 {
     [SerializeField] private RawImage inventoryPanel;
 
@@ -18,12 +18,24 @@ public class IngredientInventoryManagerUI : MonoBehaviour, IBookableUI
 
     void Awake()
     {
+        SuscribeToUpdateManagerEvent();
         GetComponents();
         InitializeSlots();
     }
 
+    // Simulacion de Update
+    void UpdateIngredientInventoryManagerUI()
+    {
+        CheckInputs();
+    }
 
-    public void OpenPanel()
+    void OnDestroy()
+    {
+        UnsuscribeToUpdateManagerEvent();
+    }
+
+
+    /*public void OpenPanel()
     {
         inventoryPanel.enabled = true;
 
@@ -43,8 +55,18 @@ public class IngredientInventoryManagerUI : MonoBehaviour, IBookableUI
         {
             kvp.Value.slot.SetActive(false);
         }
+    }*/
+
+
+    private void SuscribeToUpdateManagerEvent()
+    {
+        UpdateManager.OnUpdate += UpdateIngredientInventoryManagerUI;
     }
 
+    private void UnsuscribeToUpdateManagerEvent()
+    {
+        UpdateManager.OnUpdate -= UpdateIngredientInventoryManagerUI;
+    }
 
     private void GetComponents()
     {
@@ -73,6 +95,43 @@ public class IngredientInventoryManagerUI : MonoBehaviour, IBookableUI
 
             TextMeshProUGUI stockText = slotInstance.GetComponentInChildren<TextMeshProUGUI>();
             ingredientSlots[type] = (slotInstance, stockText);
+        }
+    }
+
+    private void CheckInputs()
+    {
+        if (PlayerInputs.Instance.Book() && !inventoryPanel.enabled)
+        {
+            OpenInventory();
+            return;
+        }
+
+        else if (PlayerInputs.Instance.Book() && inventoryPanel.enabled)
+        {
+            CloseInventory();
+            return;
+        }
+    }
+
+    private void OpenInventory()
+    {
+        inventoryPanel.enabled = true;
+
+        foreach (var kvp in ingredientSlots)
+        {
+            kvp.Value.slot.SetActive(true);
+            int stock = IngredientInventoryManager.Instance.GetStock(kvp.Key);
+            kvp.Value.text.text = stock.ToString();
+        }
+    }
+
+    private void CloseInventory()
+    {
+        inventoryPanel.enabled = false;
+
+        foreach (var kvp in ingredientSlots)
+        {
+            kvp.Value.slot.SetActive(false);
         }
     }
 }

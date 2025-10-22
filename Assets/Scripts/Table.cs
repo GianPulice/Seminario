@@ -14,7 +14,7 @@ public class Table : MonoBehaviour, IInteractable
     private GameObject table;
     private GameObject chair;
     private GameObject dish;
-    private GameObject dirty;
+    private ParticleSystem dirty;
 
     private NavMeshObstacle[] navMeshObstacle;
 
@@ -233,7 +233,9 @@ public class Table : MonoBehaviour, IInteractable
     public void SetDirty(bool current)
     {
         isDirty = current;
-        dirty.SetActive(current);
+        dirty.gameObject.SetActive(current);
+        var main = dirty.main;
+        main.loop = current;
     }
 
     /// <summary>
@@ -261,7 +263,7 @@ public class Table : MonoBehaviour, IInteractable
         table = transform.Find("Table").gameObject;
         chair = transform.Find("Chair").gameObject;
         dish = transform.Find("Dish").gameObject;
-        dirty = transform.Find("Dirty").gameObject;
+        dirty = GetComponentInChildren<ParticleSystem>(true); // Indica que busca componentes en gameObject desactivados
 
         navMeshObstacle = GetComponentsInChildren<NavMeshObstacle>();
 
