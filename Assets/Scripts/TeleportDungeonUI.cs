@@ -40,14 +40,14 @@ public class TeleportDungeonUI : MonoBehaviour, IInteractable
     void Awake()
     {
         GetComponents();
-        StartCoroutine(RegisterOutline());
+        //StartCoroutine(RegisterOutline());
         InitializeDoorLocalPositions();
         RecalculateOpenPositions();
     }
 
     void OnDestroy()
     {
-        OutlineManager.Instance.Unregister(gameObject);
+        //OutlineManager.Instance.Unregister(gameObject);
     }
 
     void OnTriggerEnter(Collider collider)
@@ -63,43 +63,43 @@ public class TeleportDungeonUI : MonoBehaviour, IInteractable
 
     public void Interact(bool isPressed)
     {
-        if (!isDoorOpen || (isDoorOpen && !isOpenByPlayer))
+        /*if (!isDoorOpen || (isDoorOpen && !isOpenByPlayer))
         {
             onShowTeleportPanel?.Invoke();
             playerModel.StopVelocity();
             playerModel.IsInTeleportPanel = true;
             isOpenByPlayer = true;
             StartCoroutine(MoveDoorsCoroutine(DoorAnimationType.Open));
-        }
+        }*/
     }
 
     public void ShowOutline()
     {
-        if (!isDoorOpen || (isDoorOpen && !isOpenByPlayer))
+        /*if (!isDoorOpen || (isDoorOpen && !isOpenByPlayer))
         {
             OutlineManager.Instance.ShowWithDefaultColor(gameObject);
             InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
-        }
+        }*/
     }
 
     public void HideOutline()
     {
-        OutlineManager.Instance.Hide(gameObject);
-        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
+        /*OutlineManager.Instance.Hide(gameObject);
+        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);*/
     }
 
     public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
     {
-        if (!isDoorOpen || (isDoorOpen && !isOpenByPlayer))
+        /*if (!isDoorOpen || (isDoorOpen && !isOpenByPlayer))
         {
             string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
             interactionManagerUIText.text = $"Press" + keyText + "to Teleport";
-        }
+        }*/
     }
 
     public void HideMessage(TextMeshProUGUI interactionManagerUIText)
     {
-        interactionManagerUIText.text = string.Empty;
+        //interactionManagerUIText.text = string.Empty;
     }
 
     public IEnumerator MoveDoorsCoroutine(DoorAnimationType animationType)

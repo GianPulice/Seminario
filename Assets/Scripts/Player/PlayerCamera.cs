@@ -53,8 +53,6 @@ public class PlayerCamera : MonoBehaviour
 
     private void UpdateCameraFollow()
     {
-        if (BookManagerUI.Instance == null) return;
-        if (BookManagerUI.Instance.IsBookOpen) return;
         if (PauseManager.Instance == null) return;
         if (PauseManager.Instance.IsGamePaused) return;
         if (playerModel.IsCooking || playerModel.IsAdministrating || playerModel.IsInTeleportPanel) return;

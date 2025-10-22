@@ -13,7 +13,6 @@ public class InteractionManager : Singleton<InteractionManager>
         CreateSingleton(true);
         SuscribeToUpdateManagerEvent();
         SuscribeToScenesManagerEvent();
-        SuscribeToBookManagerUI();
     }
 
     // Simulacion de Update
@@ -32,11 +31,6 @@ public class InteractionManager : Singleton<InteractionManager>
     private void SuscribeToScenesManagerEvent()
     {
         ScenesManager.Instance.OnSceneLoadedEvent += OnCleanReferencesWhenChangeScene;
-    }
-
-    private void SuscribeToBookManagerUI()
-    {
-        BookManagerUI.OnHideOutlinesAndTextsFromInteractableElements += HideAllOutlinesAndTexts;
     }
 
     private void OnCleanReferencesWhenChangeScene()
@@ -59,24 +53,13 @@ public class InteractionManager : Singleton<InteractionManager>
     {
         if (InteractionManagerUI.Instance == null) return;
         if (!InteractionManagerUI.Instance.CenterPointUI.gameObject.activeSelf) return;
-        if (ScenesManager.instance.CurrentSceneName == "Tabern")
-        {
-            if (BookManagerUI.Instance == null) return;
-            if (BookManagerUI.Instance.IsBookOpen) return;
-        }
 
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
 
         // Si no hay target y antes había uno, limpiamos
         if (previousTarget != null)
         {
-            previousTarget?.HideOutline();
-            previousTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-            currentTarget?.HideOutline();
-            currentTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-           
-            previousTarget = null;
-            currentTarget = null;
+            HideAllOutlinesAndTexts();
         }
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactionManagerData.InteractionDistance, LayerMask.GetMask("Interactable")))
@@ -109,11 +92,7 @@ public class InteractionManager : Singleton<InteractionManager>
     {
         if (InteractionManagerUI.Instance == null) return;
         if (!InteractionManagerUI.Instance.CenterPointUI.gameObject.activeSelf) return;
-        if (ScenesManager.instance.CurrentSceneName == "Tabern")
-        {
-            if (BookManagerUI.Instance == null) return;
-            if (BookManagerUI.Instance.IsBookOpen) return;
-        }
+
         if (currentTarget != null && !PauseManager.Instance.IsGamePaused)
         {
             switch (currentTarget.InteractionMode)
