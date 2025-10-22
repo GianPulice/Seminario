@@ -27,6 +27,7 @@ public class IngredientInventoryManagerUI : MonoBehaviour//, IBookableUI
     void UpdateIngredientInventoryManagerUI()
     {
         CheckInputs();
+        //
     }
 
     void OnDestroy()
