@@ -142,26 +142,24 @@ public class Food : MonoBehaviour, IInteractable
         InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
 
-    public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
+    public bool TryGetInteractionMessage(out string message)
     {
         if (cookingManager.AvailableDishPositions.Count > 0 && !isServedInTable && !isInPlayerDishPosition)
         {
             string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
-            interactionManagerUIText.text = $"Press" + keyText + "to grab food";
+            message = $"Press {keyText} to grab food";
+
+            return true;
         }
-    }
 
-    public void HideMessage(TextMeshProUGUI interactionManagerUIText)
-    {
-        interactionManagerUIText.text = string.Empty;
+        message = null;
+        return false;
     }
-
     public void ReturnObjetToPool()
     {
         cookingManager.ReturnObjectToPool(foodType, this);
         RestartValues();
     }
-
 
     private void SuscribeToUpdateManagerEvent()
     {

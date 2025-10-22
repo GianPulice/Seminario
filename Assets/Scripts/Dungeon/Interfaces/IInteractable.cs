@@ -9,13 +9,10 @@ public interface IInteractable
 {
     InteractionMode InteractionMode { get; }
 
+    bool TryGetInteractionMessage(out string message);
     void Interact(bool isPressed); 
 
     void ShowOutline();
 
     void HideOutline();
-
-    void ShowMessage(TextMeshProUGUI interactionManagerUIText);
-
-    void HideMessage(TextMeshProUGUI interactionManagerUIText); 
 }

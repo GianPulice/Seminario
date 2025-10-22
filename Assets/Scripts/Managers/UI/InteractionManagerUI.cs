@@ -14,14 +14,19 @@ public class InteractionManagerUI : Singleton<InteractionManagerUI>
     [SerializeField] private Image centerPointUI;
 
     [SerializeField] private TextMeshProUGUI interactionMessageText;
+    [SerializeField] private InteractionOnActive interactionMessage;
 
     public Image CenterPointUI { get => centerPointUI; }
     public TextMeshProUGUI InteractionMessageText { get => interactionMessageText; }
-
+    public InteractionOnActive MessageAnimator { get => interactionMessage; }
 
     void Awake()
     {
         CreateSingleton(false);
+        if(interactionMessage == null)
+        {
+           Debug.LogError("You didnt assign the interactionMessage in the InteractionManagerUI");
+        }
     }
 
 

@@ -5,7 +5,7 @@ public class InteractionManager : Singleton<InteractionManager>
     [SerializeField] private InteractionManagerData interactionManagerData;
 
     private IInteractable currentTarget;
-    private IInteractable previousTarget;
+    // private IInteractable previousTarget;
 
 
     void Awake()
@@ -35,20 +35,117 @@ public class InteractionManager : Singleton<InteractionManager>
 
     private void OnCleanReferencesWhenChangeScene()
     {
-        previousTarget = null;
+        if (currentTarget != null)
+        {
+            // Ocultamos el UI del objeto que estábamos mirando
+            HideCurrentTargetUI();
+        }
         currentTarget = null;
     }
-
-    private void HideAllOutlinesAndTexts()
+    private void ShowCurrentTargetUI()
     {
-        previousTarget?.HideOutline();
-        previousTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-        currentTarget?.HideOutline();
-        currentTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
+        // No hacer nada si no hay objetivo o UI
+        if (currentTarget == null || InteractionManagerUI.Instance == null) return;
 
-        OnCleanReferencesWhenChangeScene();
+        currentTarget.ShowOutline();
+
+        if (currentTarget.TryGetInteractionMessage(out string message))
+        {
+            InteractionManagerUI.Instance.MessageAnimator.Show(message);
+        }
+        else
+        {
+            InteractionManagerUI.Instance.MessageAnimator.Hide();
+        }
     }
 
+    private void HideCurrentTargetUI()
+    {
+        // No hacer nada si no hay objetivo
+        if (currentTarget == null) return;
+
+        currentTarget.HideOutline();
+
+        if (InteractionManagerUI.Instance != null)
+        {
+            InteractionManagerUI.Instance.MessageAnimator.Hide();
+        }
+    }
+
+    //private void DetectTarget()
+    //{
+    //    if (InteractionManagerUI.Instance == null) return;
+    //    if (!InteractionManagerUI.Instance.CenterPointUI.gameObject.activeSelf) return;
+
+    //    Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
+
+    //    // Si no hay target y antes había uno, limpiamos
+    //    if (previousTarget != null)
+    //    {
+    //        HideAllOutlinesAndTexts();
+    //    }
+
+    //    if (Physics.Raycast(ray, out RaycastHit hit, interactionManagerData.InteractionDistance, LayerMask.GetMask("Interactable")))
+    //    {
+    //        IInteractable hitTarget = hit.collider.GetComponent<IInteractable>()?? hit.collider.GetComponentInChildren<IInteractable>()?? hit.collider.GetComponentInParent<IInteractable>();
+
+    //        if (hitTarget != null)
+    //        {
+
+    //            if (hitTarget != previousTarget && previousTarget != null)
+    //            {
+    //                previousTarget.HideOutline();
+    //                previousTarget.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
+
+    //            }
+
+    //            currentTarget = hitTarget;
+    //            previousTarget = hitTarget;
+
+    //            // Mostrar outline siempre, aunque sea el mismo objeto
+    //            currentTarget.ShowOutline();
+    //            currentTarget.ShowMessage(InteractionManagerUI.Instance.InteractionMessageText);
+
+    //            return;
+    //        }
+    //    }
+    //}
+
+    //private void InteractWithTarget()
+    //{
+    //    if (InteractionManagerUI.Instance == null) return;
+    //    if (!InteractionManagerUI.Instance.CenterPointUI.gameObject.activeSelf) return;
+
+    //    if (currentTarget != null && !PauseManager.Instance.IsGamePaused)
+    //    {
+    //        switch (currentTarget.InteractionMode)
+    //        {
+    //            case InteractionMode.Press:
+    //                if (PlayerInputs.Instance.InteractPress())
+    //                {
+    //                    currentTarget.Interact(true);
+    //                    currentTarget.HideOutline();
+    //                    currentTarget.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
+
+    //                }
+    //                break;
+
+    //            case InteractionMode.Hold:
+    //                if (PlayerInputs.Instance.InteractHold())
+    //                {
+    //                    currentTarget.Interact(true);
+
+    //                }
+
+    //                else
+    //                {
+    //                    currentTarget.Interact(false);
+
+    //                }
+    //                break;
+    //        }
+    //    }
+    //}
     private void DetectTarget()
     {
         if (InteractionManagerUI.Instance == null) return;
@@ -56,38 +153,31 @@ public class InteractionManager : Singleton<InteractionManager>
 
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
 
-        // Si no hay target y antes había uno, limpiamos
-        if (previousTarget != null)
-        {
-            HideAllOutlinesAndTexts();
-        }
+        IInteractable newTarget = null;
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactionManagerData.InteractionDistance, LayerMask.GetMask("Interactable")))
         {
-            IInteractable hitTarget = hit.collider.GetComponent<IInteractable>()?? hit.collider.GetComponentInChildren<IInteractable>()?? hit.collider.GetComponentInParent<IInteractable>();
+            newTarget = hit.collider.GetComponent<IInteractable>() ??
+                        hit.collider.GetComponentInChildren<IInteractable>() ??
+                        hit.collider.GetComponentInParent<IInteractable>();
+        }
 
-            if (hitTarget != null)
+        if (newTarget != currentTarget)
+        {
+            if (currentTarget != null)
             {
+                HideCurrentTargetUI();
+            }
 
-                if (hitTarget != previousTarget && previousTarget != null)
-                {
-                    previousTarget.HideOutline();
-                    previousTarget.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-                   
-                }
+            currentTarget = newTarget;
 
-                currentTarget = hitTarget;
-                previousTarget = hitTarget;
-
-                // Mostrar outline siempre, aunque sea el mismo objeto
-                currentTarget.ShowOutline();
-                currentTarget.ShowMessage(InteractionManagerUI.Instance.InteractionMessageText);
-               
-                return;
+            if (currentTarget != null)
+            {
+                ShowCurrentTargetUI();
             }
         }
-    }
 
+    }
     private void InteractWithTarget()
     {
         if (InteractionManagerUI.Instance == null) return;
@@ -101,9 +191,10 @@ public class InteractionManager : Singleton<InteractionManager>
                     if (PlayerInputs.Instance.InteractPress())
                     {
                         currentTarget.Interact(true);
-                        currentTarget.HideOutline();
-                        currentTarget.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-                        
+
+                        HideCurrentTargetUI();
+
+                        currentTarget = null;
                     }
                     break;
 
@@ -111,13 +202,10 @@ public class InteractionManager : Singleton<InteractionManager>
                     if (PlayerInputs.Instance.InteractHold())
                     {
                         currentTarget.Interact(true);
-                        
                     }
-
                     else
                     {
                         currentTarget.Interact(false);
-                      
                     }
                     break;
             }

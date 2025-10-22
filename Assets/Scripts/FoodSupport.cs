@@ -53,25 +53,21 @@ public class FoodSupport : MonoBehaviour, IInteractable
         OutlineManager.Instance.Hide(gameObject);
     }
 
-    public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
+    public bool TryGetInteractionMessage(out string message)
     {
         foreach (Transform child in playerController.PlayerView.Dish.transform)
         {
-            // Verifica que las posiciones de la bandeja tengan hijos (COMIDAS) y el soporte no tenga ningun hijo (comidas)
             if (child.childCount > 0 && gameObject.transform.childCount < 1)
             {
                 string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
-                interactionManagerUIText.text = $"Press" + keyText + "to rest food";
+
+                message = $"Press {keyText} to rest food";
+                return true;
             }
         }
+        message = null;
+        return false;
     }
-
-    public void HideMessage(TextMeshProUGUI interactionManagerUIText)
-    {
-        interactionManagerUIText.text = string.Empty;
-    }
-
-
     private void GetComponents()
     {
         playerController = FindFirstObjectByType<PlayerController>();

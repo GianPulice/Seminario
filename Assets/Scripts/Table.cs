@@ -34,7 +34,7 @@ public class Table : MonoBehaviour, IInteractable
 
     public List<Food> CurrentFoods { get => currentFoods; set => currentFoods = value; }
 
-    public InteractionMode InteractionMode 
+    public InteractionMode InteractionMode
     {
         get
         {
@@ -51,7 +51,7 @@ public class Table : MonoBehaviour, IInteractable
     }
 
     public float CurrentCleanProgress { get => currentCleanProgress; set => currentCleanProgress = value; }
-    
+
     public bool IsOccupied { get => isOccupied; set => isOccupied = value; }
     public bool IsDirty { get => isDirty; }
 
@@ -185,29 +185,27 @@ public class Table : MonoBehaviour, IInteractable
         }
     }
 
-    public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
+    public bool TryGetInteractionMessage(out string message)
     {
         string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
 
         if (isDirty)
         {
-            interactionManagerUIText.text = $"Hold" + keyText + "to clean the table";
-            return;
+            message = $"Hold {keyText} to clean the table";
+            return true;
         }
 
-        // Si hay un cliente sentado
         if (ChairPosition.childCount > 0 && auxiliarClientView != null)
         {
-            // Tomar pedido
             if (isOccupied && auxiliarClientView.ReturnSpriteWaitingToBeAttendedIsActive())
             {
                 if (auxiliarClientView.CanTakeOrder)
                 {
-                    interactionManagerUIText.text = $"Press" + keyText + "to take order";
+                    message = $"Press {keyText} to take order";
+                    return true;
                 }
             }
 
-            // Entregar pedido
             bool hasChildren = false;
             foreach (Transform child in playerController.PlayerView.Dish.transform)
             {
@@ -220,16 +218,13 @@ public class Table : MonoBehaviour, IInteractable
 
             if (hasChildren && isOccupied && auxiliarClientView.ReturnSpriteFoodIsActive())
             {
-                interactionManagerUIText.text = $"Press" + keyText + "to deliver the order";
+                message = $"Press {keyText} to deliver the order";
+                return true;
             }
         }
+        message = null;
+        return false;
     }
-
-    public void HideMessage(TextMeshProUGUI interactionManagerUIText)
-    {
-        interactionManagerUIText.text = string.Empty;
-    }
-
     public void SetDirty(bool current)
     {
         isDirty = current;

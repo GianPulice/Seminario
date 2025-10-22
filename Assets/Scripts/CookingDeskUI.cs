@@ -36,18 +36,13 @@ public class CookingDeskUI : MonoBehaviour, IInteractable
         OutlineManager.Instance.Hide(gameObject);
         InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
-
-    public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
+    public bool TryGetInteractionMessage(out string message)
     {
         string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
-        interactionManagerUIText.text = $"Press" + keyText + "to start cooking";
-    }
+        message = $"Press {keyText} to start cooking";
 
-    public void HideMessage(TextMeshProUGUI interactionManagerUIText)
-    {
-        interactionManagerUIText.text = string.Empty;
+        return true;
     }
-
 
     private void GetComponents()
     {
