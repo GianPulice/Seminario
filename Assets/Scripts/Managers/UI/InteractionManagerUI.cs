@@ -18,6 +18,7 @@ public class InteractionManagerUI : Singleton<InteractionManagerUI>
     public Image CenterPointUI { get => centerPointUI; }
     public TextMeshProUGUI InteractionMessageText { get => interactionMessageText; }
 
+
     void Awake()
     {
         CreateSingleton(false);

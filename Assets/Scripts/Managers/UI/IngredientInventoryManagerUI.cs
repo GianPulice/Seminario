@@ -1,24 +1,26 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class IngredientInventoryManagerUI : MonoBehaviour//, IBookableUI
+public class IngredientInventoryManagerUI : MonoBehaviour
 {
+    /// <summary>
+    /// Agregar en un futuro decidir si se puede abrir o no mientras se esta en los distintos paneles de UI como coina, etc
+    /// </summary>
+
     [SerializeField] private RawImage inventoryPanel;
 
     private Transform slotParentObject;
     private List<Transform> slotPositions = new List<Transform>();
     private Dictionary<IngredientType, (GameObject slot, TextMeshProUGUI text)> ingredientSlots = new();
 
-    [SerializeField] private int indexPanel;
-
-    public int IndexPanel { get => indexPanel; }
-
 
     void Awake()
     {
         SuscribeToUpdateManagerEvent();
+        SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
         GetComponents();
         InitializeSlots();
     }
@@ -26,41 +28,14 @@ public class IngredientInventoryManagerUI : MonoBehaviour//, IBookableUI
     // Simulacion de Update
     void UpdateIngredientInventoryManagerUI()
     {
-        //CheckInputs();
-    }
-
-    void Update()
-    {
         CheckInputs();
     }
 
     void OnDestroy()
     {
         UnsuscribeToUpdateManagerEvent();
+        UnscribeToPauseManagerRestoreSelectedGameObjectEvent();
     }
-
-
-    /*public void OpenPanel()
-    {
-        inventoryPanel.enabled = true;
-
-        foreach (var kvp in ingredientSlots)
-        {
-            kvp.Value.slot.SetActive(true);
-            int stock = IngredientInventoryManager.Instance.GetStock(kvp.Key);
-            kvp.Value.text.text = stock.ToString();
-        }
-    }
-
-    public void ClosePanel()
-    {
-        inventoryPanel.enabled = false;
-
-        foreach (var kvp in ingredientSlots)
-        {
-            kvp.Value.slot.SetActive(false);
-        }
-    }*/
 
 
     private void SuscribeToUpdateManagerEvent()
@@ -71,6 +46,32 @@ public class IngredientInventoryManagerUI : MonoBehaviour//, IBookableUI
     private void UnsuscribeToUpdateManagerEvent()
     {
         UpdateManager.OnUpdate -= UpdateIngredientInventoryManagerUI;
+    }
+
+    private void SuscribeToPauseManagerRestoreSelectedGameObjectEvent()
+    {
+        PauseManager.OnRestoreSelectedGameObject += OnRestoreCenterPointUICorrectlyIfGameWasPaused;
+    }
+
+    private void UnscribeToPauseManagerRestoreSelectedGameObjectEvent()
+    {
+        PauseManager.OnRestoreSelectedGameObject -= OnRestoreCenterPointUICorrectlyIfGameWasPaused;
+    }
+
+    // La funcionalidad basicamente es que si despuesa el juego mientras tiene abierto el inventario, desaparezca el punto de interaccion
+    private void OnRestoreCenterPointUICorrectlyIfGameWasPaused()
+    {
+        StartCoroutine(DisableCenterPointUICorrutine());
+    }
+
+    private IEnumerator DisableCenterPointUICorrutine()
+    {
+        yield return null;
+
+        if (inventoryPanel.enabled)
+        {
+            InteractionManagerUI.Instance.ShowOrHideCenterPointUI(false);
+        }
     }
 
     private void GetComponents()
@@ -105,13 +106,17 @@ public class IngredientInventoryManagerUI : MonoBehaviour//, IBookableUI
 
     private void CheckInputs()
     {
-        if (PlayerInputs.Instance.Book() && !inventoryPanel.enabled)
+        if (PlayerInputs.Instance == null) return;
+        if (PauseManager.Instance == null) return;
+        if (PauseManager.Instance.IsGamePaused) return;
+
+        if (PlayerInputs.Instance.Inventory() && !inventoryPanel.enabled)
         {
             OpenInventory();
             return;
         }
 
-        else if (PlayerInputs.Instance.Book() && inventoryPanel.enabled)
+        else if (PlayerInputs.Instance.Inventory() && inventoryPanel.enabled)
         {
             CloseInventory();
             return;
@@ -120,6 +125,7 @@ public class IngredientInventoryManagerUI : MonoBehaviour//, IBookableUI
 
     private void OpenInventory()
     {
+        InteractionManagerUI.Instance.ShowOrHideCenterPointUI(false);
         inventoryPanel.enabled = true;
 
         foreach (var kvp in ingredientSlots)
@@ -132,6 +138,7 @@ public class IngredientInventoryManagerUI : MonoBehaviour//, IBookableUI
 
     private void CloseInventory()
     {
+        InteractionManagerUI.Instance.ShowOrHideCenterPointUI(true);
         inventoryPanel.enabled = false;
 
         foreach (var kvp in ingredientSlots)

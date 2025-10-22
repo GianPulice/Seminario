@@ -7,7 +7,7 @@
  * PLEASE NOTE: This script is intended for demonstration purposes and user customization or 
  * third party animation plugins will be required for further animation options
  */
-using UnityEngine;
+/*using UnityEngine;
 public class POLYGON_CameraController : MonoBehaviour
 {
     public Transform target;
@@ -53,4 +53,4 @@ public class POLYGON_CameraController : MonoBehaviour
             transform.rotation = rotation;
         }
     }
-}
+}*/

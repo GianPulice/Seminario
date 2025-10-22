@@ -14,7 +14,7 @@ public class InputsData : ScriptableObject
     [SerializeField] private KeyCode interact;
     [SerializeField] private KeyCode run;
     [SerializeField] private KeyCode jump;
-    [SerializeField] private KeyCode book;
+    [SerializeField] private KeyCode inventory;
     [SerializeField] private KeyCode pause;
     [SerializeField] private KeyCode debug;
 
@@ -33,10 +33,9 @@ public class InputsData : ScriptableObject
     public KeyCode Run { get => run; }
     public KeyCode Jump { get => jump; }
     public KeyCode Interact { get => interact; }
-    public KeyCode Book { get => book; }
+    public KeyCode Inventory { get => inventory; }
     public KeyCode Pause { get => pause; }
     public KeyCode Debug { get => debug; }
-
 
     public float SensitivityX { get => sensitivityX; set => sensitivityX = value; }
     public float SensitivityY { get => sensitivityY; set => sensitivityY = value; }
