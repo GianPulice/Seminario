@@ -318,11 +318,8 @@ public class Food : MonoBehaviour, IInteractable
         stovePosition = null;
         playerDishPosition = null;
 
-        defaultMesh.rb.isKinematic = false;
-        defaultMesh.collider.enabled = true;
-
-        foodMesh.rb.isKinematic = false;
-        foodMesh.collider.enabled = true;
+        EnabledOrDisablePhysics(defaultMesh, true);
+        EnabledOrDisablePhysics(foodMesh, true);
 
         currentCookingState = CookingStates.Raw;
 
@@ -335,6 +332,8 @@ public class Food : MonoBehaviour, IInteractable
 
         SetMeshRootActive(defaultMesh, true);
         SetMeshRootActive(foodMesh, false);
+
+        //transform.position = Vector3.zero;
     }
 
     private void SaveTable(Table table)

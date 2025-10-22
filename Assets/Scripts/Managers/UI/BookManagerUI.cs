@@ -39,7 +39,7 @@ public class BookManagerUI : Singleton<BookManagerUI>
     // Simulacion de Update
     void UpdateBookManagerUI()
     {
-        ChangePanelIndex();
+        //ChangePanelIndex();
     }
 
     void OnDestroy()
