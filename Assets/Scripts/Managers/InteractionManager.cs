@@ -5,8 +5,6 @@ public class InteractionManager : Singleton<InteractionManager>
     [SerializeField] private InteractionManagerData interactionManagerData;
 
     private IInteractable currentTarget;
-    // private IInteractable previousTarget;
-
 
     void Awake()
     {
@@ -37,25 +35,24 @@ public class InteractionManager : Singleton<InteractionManager>
     {
         if (currentTarget != null)
         {
-            // Ocultamos el UI del objeto que estábamos mirando
             HideCurrentTargetUI();
         }
         currentTarget = null;
     }
-    private void ShowCurrentTargetUI()
+    private bool ShowCurrentTargetUI()
     {
-        // No hacer nada si no hay objetivo o UI
-        if (currentTarget == null || InteractionManagerUI.Instance == null) return;
-
-        currentTarget.ShowOutline();
+        if (currentTarget == null || InteractionManagerUI.Instance == null) return false;
 
         if (currentTarget.TryGetInteractionMessage(out string message))
         {
-            InteractionManagerUI.Instance.MessageAnimator.Show(message);
+            currentTarget.ShowOutline();
+             InteractionManagerUI.Instance.MessageAnimator.Show(message);
+            return true;
         }
         else
         {
-            InteractionManagerUI.Instance.MessageAnimator.Hide();
+             HideCurrentTargetUI();
+            return false;
         }
     }
 
@@ -72,87 +69,12 @@ public class InteractionManager : Singleton<InteractionManager>
         }
     }
 
-    //private void DetectTarget()
-    //{
-    //    if (InteractionManagerUI.Instance == null) return;
-    //    if (!InteractionManagerUI.Instance.CenterPointUI.gameObject.activeSelf) return;
-
-    //    Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
-
-    //    // Si no hay target y antes había uno, limpiamos
-    //    if (previousTarget != null)
-    //    {
-    //        HideAllOutlinesAndTexts();
-    //    }
-
-    //    if (Physics.Raycast(ray, out RaycastHit hit, interactionManagerData.InteractionDistance, LayerMask.GetMask("Interactable")))
-    //    {
-    //        IInteractable hitTarget = hit.collider.GetComponent<IInteractable>()?? hit.collider.GetComponentInChildren<IInteractable>()?? hit.collider.GetComponentInParent<IInteractable>();
-
-    //        if (hitTarget != null)
-    //        {
-
-    //            if (hitTarget != previousTarget && previousTarget != null)
-    //            {
-    //                previousTarget.HideOutline();
-    //                previousTarget.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-
-    //            }
-
-    //            currentTarget = hitTarget;
-    //            previousTarget = hitTarget;
-
-    //            // Mostrar outline siempre, aunque sea el mismo objeto
-    //            currentTarget.ShowOutline();
-    //            currentTarget.ShowMessage(InteractionManagerUI.Instance.InteractionMessageText);
-
-    //            return;
-    //        }
-    //    }
-    //}
-
-    //private void InteractWithTarget()
-    //{
-    //    if (InteractionManagerUI.Instance == null) return;
-    //    if (!InteractionManagerUI.Instance.CenterPointUI.gameObject.activeSelf) return;
-
-    //    if (currentTarget != null && !PauseManager.Instance.IsGamePaused)
-    //    {
-    //        switch (currentTarget.InteractionMode)
-    //        {
-    //            case InteractionMode.Press:
-    //                if (PlayerInputs.Instance.InteractPress())
-    //                {
-    //                    currentTarget.Interact(true);
-    //                    currentTarget.HideOutline();
-    //                    currentTarget.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-
-    //                }
-    //                break;
-
-    //            case InteractionMode.Hold:
-    //                if (PlayerInputs.Instance.InteractHold())
-    //                {
-    //                    currentTarget.Interact(true);
-
-    //                }
-
-    //                else
-    //                {
-    //                    currentTarget.Interact(false);
-
-    //                }
-    //                break;
-    //        }
-    //    }
-    //}
     private void DetectTarget()
     {
         if (InteractionManagerUI.Instance == null) return;
         if (!InteractionManagerUI.Instance.CenterPointUI.gameObject.activeSelf) return;
 
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
-
         IInteractable newTarget = null;
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactionManagerData.InteractionDistance, LayerMask.GetMask("Interactable")))
@@ -168,15 +90,16 @@ public class InteractionManager : Singleton<InteractionManager>
             {
                 HideCurrentTargetUI();
             }
-
             currentTarget = newTarget;
-
-            if (currentTarget != null)
-            {
-                ShowCurrentTargetUI();
-            }
         }
 
+        if (currentTarget != null)
+        {
+            if (!ShowCurrentTargetUI())
+            {
+                currentTarget = null;
+            }
+        }
     }
     private void InteractWithTarget()
     {
