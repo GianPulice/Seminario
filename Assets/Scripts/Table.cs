@@ -225,6 +225,7 @@ public class Table : MonoBehaviour, IInteractable
         message = null;
         return false;
     }
+
     public void SetDirty(bool current)
     {
         isDirty = current;

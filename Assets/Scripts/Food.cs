@@ -29,6 +29,7 @@ public class Food : MonoBehaviour, IInteractable
     private Table currentTable; // Esta Table hace referencia a la mesa en la cual podemos entregar el pedido
     private Slider cookingBar;
     private MeshRenderer meshRenderer;
+    private ParticleSystem smoke;
     private Color originalColor;
 
     private Transform stovePosition;
@@ -155,6 +156,7 @@ public class Food : MonoBehaviour, IInteractable
         message = null;
         return false;
     }
+
     public void ReturnObjetToPool()
     {
         cookingManager.ReturnObjectToPool(foodType, this);
@@ -196,6 +198,7 @@ public class Food : MonoBehaviour, IInteractable
         playerController = FindFirstObjectByType<PlayerController>();
         cookingManager = FindFirstObjectByType<CookingManager>();
         cookingBar = GetComponentInChildren<Slider>();
+        smoke = GetComponentInChildren<ParticleSystem>(true); // Inidica que busca componentes dentro de gameObjects que estan desactivados
     }
 
     private IEnumerator RegisterOutline()
@@ -209,8 +212,7 @@ public class Food : MonoBehaviour, IInteractable
     private void Initialize()
     {
         SetupFoodMesh(ref defaultMesh, "DefaultMesh");
-        string cleanName = gameObject.name.Replace("(Clone)", "").Trim();
-        SetupFoodMesh(ref foodMesh, cleanName + "Mesh");
+        SetupFoodMesh(ref foodMesh, gameObject.name.Replace("(Clone)", "").Trim() + "Mesh");
 
         SetMeshRootActive(defaultMesh, true);
         SetMeshRootActive(foodMesh, false);
@@ -241,7 +243,7 @@ public class Food : MonoBehaviour, IInteractable
             cookingBar.value = 0;
             cookTimeCounter = 0f;
 
-            while (cookTimeCounter <= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned)
+            while (cookTimeCounter <= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned) // Esto es para que la logica se ejecute durante el tiempo de coccion + el tiempo de quemarse y despues no funcione mas la corrutina
             {
                 cookTimeCounter += Time.deltaTime;
 
@@ -253,6 +255,11 @@ public class Food : MonoBehaviour, IInteractable
                 if (cookTimeCounter >= foodData.TimeToBeenCooked && cookingBar.gameObject.activeSelf)
                 {
                     cookingBar.gameObject.SetActive(false);
+                }
+
+                if (cookTimeCounter >= foodData.TimeToBeenBurned && !smoke.gameObject.activeSelf)
+                {
+                    smoke.gameObject.SetActive(true);
                 }
 
                 if (isInPlayerDishPosition)
@@ -312,6 +319,7 @@ public class Food : MonoBehaviour, IInteractable
         meshRenderer.material.color = originalColor;
 
         cookingBar.gameObject.SetActive(true);
+        smoke.gameObject.SetActive(false);
 
         stovePosition = null;
         playerDishPosition = null;

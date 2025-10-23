@@ -6,9 +6,7 @@ using UnityEngine.UI;
 
 public class IngredientInventoryManagerUI : MonoBehaviour
 {
-    /// <summary>
-    /// Agregar en un futuro decidir si se puede abrir o no mientras se esta en los distintos paneles de UI como coina, etc
-    /// </summary>
+    private PlayerModel playerModel;
 
     [SerializeField] private RawImage inventoryPanel;
 
@@ -76,6 +74,7 @@ public class IngredientInventoryManagerUI : MonoBehaviour
 
     private void GetComponents()
     {
+        playerModel = FindFirstObjectByType<PlayerModel>();
         slotParentObject = GameObject.Find("SlotObjects").transform;
 
         Transform slotParentPositions = GameObject.Find("SlotTransforms").transform;
@@ -109,6 +108,7 @@ public class IngredientInventoryManagerUI : MonoBehaviour
         if (PlayerInputs.Instance == null) return;
         if (PauseManager.Instance == null) return;
         if (PauseManager.Instance.IsGamePaused) return;
+        if (playerModel.IsAdministrating || playerModel.IsCooking) return;
 
         if (PlayerInputs.Instance.Inventory() && !inventoryPanel.enabled)
         {

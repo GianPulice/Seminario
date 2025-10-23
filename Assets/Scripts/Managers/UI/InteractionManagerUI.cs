@@ -43,13 +43,13 @@ public class InteractionManagerUI : Singleton<InteractionManagerUI>
     {
         if (interactionType == InteractionType.Interactive)
         {
-            centerPointUI.transform.localScale = new Vector3(0.15f, 0.15f, 0.15f);
+            centerPointUI.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
             centerPointUI.color = interactionManagerUIData.InteractiveColor;
         }
 
         else if (interactionType == InteractionType.Normal)
         {
-            centerPointUI.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            centerPointUI.transform.localScale = new Vector3(0.15f, 0.15f, 0.15f);
             centerPointUI.color = interactionManagerUIData.NormalColor;
         }
     }
