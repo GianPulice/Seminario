@@ -111,6 +111,7 @@ public class PauseManager : Singleton<PauseManager>
     {
         onSetSelectedCurrentGameObject?.Invoke(firstSelectedButton);
         ignoreFirstSelectedSound = true;
+        DeviceManager.Instance.IsUIModeActive = true;
     }
 
     public void OnPausePanelHideComplete()
@@ -136,8 +137,7 @@ public class PauseManager : Singleton<PauseManager>
 
         Time.timeScale = 0f;
         isGamePaused = true;
-        DeviceManager.Instance.IsUIModeActive = true;
-
+       
         pausePanel.AnimateIn();
     }
 

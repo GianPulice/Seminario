@@ -5,7 +5,7 @@ using UnityEngine.Events;
 public class PauseAppear : MonoBehaviour
 {
     [Header("Animación")]
-    [SerializeField] private float animationDuration = 0.3f;
+    [SerializeField] private float animationDuration = 1.2f;
     [SerializeField] private LeanTweenType easeType = LeanTweenType.easeOutBack;
 
     [Header("Eventos")]
@@ -17,9 +17,7 @@ public class PauseAppear : MonoBehaviour
     private CanvasGroup canvasGroup;
     private RectTransform rectTransform;
     private bool isAnimating = false;
-    private int currentTweenId = -1;
-
-    public bool IsAnimating => isAnimating;
+     public bool IsAnimating => isAnimating;
 
     private void Awake()
     {
@@ -34,6 +32,7 @@ public class PauseAppear : MonoBehaviour
     }
     public void AnimateIn()
     {
+        LeanTween.cancel(gameObject);
         if (isAnimating) return;
         isAnimating = true;
 
@@ -47,17 +46,18 @@ public class PauseAppear : MonoBehaviour
         LeanTween.cancel(gameObject);
 
         LeanTween.scale(gameObject, Vector3.one, animationDuration)
-            .setEase(easeType)
-            .setIgnoreTimeScale(true)
-            .setOnComplete(OnInComplete);
+                .setEase(easeType)
+                .setIgnoreTimeScale(true)
+                .setOnComplete(OnInComplete);
 
-        currentTweenId = LeanTween.alphaCanvas(canvasGroup, 1f, animationDuration)
-            .setEase(easeType)
-            .setIgnoreTimeScale(true)
-            .id;
+        LeanTween.alphaCanvas(canvasGroup, 1f, animationDuration)
+               .setEase(easeType)
+               .setIgnoreTimeScale(true);
     }
     public void AnimateOut()
     {
+        LeanTween.cancel(gameObject);
+
         if (isAnimating) return;
         isAnimating = true;
 
@@ -67,14 +67,13 @@ public class PauseAppear : MonoBehaviour
         LeanTween.cancel(gameObject);
 
         LeanTween.scale(gameObject, Vector3.zero, animationDuration)
-            .setEase(easeType)
-            .setIgnoreTimeScale(true)
-            .setOnComplete(OnOutComplete);
+              .setEase(easeType)
+              .setIgnoreTimeScale(true)
+              .setOnComplete(OnOutComplete);
 
-        currentTweenId = LeanTween.alphaCanvas(canvasGroup, 0f, animationDuration)
-            .setEase(easeType)
-            .setIgnoreTimeScale(true)
-            .id;
+        LeanTween.alphaCanvas(canvasGroup, 0f, animationDuration)
+              .setEase(easeType)
+              .setIgnoreTimeScale(true);
     }
     private void OnInComplete()
     {
