@@ -101,67 +101,12 @@ public class Table : MonoBehaviour, IInteractable
         {
             OutlineManager.Instance.ShowWithDefaultColor(table);
             InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
-
             PlayerView.OnActivateSliderCleanDirtyTable?.Invoke();
             return;
         }
-
-        if (auxiliarTable == null || auxiliarTable != this)
-        {
-            auxiliarTable = this;
-            auxiliarClientView = GetComponentInChildren<ClientView>();
-        }
-
-        // Si hay un cliente sentado
-        if (ChairPosition.childCount > 0 && auxiliarClientView != null)
-        {
-            // Tomar pedido
-            if (isOccupied && auxiliarClientView.ReturnSpriteWaitingToBeAttendedIsActive())
-            {
-                if (!auxiliarClientView.CanTakeOrder)
-                {
-                    OutlineManager.Instance.ShowWithDefaultColor(table);
-                    InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
-
-                    auxiliarClientView.CanTakeOrder = true;
-                    PlayerController.OnTableCollisionEnterForTakeOrder?.Invoke(this);
-                }
-            }
-
-            // Entregar pedido
-            bool hasChildren = false;
-            foreach (Transform child in playerController.PlayerView.Dish.transform)
-            {
-                if (child.childCount > 0)
-                {
-                    hasChildren = true;
-                    break;
-                }
-            }
-
-            if (hasChildren && isOccupied && auxiliarClientView.ReturnSpriteFoodIsActive())
-            {
-                OutlineManager.Instance.ShowWithDefaultColor(table);
-                InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
-
-                PlayerController.OnTableCollisionEnterForHandOverFood?.Invoke(this);
-            }
-        }
-
-        else
-        {
-            // El cliente se fue
-            if (auxiliarClientView != null)
-            {
-                auxiliarClientView.CanTakeOrder = false;
-            }
-
-            PlayerController.OnTableCollisionExitForTakeOrder?.Invoke();
-            PlayerController.OnTableCollisionExitForHandOverFood?.Invoke();
-
-            auxiliarTable = null;
-            auxiliarClientView = null;
-        }
+                
+        OutlineManager.Instance.ShowWithDefaultColor(table);
+        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
     }
 
     public void HideOutline()
@@ -195,15 +140,23 @@ public class Table : MonoBehaviour, IInteractable
             return true;
         }
 
+        if (auxiliarTable == null || auxiliarTable != this)
+        {
+            auxiliarTable = this;
+            auxiliarClientView = GetComponentInChildren<ClientView>();
+        }
+
         if (ChairPosition.childCount > 0 && auxiliarClientView != null)
         {
             if (isOccupied && auxiliarClientView.ReturnSpriteWaitingToBeAttendedIsActive())
             {
-                if (auxiliarClientView.CanTakeOrder)
+                if (!auxiliarClientView.CanTakeOrder)
                 {
-                    message = $"Press {keyText} to take order";
-                    return true;
+                    auxiliarClientView.CanTakeOrder = true;
+                    PlayerController.OnTableCollisionEnterForTakeOrder?.Invoke(this);
                 }
+                message = $"Press {keyText} to take order";
+                return true;
             }
 
             bool hasChildren = false;
@@ -218,6 +171,8 @@ public class Table : MonoBehaviour, IInteractable
 
             if (hasChildren && isOccupied && auxiliarClientView.ReturnSpriteFoodIsActive())
             {
+                PlayerController.OnTableCollisionEnterForHandOverFood?.Invoke(this);
+
                 message = $"Press {keyText} to deliver the order";
                 return true;
             }
