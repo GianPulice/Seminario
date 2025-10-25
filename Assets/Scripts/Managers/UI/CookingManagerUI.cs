@@ -18,8 +18,8 @@ public class CookingManagerUI : MonoBehaviour
 
     [SerializeField] private List<RecipeInformationUI> recipesInformationUI;
 
-    private List<Button> buttonsInformationReciepes  = new List<Button>();
-    private List<Button> buttonsIngredients = new List<Button>();
+    private List<GenericTweenButton> buttonsInformationReciepes = new List<GenericTweenButton>();
+    private List<GenericTweenButton> buttonsIngredients = new List<GenericTweenButton>();
 
     private GameObject lastSelectedButtonFromCookingPanel;
 
@@ -64,26 +64,21 @@ public class CookingManagerUI : MonoBehaviour
     }
 
 
-    // Funcion asignada a botones en la UI para setear el selected GameObject del EventSystem con Mouse en los botones de recetas
-    public void SetButtonAsSelectedGameObjectIfHasBeenHover(int indexButton)
+    /// <summary>
+    /// Asignar a OnPointerEnterEvent de CUALQUIER GenericTweenButton.
+    /// </summary>
+    public void SetSelectedGameObject(GameObject go)
     {
         if (EventSystem.current != null)
         {
-            EventSystem.current.SetSelectedGameObject(buttonsInformationReciepes[indexButton].gameObject);
+            EventSystem.current.SetSelectedGameObject(go);
         }
     }
 
-    // Funcion asignada a botones en la UI para setear el selected GameObject del EventSystem con Mouse en los botones de ingredientes
-    public void SetButtonIngredientAsSelectedGameObjectIfHasBeenHover(int indexButton)
-    {
-        if (EventSystem.current != null)
-        {
-            EventSystem.current.SetSelectedGameObject(buttonsIngredients[indexButton].gameObject);
-        }
-    }
-
-    // Funcion asignada a botones en la UI para deseleccionar el selected GameObject del EventSystem con Mouse en los botones de ingredientes
-    public void DeselectButtonIngredientAsSelectedGameObjectIfExitHover()
+    /// <summary>
+    /// Asignar a OnPointerExitEvent de CUALQUIER GenericTweenButton.
+    /// </summary>
+    public void DeselectCurrentGameObject()
     {
         if (EventSystem.current != null)
         {
@@ -101,6 +96,11 @@ public class CookingManagerUI : MonoBehaviour
         }
 
         ignoreFirstButtonSelected = false;
+    }
+
+    public void PlayCancelAudio()
+    {
+        AudioManager.Instance.PlayOneShotSFX("ButtonCancel");
     }
 
     // Funcion asignada a event trigger de la UI para mostrar la informacion de las recetas
@@ -137,47 +137,44 @@ public class CookingManagerUI : MonoBehaviour
     {
         if (!Enum.TryParse(ingredientType, out IngredientType ingredient)) return;
 
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        GameObject clickedObject = EventSystem.current.currentSelectedGameObject;
+        if (clickedObject == null) return;
+
+        GenericTweenButton tweenButton = clickedObject.GetComponent<GenericTweenButton>();
+        if (tweenButton == null) return;
 
         if (selectedIngredients.Contains(ingredient))
         {
-            foreach (var button in buttonsIngredients)
-            {
-                if (EventSystem.current.currentSelectedGameObject == button.gameObject)
-                {
-                    EventSystem.current.SetSelectedGameObject(null);
-                    selectedIngredients.Remove(ingredient);
-                    SetButtonNormalColorInWhite(button);
-                    break;
-                }
-            }
+            // --- Deseleccionar ---
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); 
+            selectedIngredients.Remove(ingredient);
+            tweenButton.SetSelected(false); 
         }
-
         else
         {
-            foreach (var button in buttonsIngredients)
+            // --- Intentar Seleccionar ---
+            if (selectedIngredients.Count >= 3)
             {
-                if (EventSystem.current.currentSelectedGameObject == button.gameObject)
-                {
-                    selectedIngredients.Add(ingredient);
-                    SetButtonNormalColorInGreen(button);
-                    break;
-                }
+                // Límite alcanzado
+                AudioManager.Instance.PlayOneShotSFX("ButtonCancel"); // Sonido de error
+                tweenButton.SetSelected(false); // Asegura que no quede visualmente seleccionado
+                return;
             }
+
+            // Añadir
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+            selectedIngredients.Add(ingredient);
+            tweenButton.SetSelected(true); 
         }
     }
-
     public void CookSelectedIngredients()
     {
         foreach (var recipe in IngredientInventoryManager.Instance.GetAllRecipes())
         {
-            // Ingredientes de la receta
             var recipeIngredients = recipe.Ingridients.Select(i => i.IngredientType).ToList();
 
-            // Verificamos que los seleccionados coincidan exactamente con los de la receta
             if (selectedIngredients.Count == recipeIngredients.Count && !selectedIngredients.Except(recipeIngredients).Any())
             {
-                // Ahora verificamos stock
                 bool canCraft = true;
                 foreach (var ing in recipe.Ingridients)
                 {
@@ -190,10 +187,8 @@ public class CookingManagerUI : MonoBehaviour
 
                 if (canCraft)
                 {
-                    // Cocinar
                     AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
                     onButtonGetFood?.Invoke(recipe.FoodType.ToString());
-
                     Debug.Log($"Cocinaste {recipe.FoodType}!");
                     DeselectAllIngredients();
                     return;
@@ -201,20 +196,26 @@ public class CookingManagerUI : MonoBehaviour
             }
         }
 
+        // --- Lógica de fallo ---
         Debug.Log("No hay receta con esos ingredientes o no alcanza el stock.");
+        AudioManager.Instance.PlayOneShotSFX("ButtonCancel"); // <-- RUIDO DE CANCELACIÓN AÑADIDO
         DeselectAllIngredients();
     }
-
+    
     public void DeselectAllIngredients()
     {
         selectedIngredients.Clear();
 
         foreach (var button in buttonsIngredients)
         {
-            SetButtonNormalColorInWhite(button);
+            button.SetSelected(false);
         }
     }
-
+    public void ButtonExit()
+    {
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        onExitCook?.Invoke();
+    }
 
     private void SuscribeToUpdateManagerEvent()
     {
@@ -260,7 +261,7 @@ public class CookingManagerUI : MonoBehaviour
 
         foreach (Transform childs in rootButtonsInformationReciepes.transform)
         {
-            Button button = childs.GetComponent<Button>();
+            GenericTweenButton button = childs.GetComponent<GenericTweenButton>();
             if (button != null) buttonsInformationReciepes.Add(button);
         }
 
@@ -268,7 +269,7 @@ public class CookingManagerUI : MonoBehaviour
 
         foreach (Transform childs in rootButtonsIngredients.transform)
         {
-            Button button = childs.GetComponent<Button>();
+            GenericTweenButton button = childs.GetComponent<GenericTweenButton>();
             if (button != null) buttonsIngredients.Add(button);
         }
     }
@@ -284,7 +285,6 @@ public class CookingManagerUI : MonoBehaviour
             DeviceManager.Instance.IsUIModeActive = true;
             onSetSelectedCurrentGameObject?.Invoke(buttonsInformationReciepes[0].gameObject);
         }
-
         else
         {
             ignoreFirstButtonSelected = true;
@@ -310,20 +310,6 @@ public class CookingManagerUI : MonoBehaviour
         {
             lastSelectedButtonFromCookingPanel = EventSystem.current.currentSelectedGameObject;
         }
-    }
-
-    private void SetButtonNormalColorInGreen(Button currentButton)
-    {
-        ColorBlock colorWhite = currentButton.colors;
-        colorWhite.normalColor = new Color32(0x28, 0xFF, 0x00, 0xFF);
-        currentButton.colors = colorWhite;
-    }
-
-    private void SetButtonNormalColorInWhite(Button currentButton)
-    {
-        ColorBlock colorWhite = currentButton.colors;
-        colorWhite.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-        currentButton.colors = colorWhite;
     }
 
     private void CheckJoystickInputsToChangeSelection()
