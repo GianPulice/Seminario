@@ -274,7 +274,7 @@ public class SettingsManagerUI : MonoBehaviour
     private void OnResolutionChanged(int index)
     {
         Resolution res = Screen.resolutions[index];
-        FullScreenMode mode = toggleFullscreen.isOn ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
+        FullScreenMode mode = toggleFullscreen.isOn ? FullScreenMode.ExclusiveFullScreen : FullScreenMode.Windowed;
         SettingsManager.Instance.SetResolution(res.width, res.height, mode);
     }
 
