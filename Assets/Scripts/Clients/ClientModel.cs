@@ -46,6 +46,10 @@ public class ClientModel : MonoBehaviour
     {
         GetComponents();
         InitializeValuesFromNavMeshAgent();
+
+        /// Provisorio
+        navMeshAgent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
+        //navMeshAgent.avoidancePriority = 50;
     }
 
     void OnEnable()

@@ -138,7 +138,7 @@ public class ScenesManager : Singleton<ScenesManager>
                 LoadSceneAdditive("MainMenuUI");
                 break;
 
-            case "TabernTest":
+            case "Tabern":
                 DeviceManager.Instance.IsUIModeActive = false;
                 LoadSceneAdditive("TabernUI");
                 LoadSceneAdditive("CompartidoUI");

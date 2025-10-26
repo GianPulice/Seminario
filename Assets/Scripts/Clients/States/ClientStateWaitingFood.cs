@@ -30,7 +30,7 @@ public class ClientStateWaitingFood<T> : State<T>
         base.Enter();
         Debug.Log("WaitingFood");
 
-        clientModel.StopVelocity();
+        clientModel.StopVelocity(); /// Recorda que esta linea de codigo se puede borrar y funciona igual / incluso mejor, porque el SetDestination automaticamente frena la velocidad cuando llega a un punto
         clientModel.LookAt(clientModel.CurrentTable.DishPosition.position, clientView.Anim.transform);
         clientView.ExecuteAnimParameterName("Sit");
         clientView.StartCoroutine(DuringSitAnimationAfterExitTime());

@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.AI;
 using System.Collections;
-using TMPro;
 
 public class Table : MonoBehaviour, IInteractable
 {
@@ -53,7 +52,6 @@ public class Table : MonoBehaviour, IInteractable
     public float CurrentCleanProgress { get => currentCleanProgress; set => currentCleanProgress = value; }
 
     public bool IsOccupied { get => isOccupied; set => isOccupied = value; }
-    public bool IsDirty { get => isDirty; }
 
 
     void Awake()
@@ -111,6 +109,7 @@ public class Table : MonoBehaviour, IInteractable
 
     public void HideOutline()
     {
+        
         OutlineManager.Instance.Hide(table);
         InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
 
@@ -205,7 +204,6 @@ public class Table : MonoBehaviour, IInteractable
             navMeshObstacle[i].enabled = current;
         }
     }
-
 
     private void FindObjectsAndComponents()
     {

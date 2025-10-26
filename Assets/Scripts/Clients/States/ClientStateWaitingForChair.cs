@@ -7,7 +7,11 @@ public class ClientStateWaitingForChair<T> : State<T>
 
     private ClientStateLeave<T> clientStateLeave;
 
+    private Transform auxiliarWaitingChairPosition;
+
     private float waitingForChairTime = 0f;
+
+    private bool isInWaitingChairPosition = false;
 
 
     public ClientStateWaitingForChair(ClientModel clientModel, ClientView clientView, ClientStateLeave<T> clientStateLeave)
@@ -23,9 +27,10 @@ public class ClientStateWaitingForChair<T> : State<T>
         base.Enter();
         Debug.Log("WaitingForChair");
 
-        clientModel.StopVelocity();
-        clientModel.LookAt(clientModel.transform.position, clientView.Anim.transform); // Aca hay que modificar y poner un transform de la taberna para que mire a la taberna cuando se pone en la cola
-        clientView.ExecuteAnimParameterName("WaitingForChair");
+        auxiliarWaitingChairPosition = clientModel.ClientManager.GetAvailableWaitingChairsPositions(clientModel);
+        clientModel.MoveToTarget(auxiliarWaitingChairPosition.position);
+        clientView.ExecuteAnimParameterName("Walk");
+        clientView.SetSpriteTypeName("SpriteGoChair");
     }
 
     public override void Execute()
@@ -35,6 +40,13 @@ public class ClientStateWaitingForChair<T> : State<T>
         if (clientModel.CurrentTable == null)
         {
             clientModel.CurrentTable = TablesManager.Instance.GetRandomAvailableTableForClient();
+        }
+
+        if (Vector3.Distance(clientModel.transform.position, auxiliarWaitingChairPosition.position) <= 2f && !isInWaitingChairPosition)
+        {
+            isInWaitingChairPosition = true;
+            clientView.ExecuteAnimParameterName("WaitingForChair");
+            clientView.SetSpriteTypeName("SpriteHungry");
         }
 
         waitingForChairTime += Time.deltaTime;
@@ -50,6 +62,9 @@ public class ClientStateWaitingForChair<T> : State<T>
     {
         base.Exit();
 
+        auxiliarWaitingChairPosition = null;
         waitingForChairTime = 0f;
+        isInWaitingChairPosition = false;
+        clientModel.ClientManager.ReleaseWaitingChair(clientModel);
     }
 }

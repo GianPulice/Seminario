@@ -46,7 +46,7 @@ public class SettingsManager : Singleton<SettingsManager>
     void Awake()
     {
         CreateSingleton(true);
-        PlayerPrefs.DeleteAll();
+        //PlayerPrefs.DeleteAll();
     }
 
     void Start()

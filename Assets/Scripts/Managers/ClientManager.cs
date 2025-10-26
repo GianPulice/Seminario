@@ -7,6 +7,7 @@ public class ClientManager : MonoBehaviour
     [SerializeField] private ClientManagerData clientManagerData;
 
     [SerializeField] private Transform spawnPosition, outsidePosition;
+    [SerializeField] private List<WaitingChairPosition> waitingChairsPositions;
 
     [SerializeField] private AbstractFactory clientAbstractFactory;
     [SerializeField] private List<ObjectPooler> clientPools;
@@ -46,6 +47,36 @@ public class ClientManager : MonoBehaviour
         UnsuscribeToOpenTabernButtonEvent();
     }
 
+
+    public Transform GetAvailableWaitingChairsPositions(ClientModel client)
+    {
+        foreach (var chair in waitingChairsPositions)
+        {
+            if (!chair.IsOccupied)
+            {
+                chair.IsOccupied = true;
+                chair.CurrentClient = client;
+                return chair.Position;
+            }
+        }
+
+        return null;
+    }
+
+    public void ReleaseWaitingChair(ClientModel client)
+    {
+        foreach (var chair in waitingChairsPositions)
+        {
+            if (chair.CurrentClient == client)
+            {
+                chair.IsOccupied = false;
+                chair.CurrentClient = null;
+                break;
+            }
+        }
+
+        ReorderClientsInQueue();
+    }
 
     public Sprite GetSpriteForRandomFood(FoodType foodType)
     {
@@ -90,18 +121,9 @@ public class ClientManager : MonoBehaviour
         AdministratingManagerUI.OnStartTabern -= SetIsTabernOpen;
     }
 
-    /*private System.Collections.IEnumerator InitializeRandomClient()
-    {
-        yield return new WaitUntil(() => System.Linq.Enumerable.All(clientPools, p => p != null && p.Prefab != null));
-        
-        int randomIndex = UnityEngine.Random.Range(0, clientPools.Count);
-        string prefabName = clientPools[randomIndex].Prefab.name;
-        clientAbstractFactory.CreateObject(prefabName);
-    }*/
-
     private void SpawnClients()
     {
-        if (isTabernOpen)
+        if (isTabernOpen && GetIfAllWaitingChairPositionsAreOccupied())
         {
             if (spawnTheSameClient)
             {
@@ -146,6 +168,50 @@ public class ClientManager : MonoBehaviour
         }
     }
 
+    private void ReorderClientsInQueue()
+    {
+        waitingChairsPositions.Sort((a, b) => a.PriorityIndex.CompareTo(b.PriorityIndex));
+
+        // Recorrer las sillas en orden
+        for (int i = 0; i < waitingChairsPositions.Count; i++)
+        {
+            // Si esta silla está libre y hay alguien detrás
+            if (!waitingChairsPositions[i].IsOccupied)
+            {
+                for (int j = i + 1; j < waitingChairsPositions.Count; j++)
+                {
+                    var clientBehind = waitingChairsPositions[j].CurrentClient;
+                    if (clientBehind != null)
+                    {
+                        // Mover cliente al hueco
+                        waitingChairsPositions[i].CurrentClient = clientBehind;
+                        waitingChairsPositions[i].IsOccupied = true;
+
+                        waitingChairsPositions[j].CurrentClient = null;
+                        waitingChairsPositions[j].IsOccupied = false;
+
+                        clientBehind.MoveToTarget(waitingChairsPositions[i].Position.position);
+                        break; // solo mueve uno por iteración
+                    }
+                }
+            }
+        }
+    }
+
+    // Devuelve true si hay sillas que no estan ocupadas, sino devuelve false
+    private bool GetIfAllWaitingChairPositionsAreOccupied()
+    {
+        foreach (var chair in waitingChairsPositions)
+        {
+            if (!chair.IsOccupied)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void InitializeClientPoolDictionary()
     {
         for (int i = 0; i < clientPools.Count; i++)
@@ -180,4 +246,20 @@ public class FoodTypeSpritePair
 
     public FoodType FoodType { get => foodType; }
     public Sprite Sprite { get => sprite; }
+}
+
+[Serializable]
+public class WaitingChairPosition
+{
+    [SerializeField] private Transform position;
+    [SerializeField] private int priorityIndex;
+
+    private ClientModel currentClient;
+    private bool isOccupied = false;
+
+    public Transform Position { get => position; }
+    public int PriorityIndex { get => priorityIndex; }  
+
+    public ClientModel CurrentClient { get => currentClient; set => currentClient = value; }
+    public bool IsOccupied { get => isOccupied; set => isOccupied = value; }
 }
