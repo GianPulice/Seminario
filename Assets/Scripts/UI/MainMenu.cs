@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    [SerializeField] private List<Button> buttonsMainMenu;
+    [SerializeField] private List<GenericTweenButton> buttonsMainMenu;
 
+    //Cambiar aca despues de hacer el nuevo sistema de tabs.
     [SerializeField] private GameObject panelSettings;
 
     private static event Action<List<GameObject>> onSendButtonsToEventSystem;
@@ -31,13 +31,18 @@ public class MainMenu : MonoBehaviour
         StartCoroutine(PlayMainMenuMusic());
     }
 
-
-    // Funcion asignada a botones en la UI para setear el selected GameObject del EventSystem con Mouse
-    public void SetButtonAsSelectedGameObjectIfHasBeenHover(int indexButton)
+    public void SetSelectedGameObject(GameObject go)
     {
         if (EventSystem.current != null)
         {
-            EventSystem.current.SetSelectedGameObject(buttonsMainMenu[indexButton].gameObject);
+            EventSystem.current.SetSelectedGameObject(go);
+        }
+    }
+    public void DeselectCurrentGameObject()
+    {
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
         }
     }
 
@@ -86,13 +91,11 @@ public class MainMenu : MonoBehaviour
         onButtonSettingsClickToShowCorrectPanel?.Invoke();
     }
 
-    // Funcion asignada a boton en la UI
     public void ButtonCredits()
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
     }
 
-    // Funcion asignada a boton en la UI
     public void ButtonExit()
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
@@ -100,21 +103,17 @@ public class MainMenu : MonoBehaviour
         StartCoroutine(CloseGameAfterClickButton());
     }
 
-    // Funcion asignada a boton en la UI
     public void ButtonBack()
     {
         ignoreFirstButtonSelected = true;
-
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
 
         for (int i = 0; i < buttonsMainMenu.Count; i++)
         {
-            // Significa que el indice no sea el del boton LoadGame
-            if (i != 1)
+            if (i != 1) 
             {
                 buttonsMainMenu[i].gameObject.SetActive(true);
             }
-
             else
             {
                 if (SaveSystemManager.SaveExists())
@@ -136,20 +135,9 @@ public class MainMenu : MonoBehaviour
 
     private void InitializeLoadGameButtonIfLoadDataExists()
     {
-        if (!SaveSystemManager.SaveExists())
+        if(!SaveSystemManager.SaveExists())
         {
             buttonsMainMenu[1].gameObject.SetActive(false);
-
-            Navigation nav0 = buttonsMainMenu[0].navigation;
-            nav0.mode = Navigation.Mode.Explicit;
-            nav0.selectOnDown = buttonsMainMenu[2];
-            buttonsMainMenu[0].navigation = nav0;
-
-            // Ajusto la navegación de Settings (índice 2) para que vuelva hacia NewGame (índice 0)
-            Navigation nav2 = buttonsMainMenu[2].navigation;
-            nav2.mode = Navigation.Mode.Explicit;
-            nav2.selectOnUp = buttonsMainMenu[0];
-            buttonsMainMenu[2].navigation = nav2;
         }
     }
 

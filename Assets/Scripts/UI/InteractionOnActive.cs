@@ -5,13 +5,14 @@ public class InteractionOnActive : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI messageText;
     private RectTransform rectTransform;
+    private CanvasGroup canvasGroup;
 
     [Header("Animation positions")]
     [SerializeField] private Vector2 hiddenPosition = new Vector2(400, -600);
     [SerializeField] private Vector2 showPosition = new Vector2(400, -400);
 
     [Header("Animation Timings")]
-    [SerializeField][Range(0,1)] private float showTime = 0.5f;
+    [SerializeField][Range(0, 1)] private float showTime = 0.5f;
     [SerializeField][Range(0, 1)] private float hideTime = 0.25f;
     [SerializeField] private LeanTweenType showEase = LeanTweenType.easeOutBack;
     [SerializeField] private LeanTweenType hideEase = LeanTweenType.easeInBack;
@@ -33,6 +34,7 @@ public class InteractionOnActive : MonoBehaviour
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
+        canvasGroup = GetComponent<CanvasGroup>();
         if (messageText == null)
         {
             messageText = GetComponentInChildren<TextMeshProUGUI>();
@@ -41,6 +43,7 @@ public class InteractionOnActive : MonoBehaviour
         initialScale = rectTransform.localScale;
 
         rectTransform.anchoredPosition = hiddenPosition;
+        canvasGroup.alpha = 0.1f;
         gameObject.SetActive(false);
         isShown = false;
     }
@@ -65,7 +68,8 @@ public class InteractionOnActive : MonoBehaviour
                 StartIdleAnimation();
             })
             .id;
-
+        LeanTween.alphaCanvas(canvasGroup, 1f, showTime)
+            .setEase(showEase);
     }
 
     public void Hide()
@@ -94,7 +98,8 @@ public class InteractionOnActive : MonoBehaviour
                 gameObject.SetActive(false);
             })
             .id;
-
+        LeanTween.alphaCanvas(canvasGroup, 0f, hideTime/2)
+            .setEase(hideEase);
     }
 
     private void StartIdleAnimation()

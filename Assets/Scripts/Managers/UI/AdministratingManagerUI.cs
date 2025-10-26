@@ -11,7 +11,7 @@ public class AdministratingManagerUI : MonoBehaviour
 
     [SerializeField] private GameObject panelTabern;
     [SerializeField] private GameObject panelIngredients;
-    [SerializeField] private GameObject panelUpgrades; 
+    [SerializeField] private GameObject panelUpgrades;
 
     private List<ZoneUnlock> zoneUnlocks = new List<ZoneUnlock>();
     private Image currentImageZoneUnlock;
@@ -162,7 +162,7 @@ public class AdministratingManagerUI : MonoBehaviour
         ColorBlock color = buttonsPanelAdministrating[0].colors;
         color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
 
-        if (buttonsPanelAdministrating[0].colors == color) 
+        if (buttonsPanelAdministrating[0].colors == color)
         {
             //onSetSelectedCurrentGameObject?.Invoke(buttonsTabern[0]);
 
