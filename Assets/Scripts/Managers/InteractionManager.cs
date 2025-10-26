@@ -37,8 +37,10 @@ public class InteractionManager : Singleton<InteractionManager>
         {
             HideCurrentTargetUI();
         }
+
         currentTarget = null;
     }
+
     private bool ShowCurrentTargetUI()
     {
         if (currentTarget == null || InteractionManagerUI.Instance == null) return false;
@@ -46,12 +48,13 @@ public class InteractionManager : Singleton<InteractionManager>
         if (currentTarget.TryGetInteractionMessage(out string message))
         {
             currentTarget.ShowOutline();
-             InteractionManagerUI.Instance.MessageAnimator.Show(message);
+            InteractionManagerUI.Instance.MessageAnimator.Show(message);
             return true;
         }
+
         else
         {
-             HideCurrentTargetUI();
+            HideCurrentTargetUI();
             return false;
         }
     }
@@ -90,6 +93,7 @@ public class InteractionManager : Singleton<InteractionManager>
             {
                 HideCurrentTargetUI();
             }
+
             currentTarget = newTarget;
         }
 

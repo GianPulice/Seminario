@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using TMPro;
 
 public class CookingDeskUI : MonoBehaviour, IInteractable
 {
@@ -20,6 +19,7 @@ public class CookingDeskUI : MonoBehaviour, IInteractable
         OutlineManager.Instance.Unregister(gameObject);
     }
 
+
     public void Interact(bool isPressed)
     {
         playerController.PlayerModel.IsCooking = true;
@@ -36,6 +36,7 @@ public class CookingDeskUI : MonoBehaviour, IInteractable
         OutlineManager.Instance.Hide(gameObject);
         InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
+
     public bool TryGetInteractionMessage(out string message)
     {
         string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
@@ -43,6 +44,7 @@ public class CookingDeskUI : MonoBehaviour, IInteractable
 
         return true;
     }
+
 
     private void GetComponents()
     {

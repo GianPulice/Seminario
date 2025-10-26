@@ -146,6 +146,7 @@ public class PauseManager : Singleton<PauseManager>
         Time.timeScale = 1f;
         isGamePaused = false;
         DeviceManager.Instance.IsUIModeActive = false;
+        onRestoreSelectedGameObject?.Invoke();
 
         onClearSelectedCurrentGameObject?.Invoke();
         pausePanel.AnimateOut();

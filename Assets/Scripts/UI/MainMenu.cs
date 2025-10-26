@@ -135,7 +135,7 @@ public class MainMenu : MonoBehaviour
 
     private void InitializeLoadGameButtonIfLoadDataExists()
     {
-        if(!SaveSystemManager.SaveExists())
+        if (!SaveSystemManager.SaveExists())
         {
             buttonsMainMenu[1].gameObject.SetActive(false);
         }
