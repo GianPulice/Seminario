@@ -19,8 +19,8 @@ public class GenericTweenButton : MonoBehaviour,
 {
     [Header("Comportamiento")]
     [Tooltip("Define cómo reacciona el botón al hacer click.")]
-    [SerializeField] private ButtonBehavior behavior = ButtonBehavior.Bounce;
-
+    [SerializeField] public ButtonBehavior behavior = ButtonBehavior.Bounce;
+    #region --- Componentes ---
     [Tooltip("El RectTransform que se animará. Si es nulo, usará el de este GameObject.")]
     [SerializeField] private RectTransform targetTransform;
 
@@ -44,27 +44,24 @@ public class GenericTweenButton : MonoBehaviour,
     [SerializeField] private Color hoverColor = new Color(0.95f, 0.95f, 0.95f, 1f);
     [Tooltip("Color del botón cuando está en modo 'Toggle' y seleccionado.")]
     [SerializeField] private Color selectedColor = new Color(1f, 0.9f, 0.5f);
-    private Color normalColor;
+    protected Color normalColor;
+    #endregion
 
     // --- UnityEvents ---
     [Header("Eventos del Botón")]
-    [Tooltip("Se dispara al hacer click.")]
     public UnityEvent OnClick = new UnityEvent();
-    [Tooltip("Se dispara cuando el cursor entra en el área.")]
     public UnityEvent OnPointerEnterEvent = new UnityEvent();
-    [Tooltip("Se dispara cuando el cursor sale del área.")]
     public UnityEvent OnPointerExitEvent = new UnityEvent();
 
     // --- Variables de Estado ---
-    private Vector3 initialScale;
-    private bool isSelected = false;  // Solo se usa para el modo ToggleSelect
-    private bool isPointerOver = false; // ¿Está el cursor encima?
-    private bool isPointerDown = false; // ¿Está el botón presionado?
-
-    private int currentTweenId = -1; // Para cancelar animaciones anteriores
+    protected Vector3 initialScale;
+    protected bool isSelected = false;  // El hijo necesitará controlar esto
+    protected bool isPointerOver = false;
+    protected bool isPointerDown = false;
+    protected int currentTweenId = -1;
 
     private static GenericTweenButton currentHoverOnlyButton;
-    private void Awake()
+    protected void Awake()
     {
         if (targetTransform == null)
         {
@@ -100,7 +97,7 @@ public class GenericTweenButton : MonoBehaviour,
         isPointerDown = false;
         isSelected = false;
     }
-    public void OnPointerEnter(PointerEventData eventData)
+    public virtual void OnPointerEnter(PointerEventData eventData)
     {
         isPointerOver = true;
 
@@ -119,28 +116,28 @@ public class GenericTweenButton : MonoBehaviour,
         OnPointerEnterEvent.Invoke();
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public virtual void OnPointerExit(PointerEventData eventData)
     {
         isPointerOver = false;
         UpdateVisuals();
         OnPointerExitEvent.Invoke();
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public virtual void OnPointerDown(PointerEventData eventData)
     {
         if (behavior == ButtonBehavior.HoverOnly) return;
         isPointerDown = true;
         UpdateVisuals();
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    public virtual void OnPointerUp(PointerEventData eventData)
     {
         if (behavior == ButtonBehavior.HoverOnly) return;
         isPointerDown = false;
         UpdateVisuals();
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public virtual void OnPointerClick(PointerEventData eventData)
     {
         if (behavior == ButtonBehavior.HoverOnly) return;
         if (behavior == ButtonBehavior.ToggleSelect)
@@ -154,7 +151,7 @@ public class GenericTweenButton : MonoBehaviour,
         OnClick?.Invoke();
     }
 
-    private void UpdateVisuals()
+    protected void UpdateVisuals()
     {
         LeanTween.cancel(targetTransform.gameObject);
 
@@ -174,7 +171,7 @@ public class GenericTweenButton : MonoBehaviour,
 
     }
 
-    private Vector3 GetTargetScale()
+    protected Vector3 GetTargetScale()
     {
         if (isPointerDown)
         {
@@ -202,7 +199,7 @@ public class GenericTweenButton : MonoBehaviour,
         return initialScale;
     }
 
-    private Color GetTargetColor()
+    protected Color GetTargetColor()
     {
         if (behavior == ButtonBehavior.ToggleSelect && isSelected)
         {
@@ -222,7 +219,7 @@ public class GenericTweenButton : MonoBehaviour,
         return normalColor;
     }
 
-    public void SetSelected(bool selected)
+    public virtual void SetSelected(bool selected)
     {
         if (behavior != ButtonBehavior.ToggleSelect) return;
 

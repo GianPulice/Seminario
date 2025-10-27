@@ -114,11 +114,13 @@ public class ClientManager : MonoBehaviour
     private void SuscribeToOpenTabernButtonEvent()
     {
         AdministratingManagerUI.OnStartTabern += SetIsTabernOpen;
+        AdministratingManagerUI.OnCloseTabern += SetIsTabernClosed;
     }
 
     private void UnsuscribeToOpenTabernButtonEvent()
     {
         AdministratingManagerUI.OnStartTabern -= SetIsTabernOpen;
+        AdministratingManagerUI.OnCloseTabern -= SetIsTabernClosed;
     }
 
     private void SpawnClients()
@@ -140,6 +142,10 @@ public class ClientManager : MonoBehaviour
     private void SetIsTabernOpen()
     {
         isTabernOpen = true;
+    }
+    private void SetIsTabernClosed()
+    {
+        isTabernOpen = false;
     }
 
     private void GetClientRandomFromPool()

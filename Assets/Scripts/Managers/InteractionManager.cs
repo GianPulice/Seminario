@@ -3,24 +3,51 @@ using UnityEngine;
 public class InteractionManager : Singleton<InteractionManager>
 {
     [SerializeField] private InteractionManagerData interactionManagerData;
-
     private IInteractable currentTarget;
-
+    private PlayerModel playerModel;
+    private bool isPlayerInUI = false;
     void Awake()
     {
         CreateSingleton(true);
         SuscribeToUpdateManagerEvent();
         SuscribeToScenesManagerEvent();
+        GetComponents();
+        SuscribeToPlayerViewEvents();
     }
+    void OnDestroy()
+    {
+        // Limpiamos todas las suscripciones
+        if (UpdateManager.Instance != null)
+            UpdateManager.OnUpdate -= UpdateInteractionManager;
 
+        if (ScenesManager.Instance != null)
+            ScenesManager.Instance.OnSceneLoadedEvent -= OnCleanReferencesWhenChangeScene;
+
+        UnsuscribeFromPlayerViewEvents();
+    }
     // Simulacion de Update
     void UpdateInteractionManager()
     {
+        if (isPlayerInUI) return;
         DetectTarget();
         InteractWithTarget();
     }
+    private void SuscribeToPlayerViewEvents()
+    {
+        PlayerView.OnEnterInAdministrationMode += HandlePlayerEnterUI;
+        PlayerView.OnEnterInCookMode += HandlePlayerEnterUI;
 
+        PlayerView.OnExitInAdministrationMode += HandlePlayerExitUI;
+        PlayerView.OnExitInCookMode += HandlePlayerExitUI;
+    }
+    private void UnsuscribeFromPlayerViewEvents()
+    {
+        PlayerView.OnEnterInAdministrationMode -= HandlePlayerEnterUI;
+        PlayerView.OnEnterInCookMode -= HandlePlayerEnterUI;
 
+        PlayerView.OnExitInAdministrationMode -= HandlePlayerExitUI;
+        PlayerView.OnExitInCookMode -= HandlePlayerExitUI;
+    }
     private void SuscribeToUpdateManagerEvent()
     {
         UpdateManager.OnUpdate += UpdateInteractionManager;
@@ -44,7 +71,7 @@ public class InteractionManager : Singleton<InteractionManager>
     private bool ShowCurrentTargetUI()
     {
         if (currentTarget == null || InteractionManagerUI.Instance == null) return false;
-
+       
         if (currentTarget.TryGetInteractionMessage(out string message))
         {
             currentTarget.ShowOutline();
@@ -137,5 +164,28 @@ public class InteractionManager : Singleton<InteractionManager>
                     break;
             }
         }
+    }
+    private void GetComponents()
+    {
+        playerModel = FindFirstObjectByType<PlayerModel>();
+    }
+    private void HandlePlayerEnterUI()
+    {
+        isPlayerInUI = true;
+
+        if (currentTarget != null)
+        {
+            currentTarget.HideOutline();
+            if (InteractionManagerUI.Instance != null)
+            {
+                InteractionManagerUI.Instance.MessageAnimator.Hide();
+            }
+            currentTarget = null;
+        }
+    }
+
+    private void HandlePlayerExitUI()
+    {
+        isPlayerInUI = false;
     }
 }

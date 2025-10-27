@@ -100,7 +100,7 @@ public class CookingManagerUI : MonoBehaviour
 
     public void PlayCancelAudio()
     {
-        AudioManager.Instance.PlayOneShotSFX("ButtonCancel");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
     }
 
     // Funcion asignada a event trigger de la UI para mostrar la informacion de las recetas

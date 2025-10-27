@@ -83,10 +83,8 @@ public class InteractionOnActive : MonoBehaviour
 
         CancelAllTweens();
 
-        // Resetea la escala a 1 por si lo interrumpimos a mitad del "idle"
         rectTransform.localScale = initialScale;
 
-        // Si el objeto no está activo, no puede animarse, así que salimos.
         if (!gameObject.activeInHierarchy) return;
 
         currentMoveTweenId = LeanTween.move(rectTransform, hiddenPosition, hideTime)
@@ -101,10 +99,20 @@ public class InteractionOnActive : MonoBehaviour
         LeanTween.alphaCanvas(canvasGroup, 0f, hideTime/2)
             .setEase(hideEase);
     }
+    public void HideInstantly()
+    {
+        if (!isShown) return;
+        CancelAllTweens();
+        isShown = false;
+        rectTransform.localScale = initialScale;
+        rectTransform.anchoredPosition = hiddenPosition;
+        canvasGroup.alpha = 0f;
+        messageText.text = string.Empty;
 
+        gameObject.SetActive(false);
+    }
     private void StartIdleAnimation()
     {
-        // Comprobación: Si Hide() fue llamado MIENTRAS Show() se animaba, no debemos empezar el idle.
         if (!isShown) return;
 
         rectTransform.localScale = initialScale;
@@ -128,4 +136,5 @@ public class InteractionOnActive : MonoBehaviour
             currentIdleTweenId = -1;
         }
     }
+
 }

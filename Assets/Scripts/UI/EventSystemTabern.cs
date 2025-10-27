@@ -3,13 +3,9 @@ using UnityEngine.EventSystems;
 
 public class EventSystemTabern : MonoBehaviour
 {
-    private EventSystem eventSystem;
-
-
     void Awake()
     {
         SuscribeToUIEvents();
-        GetComponents();
     }
 
     void OnDestroy()
@@ -48,20 +44,21 @@ public class EventSystemTabern : MonoBehaviour
         TeleportDungeonManagerUI.OnClearSelectedCurrentGameObject -= ClearCurrentSelectedGameObject;
     }
 
-    private void GetComponents()
-    {
-        eventSystem = GetComponent<EventSystem>();
-    }
-
     // Sirve para selecionar un GameObject
     private void SetSelectedCurrentGameObject(GameObject currentGameObject)
     {
-        eventSystem.SetSelectedGameObject(currentGameObject);
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(currentGameObject);
+        }
     }
 
     // Sirve para limpiar el GameObject seleccionado, util para cuando salimos de modo UI
     private void ClearCurrentSelectedGameObject()
     {
-        eventSystem.SetSelectedGameObject(null);
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+        }
     }
 }
