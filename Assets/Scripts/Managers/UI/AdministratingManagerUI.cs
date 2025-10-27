@@ -25,13 +25,11 @@ public class AdministratingManagerUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textPriceCurrentZoneUnlock;
 
 
-    // --- Variables de Estado ---
-    private event Action onEnterAdmin, onExitAdmin;
     // --- Eventos de Lógica de Negocio ---
     private static event Action onStartTabern, onCloseTabern;
     public static Action OnStartTabern { get => onStartTabern; set => onStartTabern = value; }
     public static Action OnCloseTabern { get => onCloseTabern; set => onCloseTabern = value; }
-
+    
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
@@ -43,9 +41,8 @@ public class AdministratingManagerUI : MonoBehaviour
     void Awake()
     {
         GetComponents();
-        InitializeEventBindings();
+        InitializeAnimatorEventBindings();
         SuscribeToPlayerViewEvents();
-
         SuscribeToUpdateManagerEvent();
         SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
     }
@@ -103,10 +100,6 @@ public class AdministratingManagerUI : MonoBehaviour
             PauseManager.OnRestoreSelectedGameObject -= RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
     }
 
-    /// <summary>
-    /// Escucha el evento de Pausa. Si el jugador SIGUE en modo Admin,
-    /// restaura el foco al último botón seleccionado.
-    /// </summary>
     private void RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI()
     {
         // Usamos el PlayerModel como la "fuente de verdad" del estado
@@ -118,10 +111,6 @@ public class AdministratingManagerUI : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Guarda el último botón seleccionado por el EventSystem
-    /// MIENTRAS estemos en este panel.
-    /// </summary>
     private void CheckLastSelectedButtonIfAdminPanelIsOpen()
     {
         if (EventSystem.current != null && PauseManager.Instance != null && !PauseManager.Instance.IsGamePaused &&
@@ -151,12 +140,8 @@ public class AdministratingManagerUI : MonoBehaviour
 
     public void ButtonExit()
     {
-        if (panelAnimator != null && !panelAnimator.IsAnimating)
-        {
-            panelAnimator.AnimateOut();
-            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
-            onExitAdmin?.Invoke();
-        }
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        HandlePlayerExitAdmin();
     }
 
     public void ButtonBuyIngredient(string ingredientName)
@@ -230,28 +215,57 @@ public class AdministratingManagerUI : MonoBehaviour
         panelIngredients.SetActive(false);
         panelUpgrades.SetActive(false);
     }
+    private void PrepareInitialUIState()
+    {
+        int initialTabIndex = 0;
+        TabTweenButton initialButton = tabGroup?.StartingSelectedButton;
+        if (tabGroup != null && initialButton != null)
+        {
+            initialTabIndex = tabGroup.GetButtonIndex(initialButton);
+            if (initialTabIndex < 0) initialTabIndex = 0;
+        }
+
+        int upgradesButtonIndex = 2;
+        if (initialTabIndex == upgradesButtonIndex)
+        {
+            ShowCurrentZoneInformation(0);
+        }
+    }
+    private void HandlePlayerEnterAdmin()
+    {
+        PrepareInitialUIState();
+        if (panelAnimator != null)
+        {
+            panelAnimator.AnimateIn();
+        }
+    }
+    private void HandlePlayerExitAdmin()
+    {
+        if (panelAnimator != null)
+        {
+            panelAnimator.AnimateOut();
+        }
+    }
     #endregion
 
     #region Setup y Suscripciones
 
-    private void InitializeEventBindings()
+    private void InitializeAnimatorEventBindings()
     {
-        onEnterAdmin += panelAnimator.AnimateIn;
-        onExitAdmin += panelAnimator.AnimateOut;
         panelAnimator.OnAnimateInComplete.AddListener(SetupInitialTab);
         panelAnimator.OnAnimateOutComplete.AddListener(CleanupAfterAnimation);
     }
 
     private void SuscribeToPlayerViewEvents()
     {
-        PlayerView.OnEnterInAdministrationMode += onEnterAdmin;
-        PlayerView.OnExitInAdministrationMode += onExitAdmin;
+        PlayerView.OnEnterInAdministrationMode += HandlePlayerEnterAdmin;
+        PlayerView.OnExitInAdministrationMode += HandlePlayerExitAdmin;
     }
 
     private void UnsuscribeToPlayerViewEvents()
     {
-        PlayerView.OnEnterInAdministrationMode -= onEnterAdmin;
-        PlayerView.OnExitInAdministrationMode -= onExitAdmin;
+        PlayerView.OnEnterInAdministrationMode -= HandlePlayerEnterAdmin;
+        PlayerView.OnExitInAdministrationMode -= HandlePlayerExitAdmin;
     }
 
     private void GetComponents()

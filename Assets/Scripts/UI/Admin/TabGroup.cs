@@ -93,6 +93,10 @@ public class TabGroup : MonoBehaviour
         TabTweenButton buttonToSelect = tabButtons[index];
         OnTabSelected(buttonToSelect);
     }
+    public int GetButtonIndex(TabTweenButton button)
+    {
+        return tabButtons.IndexOf(button);
+    }
 }
 
 
