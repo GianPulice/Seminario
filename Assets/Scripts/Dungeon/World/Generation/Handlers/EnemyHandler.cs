@@ -10,7 +10,7 @@ public class EnemyHandler : MonoBehaviour
     [Header("Rondas")]
     [Tooltip("Cantidad total de rondas en esta sala. Ejemplo: 3 --> (4, 8, 12 enemigos)")]
     [SerializeField] private int totalRounds = 3;
-    [Tooltip("Número base de enemigos en la primera ronda. Cada ronda multiplica este número por el índice de ronda. Ejemplo: base = 4 --> ronda 1 = 4, ronda 2 = 8, ronda 3 = 12.")]
+    [Tooltip("N?mero base de enemigos en la primera ronda. Cada ronda multiplica este n?mero por el ?ndice de ronda. Ejemplo: base = 4 --> ronda 1 = 4, ronda 2 = 8, ronda 3 = 12.")]
     [SerializeField] private int basePerRound = 2;  // 4, 8, 12...
     [SerializeField] private float timeBetweenRounds = 2f;
 
@@ -23,7 +23,7 @@ public class EnemyHandler : MonoBehaviour
     private int currentRound;
     private bool initialized;
 
-    public void Initialize(int layer,RoomConfig config)
+    public void Initialize(int layer, RoomConfig config)
     {
         currentLayer = layer;
         roomConfig = config;
@@ -31,7 +31,7 @@ public class EnemyHandler : MonoBehaviour
         currentRound = 0;
         initialized = true;
 
-        if(roundsCoroutine != null)
+        if (roundsCoroutine != null)
             StopCoroutine(roundsCoroutine);
         roundsCoroutine = StartCoroutine(RunRounds());
     }
@@ -62,7 +62,7 @@ public class EnemyHandler : MonoBehaviour
             if (spawner == null) failReason += " [Spawner NULL]";
             if (roomConfig == null) failReason += " [RoomConfig NULL]";
 
-            Debug.LogWarning($"[EnemyHandler] Spawn detenido. Razón: {failReason}");
+            Debug.LogWarning($"[EnemyHandler] Spawn detenido. Raz?n: {failReason}");
             yield break;
         }
 
@@ -85,9 +85,9 @@ public class EnemyHandler : MonoBehaviour
 
     private void SpawnRound(int totalToSpawn)
     {
-       if(totalToSpawn<=0 ||spawner==null) return;
-        
-        spawner.SpawnEnemies(roomConfig.roomID,totalToSpawn, currentLayer, OnEnemySpawned);
+        if (totalToSpawn <= 0 || spawner == null) return;
+
+        spawner.SpawnEnemies(roomConfig.roomID, totalToSpawn, currentLayer, OnEnemySpawned);
     }
 
     private void OnEnemySpawned(EnemyBase enemy)

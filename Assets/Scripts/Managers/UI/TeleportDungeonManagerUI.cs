@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 public class TeleportDungeonManagerUI : MonoBehaviour
 {
     private PlayerModel playerModel;
+    private TeleportDungeonUI teleportDungeonUI;
 
     [SerializeField] private GameObject panelTeleport;
     [SerializeField] private List<GameObject> buttonsTeleportPanel;
@@ -52,12 +53,21 @@ public class TeleportDungeonManagerUI : MonoBehaviour
         }
     }
 
+    // Funcion asignada a botones en la UI para deseleccionar el selected GameObject del EventSystem con Mouse
+    public void DeselectButtonAsSelectedGameObjectIfExitHover()
+    {
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+        }
+    }
+
     // Funcion asignada a botones en la UI para reproducir el sonido selected
     public void PlayAudioButtonSelectedWhenChangeSelectedGameObjectExceptFirstTime()
     {
         if (!ignoreFirstButtonSelected)
         {
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             return;
         }
 
@@ -67,6 +77,7 @@ public class TeleportDungeonManagerUI : MonoBehaviour
     // Funcion asignada a boton en la UI
     public void ButtonYes()
     {
+        DeviceManager.Instance.IsUIModeActive = false;
         string[] additiveScenes = { "DungeonUI", "CompartidoUI" };
         StartCoroutine(ScenesManager.Instance.LoadScene("Dungeon", additiveScenes));
     }
@@ -74,8 +85,10 @@ public class TeleportDungeonManagerUI : MonoBehaviour
     // Funcion asignada a boton en la UI
     public void ButtonNo()
     {
+        StartCoroutine(teleportDungeonUI.MoveDoorsCoroutine(DoorAnimationType.Close));
         onClearSelectedCurrentGameObject?.Invoke();
         ignoreFirstButtonSelected = true;
+        teleportDungeonUI.IsOpenByPlayer = false;
         playerModel.IsInTeleportPanel = false;
         DeviceManager.Instance.IsUIModeActive = false;
         panelTeleport.SetActive(false);
@@ -132,6 +145,7 @@ public class TeleportDungeonManagerUI : MonoBehaviour
     private void GetComponents()
     {
         playerModel = FindFirstObjectByType<PlayerModel>();
+        teleportDungeonUI = FindFirstObjectByType<TeleportDungeonUI>();
     }
 
     private void CheckLastSelectedButtonIfAdminPanelIsOpen()

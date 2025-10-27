@@ -11,7 +11,7 @@ public class AdministratingManagerUI : MonoBehaviour
 
     [SerializeField] private GameObject panelTabern;
     [SerializeField] private GameObject panelIngredients;
-    [SerializeField] private GameObject panelUpgrades; 
+    [SerializeField] private GameObject panelUpgrades;
 
     private List<ZoneUnlock> zoneUnlocks = new List<ZoneUnlock>();
     private Image currentImageZoneUnlock;
@@ -75,12 +75,23 @@ public class AdministratingManagerUI : MonoBehaviour
         }
     }
 
+    // Funcion asignada a botones en la UI para deseleccionar el selected GameObject del EventSystem con Mouse
+    public void DeselectButtonAsSelectedGameObjectIfExitHover()
+    {
+        if (EventSystem.current != null)
+        {
+            if (panelTabern.activeSelf) EventSystem.current.SetSelectedGameObject(null);
+            if (panelIngredients.activeSelf) EventSystem.current.SetSelectedGameObject(null);
+            if (panelUpgrades.activeSelf) EventSystem.current.SetSelectedGameObject(null);
+        }
+    }
+
     // Funcion asignada a botones en la UI para reproducir el sonido selected
     public void PlayAudioButtonSelectedWhenChangeSelectedGameObjectExceptFirstTime()
     {
         if (!ignoreFirstButtonSelected)
         {
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             return;
         }
 
@@ -100,7 +111,7 @@ public class AdministratingManagerUI : MonoBehaviour
     public void ButtonStartTabern()
     {
         onStartTabern?.Invoke();
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
     }
 
     // Funcion asignada a boton UI
@@ -112,14 +123,14 @@ public class AdministratingManagerUI : MonoBehaviour
 
             if (MoneyManager.Instance.CurrentMoney >= price)
             {
-                AudioManager.Instance.PlaySFX("ButtonClickWell");
+                AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
                 IngredientInventoryManager.Instance.IncreaseIngredientStock(ingredient);
                 MoneyManager.Instance.SubMoney(price);
             }
 
             else
             {
-                AudioManager.Instance.PlaySFX("ButtonClickWrong");
+                AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
             }
         }
     }
@@ -133,14 +144,14 @@ public class AdministratingManagerUI : MonoBehaviour
 
         if (MoneyManager.Instance.CurrentMoney >= price)
         {
-            AudioManager.Instance.PlaySFX("ButtonClickWell");
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
             zoneUnlocks[index].UnlockZone();
             MoneyManager.Instance.SubMoney(price);
         }
 
         else
         {
-            AudioManager.Instance.PlaySFX("ButtonClickWrong");
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
         }
     }
 
@@ -151,11 +162,11 @@ public class AdministratingManagerUI : MonoBehaviour
         ColorBlock color = buttonsPanelAdministrating[0].colors;
         color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
 
-        if (buttonsPanelAdministrating[0].colors == color) 
+        if (buttonsPanelAdministrating[0].colors == color)
         {
-            onSetSelectedCurrentGameObject?.Invoke(buttonsTabern[0]);
+            //onSetSelectedCurrentGameObject?.Invoke(buttonsTabern[0]);
 
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[1]);
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[2]);
             panelIngredients.SetActive(false);
@@ -175,9 +186,9 @@ public class AdministratingManagerUI : MonoBehaviour
         if (buttonsPanelAdministrating[1].colors == color)
         {
             // Aca se podria agregar que selecione el ultimo que tenia antes
-            onSetSelectedCurrentGameObject?.Invoke(buttonsIngredients[0]);
+            //onSetSelectedCurrentGameObject?.Invoke(buttonsIngredients[0]);
 
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
 
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[0]);
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[2]);
@@ -198,10 +209,10 @@ public class AdministratingManagerUI : MonoBehaviour
         if (buttonsPanelAdministrating[2].colors == color)
         {
             // Aca se podria agregar que selecione el ultimo que tenia antes
-            onSetSelectedCurrentGameObject?.Invoke(buttonsUpgrades[0]);
+            //onSetSelectedCurrentGameObject?.Invoke(buttonsUpgrades[0]);
             ShowCurrentZoneInformation(0);
 
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
 
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[0]);
             SetButtonNormalColorInWhite(buttonsPanelAdministrating[1]);

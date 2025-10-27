@@ -87,6 +87,8 @@ public class ClientStateLeave<T> : State<T>
     {
         yield return new WaitForSeconds(waitingTimeToFreeTable);
 
+        if (clientModel.CurrentTable == null) yield break; // Cortar el metodo si la mesa es null, quiere decir que se fue porque se quedo esperando
+
         clientModel.CurrentTable.SetNavMeshObstacles(true);
         clientModel.CurrentTable = TablesManager.Instance.FreeTable(clientModel.CurrentTable);
     }
@@ -126,7 +128,6 @@ public class ClientStateLeave<T> : State<T>
         // Si la mesa es null ejecuta este bloque, quiere decir que todas las mesas estaban ocupadas y se quedo esperando afuera
         else
         {
-            clientView.SetSpriteTypeName("SpriteHungry");
             MoneyManager.Instance.SubMoney(GratuityManager.Instance.GratuityManagerData.MissedClientCost);
         }
     }

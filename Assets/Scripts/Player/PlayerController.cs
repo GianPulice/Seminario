@@ -166,9 +166,6 @@ public class PlayerController : MonoBehaviour
 
     private void ShowOrHideDish()
     {
-        if (BookManagerUI.Instance == null) return;
-        if (BookManagerUI.Instance.IsBookOpen) return;
-
         if (PlayerInputs.Instance.ShowOrHideDish())
         {
             foreach (Transform child in playerView.Dish.transform)
@@ -191,7 +188,7 @@ public class PlayerController : MonoBehaviour
 
     private void OpenBook()
     {
-        if (PlayerInputs.Instance.Book())
+        if (PlayerInputs.Instance.Inventory())
         {
             onOpenOrCloseBook?.Invoke();
         }

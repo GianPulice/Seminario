@@ -75,7 +75,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         }
 
         DamageContext.Clear();
+        CheckDeath();
 
+    }
+
+    private void CheckDeath()
+    {
         if (currentHP <= 0 && !isDead)
         {
             currentHP = 0;

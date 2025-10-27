@@ -14,9 +14,6 @@ public class LineMoveObject : MonoBehaviour
 
     private Vector3 startPosition;
     private Vector3 endPosition;
-    private Vector3 currentTarget;
-
-    private float totalDistance;
     void Start()
     {
         if (pointA == null || pointB == null)
@@ -26,32 +23,19 @@ public class LineMoveObject : MonoBehaviour
             return;
         }
 
-        // Inicializar posiciones
         startPosition = pointA.position;
         endPosition = pointB.position;
-
-        // Colocar el objeto en el punto inicial y definir el primer objetivo
-        transform.position = startPosition;
-        currentTarget = endPosition;
-
-        totalDistance = Vector3.Distance(startPosition, endPosition);
     }
 
     void Update()
     {
         if (pointA == null || pointB == null) return;
-        transform.position = Vector3.Lerp(transform.position,currentTarget,speed * Time.deltaTime);
-        if (Vector3.Distance(transform.position, currentTarget) < 0.1f)
-        {
-            if (currentTarget == endPosition)
-            {
-                currentTarget = startPosition;
-            }
-            else
-            {
-                currentTarget = endPosition;
-            }
-        }
+
+        // Calcula un valor oscilante entre 0 y 1 usando el seno del tiempo
+        float t = (Mathf.Sin(Time.time * speed) + 1f) / 2f;
+
+        // Interpola la posición entre A y B según t
+        transform.position = Vector3.Lerp(startPosition, endPosition, t);
     }
 
     void OnDrawGizmos()

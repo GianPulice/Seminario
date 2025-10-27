@@ -46,6 +46,7 @@ public class SettingsManager : Singleton<SettingsManager>
     void Awake()
     {
         CreateSingleton(true);
+        //PlayerPrefs.DeleteAll();
     }
 
     void Start()
@@ -98,6 +99,7 @@ public class SettingsManager : Singleton<SettingsManager>
         currentResolution.height = height;
         fullscreenMode = mode;
         Screen.SetResolution(width, height, mode);
+
         PlayerPrefs.SetInt("ResolutionWidth", width);
         PlayerPrefs.SetInt("ResolutionHeight", height);
         PlayerPrefs.SetInt("FullscreenMode", (int)mode);

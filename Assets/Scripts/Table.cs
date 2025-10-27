@@ -13,7 +13,7 @@ public class Table : MonoBehaviour, IInteractable
     private GameObject table;
     private GameObject chair;
     private GameObject dish;
-    private GameObject dirty;
+    private ParticleSystem dirty;
 
     private NavMeshObstacle[] navMeshObstacle;
 
@@ -33,7 +33,7 @@ public class Table : MonoBehaviour, IInteractable
 
     public List<Food> CurrentFoods { get => currentFoods; set => currentFoods = value; }
 
-    public InteractionMode InteractionMode 
+    public InteractionMode InteractionMode
     {
         get
         {
@@ -50,9 +50,8 @@ public class Table : MonoBehaviour, IInteractable
     }
 
     public float CurrentCleanProgress { get => currentCleanProgress; set => currentCleanProgress = value; }
-    
+
     public bool IsOccupied { get => isOccupied; set => isOccupied = value; }
-    public bool IsDirty { get => isDirty; }
 
 
     void Awake()
@@ -100,71 +99,17 @@ public class Table : MonoBehaviour, IInteractable
         {
             OutlineManager.Instance.ShowWithDefaultColor(table);
             InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
-
             PlayerView.OnActivateSliderCleanDirtyTable?.Invoke();
             return;
         }
-
-        if (auxiliarTable == null || auxiliarTable != this)
-        {
-            auxiliarTable = this;
-            auxiliarClientView = GetComponentInChildren<ClientView>();
-        }
-
-        // Si hay un cliente sentado
-        if (ChairPosition.childCount > 0 && auxiliarClientView != null)
-        {
-            // Tomar pedido
-            if (isOccupied && auxiliarClientView.ReturnSpriteWaitingToBeAttendedIsActive())
-            {
-                if (!auxiliarClientView.CanTakeOrder)
-                {
-                    OutlineManager.Instance.ShowWithDefaultColor(table);
-                    InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
-
-                    auxiliarClientView.CanTakeOrder = true;
-                    PlayerController.OnTableCollisionEnterForTakeOrder?.Invoke(this);
-                }
-            }
-
-            // Entregar pedido
-            bool hasChildren = false;
-            foreach (Transform child in playerController.PlayerView.Dish.transform)
-            {
-                if (child.childCount > 0)
-                {
-                    hasChildren = true;
-                    break;
-                }
-            }
-
-            if (hasChildren && isOccupied && auxiliarClientView.ReturnSpriteFoodIsActive())
-            {
-                OutlineManager.Instance.ShowWithDefaultColor(table);
-                InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
-
-                PlayerController.OnTableCollisionEnterForHandOverFood?.Invoke(this);
-            }
-        }
-
-        else
-        {
-            // El cliente se fue
-            if (auxiliarClientView != null)
-            {
-                auxiliarClientView.CanTakeOrder = false;
-            }
-
-            PlayerController.OnTableCollisionExitForTakeOrder?.Invoke();
-            PlayerController.OnTableCollisionExitForHandOverFood?.Invoke();
-
-            auxiliarTable = null;
-            auxiliarClientView = null;
-        }
+                
+        OutlineManager.Instance.ShowWithDefaultColor(table);
+        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
     }
 
     public void HideOutline()
     {
+        
         OutlineManager.Instance.Hide(table);
         InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
 
@@ -184,29 +129,35 @@ public class Table : MonoBehaviour, IInteractable
         }
     }
 
-    public void ShowMessage(TMPro.TextMeshProUGUI interactionManagerUIText)
+    public bool TryGetInteractionMessage(out string message)
     {
         string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
 
         if (isDirty)
         {
-            interactionManagerUIText.text = $"Hold" + keyText + "to clean the table";
-            return;
+            message = $"Hold {keyText} to clean the table";
+            return true;
         }
 
-        // Si hay un cliente sentado
+        if (auxiliarTable == null || auxiliarTable != this)
+        {
+            auxiliarTable = this;
+            auxiliarClientView = GetComponentInChildren<ClientView>();
+        }
+
         if (ChairPosition.childCount > 0 && auxiliarClientView != null)
         {
-            // Tomar pedido
             if (isOccupied && auxiliarClientView.ReturnSpriteWaitingToBeAttendedIsActive())
             {
-                if (auxiliarClientView.CanTakeOrder)
+                if (!auxiliarClientView.CanTakeOrder)
                 {
-                    interactionManagerUIText.text = $"Press" + keyText + "to take order";
+                    auxiliarClientView.CanTakeOrder = true;
+                    PlayerController.OnTableCollisionEnterForTakeOrder?.Invoke(this);
                 }
+                message = $"Press {keyText} to take order";
+                return true;
             }
 
-            // Entregar pedido
             bool hasChildren = false;
             foreach (Transform child in playerController.PlayerView.Dish.transform)
             {
@@ -219,20 +170,22 @@ public class Table : MonoBehaviour, IInteractable
 
             if (hasChildren && isOccupied && auxiliarClientView.ReturnSpriteFoodIsActive())
             {
-                interactionManagerUIText.text = $"Press" + keyText + "to deliver the order";
+                PlayerController.OnTableCollisionEnterForHandOverFood?.Invoke(this);
+
+                message = $"Press {keyText} to deliver the order";
+                return true;
             }
         }
-    }
-
-    public void HideMessage(TMPro.TextMeshProUGUI interactionManagerUIText)
-    {
-        interactionManagerUIText.text = string.Empty;
+        message = null;
+        return false;
     }
 
     public void SetDirty(bool current)
     {
         isDirty = current;
-        dirty.SetActive(current);
+        dirty.gameObject.SetActive(current);
+        var main = dirty.main;
+        main.loop = current;
     }
 
     /// <summary>
@@ -252,7 +205,6 @@ public class Table : MonoBehaviour, IInteractable
         }
     }
 
-
     private void FindObjectsAndComponents()
     {
         playerController = FindFirstObjectByType<PlayerController>();
@@ -260,7 +212,7 @@ public class Table : MonoBehaviour, IInteractable
         table = transform.Find("Table").gameObject;
         chair = transform.Find("Chair").gameObject;
         dish = transform.Find("Dish").gameObject;
-        dirty = transform.Find("Dirty").gameObject;
+        dirty = GetComponentInChildren<ParticleSystem>(true); // Indica que busca componentes en gameObject desactivados
 
         navMeshObstacle = GetComponentsInChildren<NavMeshObstacle>();
 

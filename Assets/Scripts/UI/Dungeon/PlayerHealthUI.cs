@@ -7,7 +7,7 @@ public class PlayerHealthUI : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private Image healthFillImage;
-    [SerializeField] private float duration = 0.3f; // Duración de la transición
+    [SerializeField] private float duration = 0.5f; // Duración de la transición
 
     private Coroutine healthCoroutine;
 

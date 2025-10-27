@@ -18,7 +18,7 @@ public class PlayerDungeonView : MonoBehaviour
         {
             model.OnHealthChanged += HandleHealthChanged;
             model.OnStaminaChanged += HandleStaminaChanged;
-            model.onPlayerDied += HandleDeath;
+            model.OnPlayerDied += HandleDeath;
         }
     }
 
@@ -28,7 +28,7 @@ public class PlayerDungeonView : MonoBehaviour
         {
             model.OnHealthChanged -= HandleHealthChanged;
             model.OnStaminaChanged -= HandleStaminaChanged;
-            model.onPlayerDied -= HandleDeath;
+            model.OnPlayerDied -= HandleDeath;
         }
     }
 
@@ -44,12 +44,12 @@ public class PlayerDungeonView : MonoBehaviour
 
     private void HandleDeath()
     {
+        animator?.SetTrigger("Die");
         PlayerDungeonHUD.OnPlayerDeath?.Invoke();
         DungeonManager.Instance?.OnPlayerDeath();
     }
 
     // Animaciones
     public void PlayAttackAnimation() => animator?.SetTrigger("Attack");
-    public void OnAttackFrame() => GetComponent<AttackHitbox>()?.TriggerHit();
 
 }

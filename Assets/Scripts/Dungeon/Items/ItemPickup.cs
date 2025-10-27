@@ -47,12 +47,22 @@ public class ItemPickup : MonoBehaviour, IInteractable
         InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Interactive);
 
     }
+    public bool TryGetInteractionMessage(out string message)
+    {
+        string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
+        message = $"Press {keyText} to enter administration";
+
+        return true;
+    }
 
     public void HideOutline()
     {
+        if(gameObject != null)
+        {
+            OutlineManager.Instance.Hide(gameObject);
+            InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
 
-        OutlineManager.Instance.Hide(gameObject);
-        InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
+        }
     }
 
     public void ShowMessage(TextMeshProUGUI interactionManagerUIText)

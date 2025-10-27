@@ -29,6 +29,7 @@ public class Food : MonoBehaviour, IInteractable
     private Table currentTable; // Esta Table hace referencia a la mesa en la cual podemos entregar el pedido
     private Slider cookingBar;
     private MeshRenderer meshRenderer;
+    private ParticleSystem smoke;
     private Color originalColor;
 
     private Transform stovePosition;
@@ -49,7 +50,7 @@ public class Food : MonoBehaviour, IInteractable
     public CookingStates CurrentCookingState { get => currentCookingState; }
 
 
-    private class FoodMesh
+    public class FoodMesh
     {
         public GameObject root;
         public Collider collider;
@@ -95,8 +96,8 @@ public class Food : MonoBehaviour, IInteractable
     {
         UnsuscribeToUpdateManagerEvent();
         UnsuscribeToPlayerControllerEvents();
-        OutlineManager.Instance.Register(defaultMesh.root);
-        OutlineManager.Instance.Register(foodMesh.root);
+        OutlineManager.Instance.Unregister(defaultMesh.root);
+        OutlineManager.Instance.Unregister(foodMesh.root);
     }
 
 
@@ -117,9 +118,9 @@ public class Food : MonoBehaviour, IInteractable
             playerDishPosition = cookingManager.MoveFoodToDish(this);
 
             SetMeshRootActive(defaultMesh, false);
-            StartCoroutine(EnabledOrDisablePhysics(defaultMesh, false));
+            EnabledOrDisablePhysics(defaultMesh, false);
             SetMeshRootActive(foodMesh, true);
-            StartCoroutine(EnabledOrDisablePhysics(foodMesh, false));
+            EnabledOrDisablePhysics(foodMesh, false);
         }
     }
 
@@ -142,18 +143,18 @@ public class Food : MonoBehaviour, IInteractable
         InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
 
-    public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
+    public bool TryGetInteractionMessage(out string message)
     {
         if (cookingManager.AvailableDishPositions.Count > 0 && !isServedInTable && !isInPlayerDishPosition)
         {
             string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
-            interactionManagerUIText.text = $"Press" + keyText + "to grab food";
-        }
-    }
+            message = $"Press {keyText} to grab food";
 
-    public void HideMessage(TextMeshProUGUI interactionManagerUIText)
-    {
-        interactionManagerUIText.text = string.Empty;
+            return true;
+        }
+
+        message = null;
+        return false;
     }
 
     public void ReturnObjetToPool()
@@ -161,7 +162,6 @@ public class Food : MonoBehaviour, IInteractable
         cookingManager.ReturnObjectToPool(foodType, this);
         RestartValues();
     }
-
 
     private void SuscribeToUpdateManagerEvent()
     {
@@ -198,6 +198,7 @@ public class Food : MonoBehaviour, IInteractable
         playerController = FindFirstObjectByType<PlayerController>();
         cookingManager = FindFirstObjectByType<CookingManager>();
         cookingBar = GetComponentInChildren<Slider>();
+        smoke = GetComponentInChildren<ParticleSystem>(true); // Inidica que busca componentes dentro de gameObjects que estan desactivados
     }
 
     private IEnumerator RegisterOutline()
@@ -211,8 +212,7 @@ public class Food : MonoBehaviour, IInteractable
     private void Initialize()
     {
         SetupFoodMesh(ref defaultMesh, "DefaultMesh");
-        string cleanName = gameObject.name.Replace("(Clone)", "").Trim();
-        SetupFoodMesh(ref foodMesh, cleanName + "Mesh");
+        SetupFoodMesh(ref foodMesh, gameObject.name.Replace("(Clone)", "").Trim() + "Mesh");
 
         SetMeshRootActive(defaultMesh, true);
         SetMeshRootActive(foodMesh, false);
@@ -243,7 +243,7 @@ public class Food : MonoBehaviour, IInteractable
             cookingBar.value = 0;
             cookTimeCounter = 0f;
 
-            while (cookTimeCounter <= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned)
+            while (cookTimeCounter <= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned) // Esto es para que la logica se ejecute durante el tiempo de coccion + el tiempo de quemarse y despues no funcione mas la corrutina
             {
                 cookTimeCounter += Time.deltaTime;
 
@@ -255,6 +255,11 @@ public class Food : MonoBehaviour, IInteractable
                 if (cookTimeCounter >= foodData.TimeToBeenCooked && cookingBar.gameObject.activeSelf)
                 {
                     cookingBar.gameObject.SetActive(false);
+                }
+
+                if (cookTimeCounter >= foodData.TimeToBeenBurned && !smoke.gameObject.activeSelf)
+                {
+                    smoke.gameObject.SetActive(true);
                 }
 
                 if (isInPlayerDishPosition)
@@ -282,10 +287,8 @@ public class Food : MonoBehaviour, IInteractable
     }
 
     // Si es true activa las fisicas, sino las desactiva
-    private IEnumerator EnabledOrDisablePhysics(FoodMesh mesh, bool value)
+    private void EnabledOrDisablePhysics(FoodMesh mesh, bool value)
     {
-        yield return null;
-
         if (value)
         {
             mesh.rb.isKinematic = false;
@@ -299,7 +302,7 @@ public class Food : MonoBehaviour, IInteractable
         }
     }
 
-    public void RotateSliderUIToLookAtPlayer()
+    private void RotateSliderUIToLookAtPlayer()
     {
         Vector3 playerDirection = (playerController.transform.position - cookingBar.transform.position).normalized;
         Vector3 lookDirection = new Vector3(playerDirection.x, 0, playerDirection.z);
@@ -316,15 +319,13 @@ public class Food : MonoBehaviour, IInteractable
         meshRenderer.material.color = originalColor;
 
         cookingBar.gameObject.SetActive(true);
+        smoke.gameObject.SetActive(false);
 
         stovePosition = null;
         playerDishPosition = null;
 
-        defaultMesh.rb.isKinematic = false;
-        defaultMesh.collider.enabled = true;
-
-        foodMesh.rb.isKinematic = false;
-        foodMesh.collider.enabled = true;
+        EnabledOrDisablePhysics(defaultMesh, true);
+        EnabledOrDisablePhysics(foodMesh, true);
 
         currentCookingState = CookingStates.Raw;
 
@@ -337,6 +338,8 @@ public class Food : MonoBehaviour, IInteractable
 
         SetMeshRootActive(defaultMesh, true);
         SetMeshRootActive(foodMesh, false);
+
+        //transform.position = Vector3.zero;
     }
 
     private void SaveTable(Table table)
@@ -392,7 +395,7 @@ public class Food : MonoBehaviour, IInteractable
                 transform.SetParent(freeSpot);
                 transform.position = freeSpot.position + new Vector3(0, 0.1f, 0);
 
-                StartCoroutine(EnabledOrDisablePhysics(foodMesh, true));
+                EnabledOrDisablePhysics(foodMesh, true);
 
                 isInPlayerDishPosition = false;
                 isServedInTable = true;
@@ -410,8 +413,8 @@ public class Food : MonoBehaviour, IInteractable
         {
             cookingManager.ReleaseDishPosition(playerDishPosition);
             isInPlayerDishPosition = false;
-            StartCoroutine(EnabledOrDisablePhysics(foodMesh, true));
-        }  
+            EnabledOrDisablePhysics(foodMesh, true);
+        }
     }
 
     private void ThrowFoodToTrash()

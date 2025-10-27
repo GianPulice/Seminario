@@ -131,6 +131,9 @@ public class EnemySpawner : MonoBehaviour
         }
 
         statScaler?.ApplyScaling(enemy, layer);
+
+        enemy.ResetEnemy(spawnPoint.position);
+
         return enemy;
     }
     private List<Transform> GetSpawnPointsForRoom(string roomId)

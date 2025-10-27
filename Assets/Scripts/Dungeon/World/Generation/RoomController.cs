@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class RoomController : MonoBehaviour
 {
@@ -32,7 +29,7 @@ public class RoomController : MonoBehaviour
     //--------------- UNITY -------------------
     private void Awake()
     {
-       if(enemyHandler != null)
+        if (enemyHandler != null)
             enemyHandler.OnAllEnemiesDefeated += HandleRoomCleared;
     }
     private void OnDestroy()
@@ -45,7 +42,7 @@ public class RoomController : MonoBehaviour
     public void ActivateRoom()
     {
         if (isActive) return;
-       
+
         isActive = true;
         allEnemiesDefeated = false;
 

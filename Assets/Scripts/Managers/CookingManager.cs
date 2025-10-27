@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public class CookingManager : MonoBehaviour
 {
@@ -31,6 +32,11 @@ public class CookingManager : MonoBehaviour
         EnqueueStovesPositions();
         EnqueueDishPositions();
         InitializeFoodPoolDictionary();
+    }
+
+    void Start()
+    {
+        StartCoroutine(PlayTabernMusic());
     }
 
     void OnDestroy()
@@ -85,8 +91,9 @@ public class CookingManager : MonoBehaviour
 
         if (targetPosition != null)
         {
-            currentFood.transform.position = targetPosition.position;
             currentFood.transform.SetParent(targetPosition);
+            currentFood.transform.position = targetPosition.position;
+            currentFood.transform.position += new Vector3(0, 0.05f, 0); // La posicion exacta en la bandeja
         }
 
         return targetPosition;
@@ -169,5 +176,12 @@ public class CookingManager : MonoBehaviour
                 foodPoolDictionary[foodType] = foodPools[i];
             }
         }
+    }
+
+    private IEnumerator PlayTabernMusic()
+    {
+        yield return new WaitUntil(() => AudioManager.Instance != null);
+
+        StartCoroutine(AudioManager.Instance.PlayMusic("TabernBGM"));
     }
 }

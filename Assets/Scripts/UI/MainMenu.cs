@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    [SerializeField] private List<Button> buttonsMainMenu;
+    [SerializeField] private List<GenericTweenButton> buttonsMainMenu;
 
+    //Cambiar aca despues de hacer el nuevo sistema de tabs.
     [SerializeField] private GameObject panelSettings;
 
     private static event Action<List<GameObject>> onSendButtonsToEventSystem;
@@ -28,15 +28,21 @@ public class MainMenu : MonoBehaviour
     void Start()
     {
         InitializeLoadGameButtonIfLoadDataExists();
+        StartCoroutine(PlayMainMenuMusic());
     }
 
-
-    // Funcion asignada a botones en la UI para setear el selected GameObject del EventSystem con Mouse
-    public void SetButtonAsSelectedGameObjectIfHasBeenHover(int indexButton)
+    public void SetSelectedGameObject(GameObject go)
     {
         if (EventSystem.current != null)
         {
-            EventSystem.current.SetSelectedGameObject(buttonsMainMenu[indexButton].gameObject);
+            EventSystem.current.SetSelectedGameObject(go);
+        }
+    }
+    public void DeselectCurrentGameObject()
+    {
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
         }
     }
 
@@ -45,7 +51,7 @@ public class MainMenu : MonoBehaviour
     {
         if (!ignoreFirstButtonSelected)
         {
-            AudioManager.Instance.PlaySFX("ButtonSelected");
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             return;
         }
 
@@ -74,7 +80,7 @@ public class MainMenu : MonoBehaviour
     // Funcion asignada a boton en la UI
     public void ButtonSettings()
     {
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
 
         foreach (var button in buttonsMainMenu)
         {
@@ -85,29 +91,36 @@ public class MainMenu : MonoBehaviour
         onButtonSettingsClickToShowCorrectPanel?.Invoke();
     }
 
-    // Funcion asignada a boton en la UI
     public void ButtonCredits()
     {
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
     }
 
-    // Funcion asignada a boton en la UI
     public void ButtonExit()
     {
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         DeviceManager.Instance.IsUIModeActive = false;
         StartCoroutine(CloseGameAfterClickButton());
     }
 
-    // Funcion asignada a boton en la UI
     public void ButtonBack()
     {
         ignoreFirstButtonSelected = true;
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
 
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
-
-        foreach (var button in buttonsMainMenu)
+        for (int i = 0; i < buttonsMainMenu.Count; i++)
         {
-            button.gameObject.SetActive(true);
+            if (i != 1) 
+            {
+                buttonsMainMenu[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                if (SaveSystemManager.SaveExists())
+                {
+                    buttonsMainMenu[i].gameObject.SetActive(true);
+                }
+            }
         }
 
         panelSettings.SetActive(false);
@@ -125,23 +138,12 @@ public class MainMenu : MonoBehaviour
         if (!SaveSystemManager.SaveExists())
         {
             buttonsMainMenu[1].gameObject.SetActive(false);
-
-            Navigation nav0 = buttonsMainMenu[0].navigation;
-            nav0.mode = Navigation.Mode.Explicit;
-            nav0.selectOnDown = buttonsMainMenu[2];
-            buttonsMainMenu[0].navigation = nav0;
-
-            // Ajusto la navegación de Settings (índice 2) para que vuelva hacia NewGame (índice 0)
-            Navigation nav2 = buttonsMainMenu[2].navigation;
-            nav2.mode = Navigation.Mode.Explicit;
-            nav2.selectOnUp = buttonsMainMenu[0];
-            buttonsMainMenu[2].navigation = nav2;
         }
     }
 
     private IEnumerator LoadSceneAfterButtonClick()
     {
-        AudioManager.Instance.PlaySFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
 
         if (GameManager.Instance.GameSessionType == GameSessionType.Load && SaveSystemManager.SaveExists())
         {
@@ -160,5 +162,12 @@ public class MainMenu : MonoBehaviour
     private IEnumerator CloseGameAfterClickButton()
     {
         yield return StartCoroutine(ScenesManager.Instance.ExitGame());
+    }
+
+    private IEnumerator PlayMainMenuMusic()
+    {
+        yield return new WaitUntil(() => AudioManager.Instance != null);
+
+        StartCoroutine(AudioManager.Instance.PlayMusic("MainMenu"));
     }
 }

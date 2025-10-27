@@ -60,8 +60,6 @@ public class PlayerModel : MonoBehaviour
 
     public void Movement()
     {
-        if (BookManagerUI.Instance == null) return;
-        if (BookManagerUI.Instance.IsBookOpen) return;
         if (PlayerInputs.Instance == null) return;
         if (isCooking || isAdministrating || isInTeleportPanel) return;
 

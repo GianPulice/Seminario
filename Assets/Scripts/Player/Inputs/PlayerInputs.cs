@@ -63,7 +63,7 @@ public class PlayerInputs : Singleton<PlayerInputs>
     public bool InteractPress() => Input.GetKeyDown(keyboardInputs.Interact) || Input.GetKeyDown(joystickInputs.Interact);
     public bool InteractHold() => Input.GetKey(keyboardInputs.Interact) || Input.GetKey(joystickInputs.Interact);
     public bool Jump() => Input.GetKeyDown(keyboardInputs.Jump) || Input.GetKeyDown(joystickInputs.Jump);
-    public bool Book() => Input.GetKeyDown(keyboardInputs.Book) || Input.GetKeyDown(joystickInputs.Book);
+    public bool Inventory() => Input.GetKeyDown(keyboardInputs.Inventory) || Input.GetKeyDown(joystickInputs.Inventory);
     public bool Pause() => Input.GetKeyDown(keyboardInputs.Pause) || Input.GetKeyDown(joystickInputs.Pause);
 
     /* -------------------------------------------UI----------------------------------------- */
@@ -71,8 +71,6 @@ public class PlayerInputs : Singleton<PlayerInputs>
     public KeyCode GetInteractInput() => DeviceManager.Instance.CurrentDevice == Device.Joystick ? instance.joystickInputs.Interact : instance.keyboardInputs.Interact;
     public bool R1() => Input.GetKeyDown(KeyCode.Joystick1Button5);
     public bool L1() => Input.GetKeyDown(KeyCode.Joystick1Button4);
-    public bool E() => Input.GetKeyDown(KeyCode.E);
-    public bool Q() => Input.GetKeyDown(KeyCode.Q);
 
 
     // No es necesario desuscribirse porque es singleton
