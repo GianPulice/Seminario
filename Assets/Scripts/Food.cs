@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
 
 public enum FoodType // FrutosDelBosqueOscuro, SopaDeLaLunaPlateada, CarneDeBestia, CarneCuradaDelAbismo, SusurroDelElixir
@@ -162,6 +161,26 @@ public class Food : MonoBehaviour, IInteractable
         cookingManager.ReturnObjectToPool(foodType, this);
         RestartValues();
     }
+
+    /// <summary>
+    /// Analizar para que lo haga con el boxCollider en vez del meshrenderer
+    /// </summary>
+    public float GetBottomOffset()
+    {
+        // Tomamos el mesh que esté activo (default o cocinado)
+        MeshRenderer renderer = foodMesh.ms;
+
+        if (renderer == null)
+            return 0f;
+
+        Bounds bounds = renderer.bounds;
+        float bottomY = bounds.min.y;
+        float centerY = transform.position.y;
+
+        // La diferencia entre el centro del objeto y la base del mesh
+        return centerY - bottomY;
+    }
+
 
     private void SuscribeToUpdateManagerEvent()
     {
