@@ -19,28 +19,32 @@ public class AdministratingManagerUI : MonoBehaviour
     [SerializeField] private TabGroup tabGroup;
 
     [Header("Referencias (Panel Upgrades)")]
-    // (Estas referencias son de lógica de negocio, están bien aquí)
     [SerializeField] private List<ZoneUnlock> zoneUnlocks = new List<ZoneUnlock>();
     [SerializeField] private Image currentImageZoneUnlock;
     [SerializeField] private TextMeshProUGUI textPriceCurrentZoneUnlock;
 
 
-    // --- Eventos de Lógica de Negocio ---
-    private static event Action onStartTabern, onCloseTabern;
-    public static Action OnStartTabern { get => onStartTabern; set => onStartTabern = value; }
-    public static Action OnCloseTabern { get => onCloseTabern; set => onCloseTabern = value; }
-    
+    private event Action onEnterAdmin, onExitAdmin;
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
+    private static event Action onStartTabern;
+
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
+    public static Action OnStartTabern { get => onStartTabern; set => onStartTabern = value; }
 
+    // --- Variables de control ---
     private PlayerModel playerModel;
     private GameObject lastSelectedButtonFromAdminPanel;
     private bool ignoreFirstButtonSelected = true;
+    private int currentActiveTabIndex = 0;
+
+    // --- Constantes ---
+    private const int TOTAL_TABS = 3;
     void Awake()
     {
         GetComponents();
+        InitializeLambdaEvents();
         InitializeAnimatorEventBindings();
         SuscribeToPlayerViewEvents();
         SuscribeToUpdateManagerEvent();
@@ -50,50 +54,40 @@ public class AdministratingManagerUI : MonoBehaviour
     void OnDestroy()
     {
         UnsuscribeToPlayerViewEvents();
+        UnsuscribeToUpdateManagerEvent();
+        UnscribeToPauseManagerRestoreSelectedGameObjectEvent();
+
         if (panelAnimator != null)
         {
             panelAnimator.OnAnimateInComplete.RemoveListener(SetupInitialTab);
             panelAnimator.OnAnimateOutComplete.RemoveListener(CleanupAfterAnimation);
         }
-        UnsuscribeToUpdateManagerEvent();
-        UnscribeToPauseManagerRestoreSelectedGameObjectEvent();
     }
 
-    #region Gestión de Foco (Pausa y Sonido)
+    #region === Actualización y Gestión de Foco ===
 
-    // Añade esta simulación de Update de vuelta
     void UpdateAdministratingManagerUI()
     {
         CheckLastSelectedButtonIfAdminPanelIsOpen();
+        CheckJoystickInputsToInteractWithPanels();
     }
 
-    // Función para reproducir sonido de selección
-    public void PlayAudioButtonSelectedWhenChangeSelectedGameObjectExceptFirstTime()
-    {
-        if (!ignoreFirstButtonSelected)
-        {
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-            return;
-        }
-        ignoreFirstButtonSelected = false;
-    }
-
-    // Suscripción al Update
     private void SuscribeToUpdateManagerEvent()
     {
         UpdateManager.OnUpdate += UpdateAdministratingManagerUI;
     }
+
     private void UnsuscribeToUpdateManagerEvent()
     {
         if (UpdateManager.Instance != null)
             UpdateManager.OnUpdate -= UpdateAdministratingManagerUI;
     }
 
-    // Suscripción al evento de Pausa
     private void SuscribeToPauseManagerRestoreSelectedGameObjectEvent()
     {
         PauseManager.OnRestoreSelectedGameObject += RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
     }
+
     private void UnscribeToPauseManagerRestoreSelectedGameObjectEvent()
     {
         if (PauseManager.Instance != null)
@@ -102,11 +96,10 @@ public class AdministratingManagerUI : MonoBehaviour
 
     private void RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI()
     {
-        // Usamos el PlayerModel como la "fuente de verdad" del estado
         if (playerModel != null && playerModel.IsAdministrating)
         {
             ignoreFirstButtonSelected = true;
-            DeviceManager.Instance.IsUIModeActive = true; // Re-confirma el modo UI
+            DeviceManager.Instance.IsUIModeActive = true;
             onSetSelectedCurrentGameObject?.Invoke(lastSelectedButtonFromAdminPanel);
         }
     }
@@ -116,32 +109,71 @@ public class AdministratingManagerUI : MonoBehaviour
         if (EventSystem.current != null && PauseManager.Instance != null && !PauseManager.Instance.IsGamePaused &&
             playerModel != null && playerModel.IsAdministrating)
         {
-            // Solo guardar si el botón actual es parte de este panel
-            if (EventSystem.current.currentSelectedGameObject != null &&
-                EventSystem.current.currentSelectedGameObject.transform.IsChildOf(this.transform))
+            GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
+            if (currentSelected != null && currentSelected.transform.IsChildOf(this.transform))
             {
-                lastSelectedButtonFromAdminPanel = EventSystem.current.currentSelectedGameObject;
+                lastSelectedButtonFromAdminPanel = currentSelected;
             }
         }
     }
+
+    public void PlayAudioButtonSelectedWhenChangeSelectedGameObjectExceptFirstTime()
+    {
+        if (!ignoreFirstButtonSelected)
+        {
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
+            return;
+        }
+        ignoreFirstButtonSelected = false;
+    }
     #endregion
 
-    #region Funciones de Lógica de Negocio (Asignadas a Botones)
+    #region === Navegación por Joystick ===
+
+    private void CheckJoystickInputsToInteractWithPanels()
+    {
+        if (panelAdministrating.activeSelf)
+        {
+            if (PlayerInputs.Instance != null && tabGroup != null)
+            {
+                if (PlayerInputs.Instance.R1()) SetNexPanelUsingJoystickR1();
+                if (PlayerInputs.Instance.L1()) SetNexPanelUsingJoystickL1();
+            }
+        }
+    }
+
+    private void SetNexPanelUsingJoystickR1()
+    {
+        currentActiveTabIndex = tabGroup.GetCurrentTabIndex();
+        currentActiveTabIndex = (currentActiveTabIndex + 1) % tabGroup.GetTabCount();
+        tabGroup.SelectTabByIndex(currentActiveTabIndex);
+        AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
+    }
+
+    private void SetNexPanelUsingJoystickL1()
+    {
+        currentActiveTabIndex = tabGroup.GetCurrentTabIndex();
+        currentActiveTabIndex = (currentActiveTabIndex - 1 + tabGroup.GetTabCount()) % tabGroup.GetTabCount();
+        tabGroup.SelectTabByIndex(currentActiveTabIndex);
+        AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
+    }
+
+    #endregion
+
+    #region == Botones de Lógica ===
     public void ButtonStartTabern()
     {
         onStartTabern?.Invoke();
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
     }
-    public void ButtonCloseTabern()
-    {
-        onCloseTabern?.Invoke();
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
-    }
-
     public void ButtonExit()
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
-        HandlePlayerExitAdmin();
+        if (playerModel != null && playerModel.IsAdministrating)
+        {
+            playerModel.IsAdministrating = false;
+            PlayerView.OnExitInAdministrationMode?.Invoke();
+        }
     }
 
     public void ButtonBuyIngredient(string ingredientName)
@@ -166,6 +198,7 @@ public class AdministratingManagerUI : MonoBehaviour
     {
         if (zoneUnlocks == null || index < 0 || index >= zoneUnlocks.Count) return;
         if (zoneUnlocks[index].IsUnlocked) return;
+        
         int price = zoneUnlocks[index].ZoneUnlockData.Cost;
         if (MoneyManager.Instance.CurrentMoney >= price)
         {
@@ -188,63 +221,55 @@ public class AdministratingManagerUI : MonoBehaviour
 
     #endregion
 
-    #region Gestión de Apertura/Cierre del Panel
+    #region === Animaciones de Entrada / Salida ===
+    private void InitializeLambdaEvents()
+    {
+        onEnterAdmin += () => HandlePlayerEnterAdmin();
+        onExitAdmin += () => HandlePlayerExitAdmin();
+    }
+    private void HandlePlayerEnterAdmin()
+    {
+        if(playerModel!=null) playerModel.IsUITransitioning = true;
+
+        PrepareInitialUIState();
+        if (panelAnimator != null) panelAnimator.AnimateIn();
+    }
+
+    private void HandlePlayerExitAdmin()
+    {
+        if (playerModel != null) playerModel.IsUITransitioning = true;
+
+        DeviceManager.Instance.IsUIModeActive = false;
+        onClearSelectedCurrentGameObject?.Invoke();
+        if (panelAnimator != null) panelAnimator.AnimateOut();
+    }
 
     private void SetupInitialTab()
     {
+        if (playerModel != null) playerModel.IsUITransitioning = false;
+
         DeviceManager.Instance.IsUIModeActive = true;
         ignoreFirstButtonSelected = true;
-        if (tabGroup != null)
+
+        if (tabGroup != null && tabGroup.StartingSelectedButton != null)
         {
-            if (tabGroup.StartingSelectedButton != null)
-            {
-                tabGroup.OnTabSelected(tabGroup.StartingSelectedButton);
-            }
-            else
-            {
-                tabGroup.SelectTabByIndex(0);
-            }
+            onSetSelectedCurrentGameObject?.Invoke(tabGroup.StartingSelectedButton.gameObject);
         }
     }
+
     private void CleanupAfterAnimation()
     {
-        DeviceManager.Instance.IsUIModeActive = false;
-        onClearSelectedCurrentGameObject?.Invoke();
+        if (playerModel != null) playerModel.IsUITransitioning = false;
 
         panelTabern.SetActive(false);
         panelIngredients.SetActive(false);
         panelUpgrades.SetActive(false);
     }
+
     private void PrepareInitialUIState()
     {
-        int initialTabIndex = 0;
-        TabTweenButton initialButton = tabGroup?.StartingSelectedButton;
-        if (tabGroup != null && initialButton != null)
-        {
-            initialTabIndex = tabGroup.GetButtonIndex(initialButton);
-            if (initialTabIndex < 0) initialTabIndex = 0;
-        }
-
-        int upgradesButtonIndex = 2;
-        if (initialTabIndex == upgradesButtonIndex)
-        {
-            ShowCurrentZoneInformation(0);
-        }
-    }
-    private void HandlePlayerEnterAdmin()
-    {
-        PrepareInitialUIState();
-        if (panelAnimator != null)
-        {
-            panelAnimator.AnimateIn();
-        }
-    }
-    private void HandlePlayerExitAdmin()
-    {
-        if (panelAnimator != null)
-        {
-            panelAnimator.AnimateOut();
-        }
+        int initialTabIndex = tabGroup?.GetButtonIndex(tabGroup.StartingSelectedButton) ?? 0;
+        if (initialTabIndex == 2) ShowCurrentZoneInformation(0);
     }
     #endregion
 
@@ -258,25 +283,23 @@ public class AdministratingManagerUI : MonoBehaviour
 
     private void SuscribeToPlayerViewEvents()
     {
-        PlayerView.OnEnterInAdministrationMode += HandlePlayerEnterAdmin;
-        PlayerView.OnExitInAdministrationMode += HandlePlayerExitAdmin;
+        PlayerView.OnEnterInAdministrationMode += onEnterAdmin;
+        PlayerView.OnExitInAdministrationMode += onExitAdmin;
     }
 
     private void UnsuscribeToPlayerViewEvents()
     {
-        PlayerView.OnEnterInAdministrationMode -= HandlePlayerEnterAdmin;
-        PlayerView.OnExitInAdministrationMode -= HandlePlayerExitAdmin;
+        PlayerView.OnEnterInAdministrationMode -= onEnterAdmin;
+        PlayerView.OnExitInAdministrationMode -= onExitAdmin;
     }
 
     private void GetComponents()
     {
+        playerModel = FindFirstObjectByType<PlayerModel>();
         if (panelAnimator == null)
-            Debug.LogError("No se ha asignado el AdminUIAppear en el AdministratingManagerUI", this);
+            Debug.LogError("Falta AdminUIAppear", this);
         if (tabGroup == null)
-        {
             tabGroup = GetComponent<TabGroup>();
-            if (tabGroup == null) Debug.LogError("No se encontró el TabGroup", this);
-        }
 
         GameObject ZonesToUnlockFather = GameObject.Find("ZonesToUnlock");
         if (ZonesToUnlockFather != null)
@@ -286,7 +309,6 @@ public class AdministratingManagerUI : MonoBehaviour
                 zoneUnlocks.Add(childs.GetComponent<ZoneUnlock>());
             }
         }
-        playerModel = FindFirstObjectByType<PlayerModel>();
     }
 
     #endregion
