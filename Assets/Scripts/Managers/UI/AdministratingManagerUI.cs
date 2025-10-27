@@ -1,92 +1,76 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class AdministratingManagerUI : MonoBehaviour
 {
+    [Header("Paneles Principales")]
     [SerializeField] private GameObject panelAdministrating;
-
     [SerializeField] private GameObject panelTabern;
     [SerializeField] private GameObject panelIngredients;
     [SerializeField] private GameObject panelUpgrades;
+    [SerializeField] private AdminUIAppear panelAnimator;
 
-    private List<ZoneUnlock> zoneUnlocks = new List<ZoneUnlock>();
-    private Image currentImageZoneUnlock;
-    private TextMeshProUGUI textPriceCurrentZoneUnlock;
+    [Header("Gestión de Pestañas")]
+    [Tooltip("Referencia al script TabGroup que gestiona los botones y paneles")]
+    [SerializeField] private TabGroup tabGroup;
 
-    private List<Button> buttonsPanelAdministrating = new List<Button>(); // Botones de arriba de todo
+    [Header("Referencias (Panel Upgrades)")]
+    // (Estas referencias son de lógica de negocio, están bien aquí)
+    [SerializeField] private List<ZoneUnlock> zoneUnlocks = new List<ZoneUnlock>();
+    [SerializeField] private Image currentImageZoneUnlock;
+    [SerializeField] private TextMeshProUGUI textPriceCurrentZoneUnlock;
 
-    private List<GameObject> buttonsTabern = new List<GameObject>();
-    private List<GameObject> buttonsIngredients = new List<GameObject>();
-    private List<GameObject> buttonsUpgrades = new List<GameObject>();
 
-    private GameObject lastSelectedButtonFromAdminPanel;
-
+    // --- Variables de Estado ---
     private event Action onEnterAdmin, onExitAdmin;
+    // --- Eventos de Lógica de Negocio ---
+    private static event Action onStartTabern, onCloseTabern;
+    public static Action OnStartTabern { get => onStartTabern; set => onStartTabern = value; }
+    public static Action OnCloseTabern { get => onCloseTabern; set => onCloseTabern = value; }
 
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
-
-    private static event Action onStartTabern;
-
-    private bool ignoreFirstButtonSelected = true;
-
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
 
-    public static Action OnStartTabern { get => onStartTabern; set => onStartTabern = value; }
-
-
+    private PlayerModel playerModel;
+    private GameObject lastSelectedButtonFromAdminPanel;
+    private bool ignoreFirstButtonSelected = true;
     void Awake()
     {
-        SuscribeToUpdateManagerEvent();
-        InitializeLambdaEvents();
-        SuscribeToPlayerViewEvents();
-        SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
         GetComponents();
-    }
+        InitializeEventBindings();
+        SuscribeToPlayerViewEvents();
 
-    // Simulacion de Update
-    void UpdateAdministratingManagerUI()
-    {
-        CheckLastSelectedButtonIfAdminPanelIsOpen();
-        CheckJoystickInputsToInteractWithPanels();
+        SuscribeToUpdateManagerEvent();
+        SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
     }
 
     void OnDestroy()
     {
-        UnsuscribeToUpdateManagerEvent();
         UnsuscribeToPlayerViewEvents();
+        if (panelAnimator != null)
+        {
+            panelAnimator.OnAnimateInComplete.RemoveListener(SetupInitialTab);
+            panelAnimator.OnAnimateOutComplete.RemoveListener(CleanupAfterAnimation);
+        }
+        UnsuscribeToUpdateManagerEvent();
         UnscribeToPauseManagerRestoreSelectedGameObjectEvent();
     }
 
+    #region Gestión de Foco (Pausa y Sonido)
 
-    // Funcion asignada a botones en la UI para setear el selected GameObject del EventSystem con Mouse
-    public void SetButtonAsSelectedGameObjectIfHasBeenHover(int indexButton)
+    // Añade esta simulación de Update de vuelta
+    void UpdateAdministratingManagerUI()
     {
-        if (EventSystem.current != null)
-        {
-            if (panelTabern.activeSelf) EventSystem.current.SetSelectedGameObject(buttonsTabern[indexButton]);
-            if (panelIngredients.activeSelf) EventSystem.current.SetSelectedGameObject(buttonsIngredients[indexButton]);
-            if (panelUpgrades.activeSelf) EventSystem.current.SetSelectedGameObject(buttonsUpgrades[indexButton]);
-        }
+        CheckLastSelectedButtonIfAdminPanelIsOpen();
     }
 
-    // Funcion asignada a botones en la UI para deseleccionar el selected GameObject del EventSystem con Mouse
-    public void DeselectButtonAsSelectedGameObjectIfExitHover()
-    {
-        if (EventSystem.current != null)
-        {
-            if (panelTabern.activeSelf) EventSystem.current.SetSelectedGameObject(null);
-            if (panelIngredients.activeSelf) EventSystem.current.SetSelectedGameObject(null);
-            if (panelUpgrades.activeSelf) EventSystem.current.SetSelectedGameObject(null);
-        }
-    }
-
-    // Funcion asignada a botones en la UI para reproducir el sonido selected
+    // Función para reproducir sonido de selección
     public void PlayAudioButtonSelectedWhenChangeSelectedGameObjectExceptFirstTime()
     {
         if (!ignoreFirstButtonSelected)
@@ -94,40 +78,98 @@ public class AdministratingManagerUI : MonoBehaviour
             AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             return;
         }
-
         ignoreFirstButtonSelected = false;
     }
 
-    /// <summary>
-    /// Funcion hay que ajustarla en un futuro para que funcione con varias zonas de desbloqueo, actualmente funciona desde codigo
-    /// </summary>
-    public void ShowCurrentZoneInformation(int index)
+    // Suscripción al Update
+    private void SuscribeToUpdateManagerEvent()
     {
-        currentImageZoneUnlock.sprite = zoneUnlocks[index].ZoneUnlockData.ImageZoneUnlock;
-        textPriceCurrentZoneUnlock.text = "Price: " + zoneUnlocks[index].ZoneUnlockData.Cost.ToString();
+        UpdateManager.OnUpdate += UpdateAdministratingManagerUI;
+    }
+    private void UnsuscribeToUpdateManagerEvent()
+    {
+        if (UpdateManager.Instance != null)
+            UpdateManager.OnUpdate -= UpdateAdministratingManagerUI;
     }
 
-    // Funcion asignada a boton UI
+    // Suscripción al evento de Pausa
+    private void SuscribeToPauseManagerRestoreSelectedGameObjectEvent()
+    {
+        PauseManager.OnRestoreSelectedGameObject += RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
+    }
+    private void UnscribeToPauseManagerRestoreSelectedGameObjectEvent()
+    {
+        if (PauseManager.Instance != null)
+            PauseManager.OnRestoreSelectedGameObject -= RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
+    }
+
+    /// <summary>
+    /// Escucha el evento de Pausa. Si el jugador SIGUE en modo Admin,
+    /// restaura el foco al último botón seleccionado.
+    /// </summary>
+    private void RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI()
+    {
+        // Usamos el PlayerModel como la "fuente de verdad" del estado
+        if (playerModel != null && playerModel.IsAdministrating)
+        {
+            ignoreFirstButtonSelected = true;
+            DeviceManager.Instance.IsUIModeActive = true; // Re-confirma el modo UI
+            onSetSelectedCurrentGameObject?.Invoke(lastSelectedButtonFromAdminPanel);
+        }
+    }
+
+    /// <summary>
+    /// Guarda el último botón seleccionado por el EventSystem
+    /// MIENTRAS estemos en este panel.
+    /// </summary>
+    private void CheckLastSelectedButtonIfAdminPanelIsOpen()
+    {
+        if (EventSystem.current != null && PauseManager.Instance != null && !PauseManager.Instance.IsGamePaused &&
+            playerModel != null && playerModel.IsAdministrating)
+        {
+            // Solo guardar si el botón actual es parte de este panel
+            if (EventSystem.current.currentSelectedGameObject != null &&
+                EventSystem.current.currentSelectedGameObject.transform.IsChildOf(this.transform))
+            {
+                lastSelectedButtonFromAdminPanel = EventSystem.current.currentSelectedGameObject;
+            }
+        }
+    }
+    #endregion
+
+    #region Funciones de Lógica de Negocio (Asignadas a Botones)
     public void ButtonStartTabern()
     {
         onStartTabern?.Invoke();
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
     }
+    public void ButtonCloseTabern()
+    {
+        onCloseTabern?.Invoke();
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+    }
 
-    // Funcion asignada a boton UI
+    public void ButtonExit()
+    {
+        if (panelAnimator != null && !panelAnimator.IsAnimating)
+        {
+            panelAnimator.AnimateOut();
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+            onExitAdmin?.Invoke();
+        }
+    }
+
     public void ButtonBuyIngredient(string ingredientName)
     {
         if (Enum.TryParse(ingredientName, out IngredientType ingredient))
         {
             int price = IngredientInventoryManager.Instance.GetPriceOfIngredient(ingredient);
-
             if (MoneyManager.Instance.CurrentMoney >= price)
             {
                 AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
                 IngredientInventoryManager.Instance.IncreaseIngredientStock(ingredient);
                 MoneyManager.Instance.SubMoney(price);
             }
-
             else
             {
                 AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
@@ -135,110 +177,69 @@ public class AdministratingManagerUI : MonoBehaviour
         }
     }
 
-    // Funcion asignada a boton UI
     public void ButtonUnlockNewZone(int index)
     {
+        if (zoneUnlocks == null || index < 0 || index >= zoneUnlocks.Count) return;
         if (zoneUnlocks[index].IsUnlocked) return;
-
         int price = zoneUnlocks[index].ZoneUnlockData.Cost;
-
         if (MoneyManager.Instance.CurrentMoney >= price)
         {
             AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
             zoneUnlocks[index].UnlockZone();
             MoneyManager.Instance.SubMoney(price);
         }
-
         else
         {
             AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
         }
     }
 
-    // Funciones asignadas a OnPointerEnter para el mouse y combinadas con los Inputs del joystick
-    // El objetivo es que se abran los paneles correctamente y se cierren correctamente
-    public void SetPanelTabern()
+    public void ShowCurrentZoneInformation(int index)
     {
-        ColorBlock color = buttonsPanelAdministrating[0].colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
+        if (zoneUnlocks == null || index < 0 || index >= zoneUnlocks.Count) return;
+        currentImageZoneUnlock.sprite = zoneUnlocks[index].ZoneUnlockData.ImageZoneUnlock;
+        textPriceCurrentZoneUnlock.text = "Price: " + zoneUnlocks[index].ZoneUnlockData.Cost.ToString();
+    }
 
-        if (buttonsPanelAdministrating[0].colors == color)
+    #endregion
+
+    #region Gestión de Apertura/Cierre del Panel
+
+    private void SetupInitialTab()
+    {
+        DeviceManager.Instance.IsUIModeActive = true;
+        ignoreFirstButtonSelected = true;
+        if (tabGroup != null)
         {
-            //onSetSelectedCurrentGameObject?.Invoke(buttonsTabern[0]);
-
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[1]);
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[2]);
-            panelIngredients.SetActive(false);
-            panelUpgrades.SetActive(false);
-
-            SetButtonNormalColorInGreen(buttonsPanelAdministrating[0]);
-            panelTabern.SetActive(true);
+            if (tabGroup.StartingSelectedButton != null)
+            {
+                tabGroup.OnTabSelected(tabGroup.StartingSelectedButton);
+            }
+            else
+            {
+                tabGroup.SelectTabByIndex(0);
+            }
         }
     }
-
-    public void SetPanelIngredients()
+    private void CleanupAfterAnimation()
     {
-        // Color blanco
-        ColorBlock color = buttonsPanelAdministrating[1].colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
+        DeviceManager.Instance.IsUIModeActive = false;
+        onClearSelectedCurrentGameObject?.Invoke();
 
-        if (buttonsPanelAdministrating[1].colors == color)
-        {
-            // Aca se podria agregar que selecione el ultimo que tenia antes
-            //onSetSelectedCurrentGameObject?.Invoke(buttonsIngredients[0]);
-
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[0]);
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[2]);
-            panelTabern.SetActive(false);
-            panelUpgrades.SetActive(false);
-
-            SetButtonNormalColorInGreen(buttonsPanelAdministrating[1]);
-            panelIngredients.SetActive(true);
-        }
+        panelTabern.SetActive(false);
+        panelIngredients.SetActive(false);
+        panelUpgrades.SetActive(false);
     }
+    #endregion
 
-    public void SetPanelUpgrades()
+    #region Setup y Suscripciones
+
+    private void InitializeEventBindings()
     {
-        // Color blanco
-        ColorBlock color = buttonsPanelAdministrating[2].colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-
-        if (buttonsPanelAdministrating[2].colors == color)
-        {
-            // Aca se podria agregar que selecione el ultimo que tenia antes
-            //onSetSelectedCurrentGameObject?.Invoke(buttonsUpgrades[0]);
-            ShowCurrentZoneInformation(0);
-
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[0]);
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[1]);
-            panelTabern.SetActive(false);
-            panelIngredients.SetActive(false);
-
-            SetButtonNormalColorInGreen(buttonsPanelAdministrating[2]);
-            panelUpgrades.SetActive(true);
-        }
-    }
-
-
-    private void SuscribeToUpdateManagerEvent()
-    {
-        UpdateManager.OnUpdate += UpdateAdministratingManagerUI;
-    }
-
-    private void UnsuscribeToUpdateManagerEvent()
-    {
-        UpdateManager.OnUpdate -= UpdateAdministratingManagerUI;
-    }
-
-    private void InitializeLambdaEvents()
-    {
-        onEnterAdmin += () => ActiveOrDeactivatePanel(true);
-        onExitAdmin += () => ActiveOrDeactivatePanel(false);
+        onEnterAdmin += panelAnimator.AnimateIn;
+        onExitAdmin += panelAnimator.AnimateOut;
+        panelAnimator.OnAnimateInComplete.AddListener(SetupInitialTab);
+        panelAnimator.OnAnimateOutComplete.AddListener(CleanupAfterAnimation);
     }
 
     private void SuscribeToPlayerViewEvents()
@@ -253,168 +254,26 @@ public class AdministratingManagerUI : MonoBehaviour
         PlayerView.OnExitInAdministrationMode -= onExitAdmin;
     }
 
-    private void SuscribeToPauseManagerRestoreSelectedGameObjectEvent()
-    {
-        PauseManager.OnRestoreSelectedGameObject += RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
-    }
-
-    private void UnscribeToPauseManagerRestoreSelectedGameObjectEvent()
-    {
-        PauseManager.OnRestoreSelectedGameObject -= RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
-    }
-
     private void GetComponents()
     {
-        foreach (Transform childs in panelAdministrating.transform)
+        if (panelAnimator == null)
+            Debug.LogError("No se ha asignado el AdminUIAppear en el AdministratingManagerUI", this);
+        if (tabGroup == null)
         {
-            buttonsPanelAdministrating.Add(childs.GetComponent<Button>());
+            tabGroup = GetComponent<TabGroup>();
+            if (tabGroup == null) Debug.LogError("No se encontró el TabGroup", this);
         }
-
-        FindGameObjectsReferences(panelTabern, buttonsTabern);
-        FindGameObjectsReferences(panelIngredients, buttonsIngredients);
-        FindGameObjectsReferences(panelUpgrades, buttonsUpgrades);
 
         GameObject ZonesToUnlockFather = GameObject.Find("ZonesToUnlock");
-        foreach (Transform childs in ZonesToUnlockFather.transform)
+        if (ZonesToUnlockFather != null)
         {
-            zoneUnlocks.Add(childs.GetComponent<ZoneUnlock>());
-        }
-
-        currentImageZoneUnlock = panelUpgrades.transform.transform.Find("ImageBorderCurrentZone").transform.Find("ImageCurrentZone").GetComponent<Image>();
-        textPriceCurrentZoneUnlock = panelUpgrades.transform.transform.Find("ImageBorderCurrentZone").transform.Find("TextPriceCurrentZone").GetComponent<TextMeshProUGUI>();
-    }
-
-    private void FindGameObjectsReferences(GameObject panel, List<GameObject> buttons)
-    {
-        foreach (Transform childs in panel.transform)
-        {
-            if (childs.GetComponent<Button>())
+            foreach (Transform childs in ZonesToUnlockFather.transform)
             {
-                buttons.Add(childs.gameObject);
+                zoneUnlocks.Add(childs.GetComponent<ZoneUnlock>());
             }
         }
+        playerModel = FindFirstObjectByType<PlayerModel>();
     }
 
-    private void ActiveOrDeactivatePanel(bool state)
-    {
-        panelAdministrating.SetActive(state);
-
-        if (state)
-        {
-            DeviceManager.Instance.IsUIModeActive = true;
-            SetButtonNormalColorInGreen(buttonsPanelAdministrating[0]);
-
-            panelTabern.SetActive(state);
-
-            onSetSelectedCurrentGameObject?.Invoke(buttonsTabern[0]);
-        }
-
-        else
-        {
-            DeviceManager.Instance.IsUIModeActive = false;
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[0]);
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[1]);
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[2]);
-
-            panelTabern.SetActive(state);
-            panelIngredients.SetActive(state);
-            panelUpgrades.SetActive(state);
-
-            ignoreFirstButtonSelected = true;
-            onClearSelectedCurrentGameObject?.Invoke();
-        }
-    }
-
-    private void RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI()
-    {
-        if (panelAdministrating.activeSelf)
-        {
-            ignoreFirstButtonSelected = true;
-            DeviceManager.Instance.IsUIModeActive = true;
-            EventSystem.current.SetSelectedGameObject(lastSelectedButtonFromAdminPanel);
-        }
-    }
-
-    private void CheckLastSelectedButtonIfAdminPanelIsOpen()
-    {
-        if (EventSystem.current != null && PauseManager.Instance != null && !PauseManager.Instance.IsGamePaused && panelAdministrating.activeSelf)
-        {
-            lastSelectedButtonFromAdminPanel = EventSystem.current.currentSelectedGameObject;
-        }
-    }
-
-    private void SetButtonNormalColorInWhite(Button currentButton)
-    {
-        ColorBlock color = currentButton.colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-        currentButton.colors = color;
-    }
-
-    private void SetButtonNormalColorInGreen(Button currentButton)
-    {
-        ColorBlock color = currentButton.colors;
-        color.normalColor = new Color32(0x28, 0xFF, 0x00, 0xFF);
-        currentButton.colors = color;
-    }
-
-    private void CheckJoystickInputsToInteractWithPanels()
-    {
-        if (panelAdministrating.activeSelf)
-        {
-            if (PlayerInputs.Instance != null)
-            {
-                if (PlayerInputs.Instance.R1())
-                {
-                    SetNexPanelUsingJoystickR1();
-                }
-
-                if (PlayerInputs.Instance.L1())
-                {
-                    SetNexPanelUsingJoystickL1();
-                }
-            }
-        }
-    }
-
-    private void SetNexPanelUsingJoystickR1()
-    {
-        if (panelTabern.activeSelf)
-        {
-            SetPanelIngredients();
-            return;
-        }
-
-        if (panelIngredients.activeSelf)
-        {
-            SetPanelUpgrades();
-            return;
-        }
-
-        if (panelUpgrades.activeSelf)
-        {
-            SetPanelTabern();
-            return;
-        }
-    }
-
-    private void SetNexPanelUsingJoystickL1()
-    {
-        if (panelTabern.activeSelf)
-        {
-            SetPanelUpgrades();
-            return;
-        }
-
-        if (panelIngredients.activeSelf)
-        {
-            SetPanelTabern();
-            return;
-        }
-
-        if (panelUpgrades.activeSelf)
-        {
-            SetPanelIngredients();
-            return;
-        }
-    }
+    #endregion
 }

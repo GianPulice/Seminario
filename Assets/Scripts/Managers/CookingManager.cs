@@ -92,8 +92,10 @@ public class CookingManager : MonoBehaviour
         if (targetPosition != null)
         {
             currentFood.transform.SetParent(targetPosition);
-            currentFood.transform.position = targetPosition.position;
-            currentFood.transform.position += new Vector3(0, 0.05f, 0); // La posicion exacta en la bandeja
+            float offsetY = currentFood.GetBottomOffset() - 0.065f;
+            currentFood.transform.position = targetPosition.position + new Vector3(0, offsetY, 0);
+            //currentFood.transform.position = targetPosition.position;
+            //currentFood.transform.position += new Vector3(0, 0.05f, 0); // La posicion exacta en la bandeja
         }
 
         return targetPosition;

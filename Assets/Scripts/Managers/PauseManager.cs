@@ -26,7 +26,7 @@ public class PauseManager : Singleton<PauseManager>
 
     private bool isGamePaused = false;
     private bool ignoreFirstSelectedSound = false;
-
+    private bool wasUiActiveOnPause = false;
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
     public static Action OnButtonSettingsClickToShowCorrectPanel { get => onButtonSettingsClickToShowCorrectPanel; set => onButtonSettingsClickToShowCorrectPanel = value; }
@@ -131,6 +131,8 @@ public class PauseManager : Singleton<PauseManager>
 
     private void ShowPause()
     {
+        wasUiActiveOnPause = DeviceManager.Instance.IsUIModeActive;
+
         AudioManager.Instance.PauseCurrentMusic();
         StartCoroutine(AudioManager.Instance.PlayMusic("Pause"));
         pauseButtonsContainer.SetActive(true);
@@ -145,12 +147,14 @@ public class PauseManager : Singleton<PauseManager>
     {
         Time.timeScale = 1f;
         isGamePaused = false;
-        DeviceManager.Instance.IsUIModeActive = false;
+
+        DeviceManager.Instance.IsUIModeActive = wasUiActiveOnPause;
+
+        //No Borrar nunca
         onRestoreSelectedGameObject?.Invoke();
 
-        onClearSelectedCurrentGameObject?.Invoke();
         pausePanel.AnimateOut();
-
+        
         AudioManager.Instance.StopMusic("Pause");
         AudioManager.Instance.ResumeLastMusic();
 

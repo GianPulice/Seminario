@@ -9,30 +9,22 @@ public class PauseAppear : MonoBehaviour
     [SerializeField] private LeanTweenType easeType = LeanTweenType.easeOutBack;
 
     [Header("Eventos")]
-    [Tooltip("Se dispara cuando la animación de entrada (aparecer) ha terminado.")]
     public UnityEvent OnAnimateInComplete = new UnityEvent();
-    [Tooltip("Se dispara cuando la animación de salida (desaparecer) ha terminado.")]
     public UnityEvent OnAnimateOutComplete = new UnityEvent();
 
-    private CanvasGroup canvasGroup;
+    [SerializeField] private CanvasGroup canvasGroup;
     private RectTransform rectTransform;
     private bool isAnimating = false;
-     public bool IsAnimating => isAnimating;
-
+    private bool hasInitialized = false;
+    public bool IsAnimating => isAnimating;
     private void Awake()
     {
-        canvasGroup = GetComponent<CanvasGroup>();
-        rectTransform = GetComponent<RectTransform>();
-
-        rectTransform.localScale = Vector3.zero;
-        canvasGroup.alpha = 0f;
-        canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false;
-        gameObject.SetActive(false);
+        InitializeIfNeeded();
     }
     public void AnimateIn()
     {
-        LeanTween.cancel(gameObject);
+        InitializeIfNeeded();
+
         if (isAnimating) return;
         isAnimating = true;
 
@@ -42,6 +34,7 @@ public class PauseAppear : MonoBehaviour
         canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
+
 
         LeanTween.cancel(gameObject);
 
@@ -56,7 +49,7 @@ public class PauseAppear : MonoBehaviour
     }
     public void AnimateOut()
     {
-        LeanTween.cancel(gameObject);
+        InitializeIfNeeded();
 
         if (isAnimating) return;
         isAnimating = true;
@@ -86,6 +79,24 @@ public class PauseAppear : MonoBehaviour
     {
         isAnimating = false;
         gameObject.SetActive(false);
+        rectTransform.localScale = Vector3.zero;
+        canvasGroup.alpha = 0f;
         OnAnimateOutComplete.Invoke();
+    }
+    private void InitializeIfNeeded()
+    {
+        if (hasInitialized) return;
+
+        canvasGroup = GetComponentInParent<CanvasGroup>();
+        rectTransform = GetComponent<RectTransform>();
+
+        // Poner el estado inicial oculto
+        rectTransform.localScale = Vector3.zero;
+        canvasGroup.alpha = 0f;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+        gameObject.SetActive(false);
+
+        hasInitialized = true;
     }
 }

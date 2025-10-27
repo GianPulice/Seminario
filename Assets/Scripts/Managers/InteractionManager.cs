@@ -5,10 +5,14 @@ public class InteractionManager : Singleton<InteractionManager>
     [SerializeField] private InteractionManagerData interactionManagerData;
 
     private IInteractable currentTarget;
+    
+    private bool isPlayerInUI = false;
+    
 
     void Awake()
     {
         CreateSingleton(true);
+        SuscribeToPlayerViewEvents();
         SuscribeToUpdateManagerEvent();
         SuscribeToScenesManagerEvent();
     }
@@ -16,10 +20,20 @@ public class InteractionManager : Singleton<InteractionManager>
     // Simulacion de Update
     void UpdateInteractionManager()
     {
+        if (isPlayerInUI) return;
         DetectTarget();
         InteractWithTarget();
     }
 
+
+    private void SuscribeToPlayerViewEvents()
+    {
+        PlayerView.OnEnterInAdministrationMode += HandlePlayerEnterUI;
+        PlayerView.OnEnterInCookMode += HandlePlayerEnterUI;
+
+        PlayerView.OnExitInAdministrationMode += HandlePlayerExitUI;
+        PlayerView.OnExitInCookMode += HandlePlayerExitUI;
+    }
 
     private void SuscribeToUpdateManagerEvent()
     {
@@ -44,7 +58,7 @@ public class InteractionManager : Singleton<InteractionManager>
     private bool ShowCurrentTargetUI()
     {
         if (currentTarget == null || InteractionManagerUI.Instance == null) return false;
-
+       
         if (currentTarget.TryGetInteractionMessage(out string message))
         {
             currentTarget.ShowOutline();
@@ -137,5 +151,25 @@ public class InteractionManager : Singleton<InteractionManager>
                     break;
             }
         }
+    }
+
+    private void HandlePlayerEnterUI()
+    {
+        isPlayerInUI = true;
+
+        if (currentTarget != null)
+        {
+            currentTarget.HideOutline();
+            if (InteractionManagerUI.Instance != null)
+            {
+                InteractionManagerUI.Instance.MessageAnimator.Hide();
+            }
+            currentTarget = null;
+        }
+    }
+
+    private void HandlePlayerExitUI()
+    {
+        isPlayerInUI = false;
     }
 }

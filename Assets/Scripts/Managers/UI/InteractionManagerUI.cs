@@ -29,7 +29,6 @@ public class InteractionManagerUI : Singleton<InteractionManagerUI>
         }
     }
 
-
     // En modo BUILD desaparece el punto de forma correcta
     public void ShowOrHideCenterPointUI(bool value)
     {
