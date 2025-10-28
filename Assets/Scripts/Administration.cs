@@ -12,7 +12,7 @@ public class Administration : MonoBehaviour, IInteractable
     void Awake()
     {
         GetComponents();
-        StartCoroutine(RegisterOutline());
+        StartCoroutine(RegisterOutline());       
     }
 
     void OnDestroy()
@@ -23,7 +23,7 @@ public class Administration : MonoBehaviour, IInteractable
 
     public void Interact(bool isPressed)
     {
-        playerController.PlayerModel.IsAdministrating = true;
+        SetAdministratingTrue();
     }
 
     public void ShowOutline()
@@ -57,5 +57,13 @@ public class Administration : MonoBehaviour, IInteractable
         yield return new WaitUntil(() => OutlineManager.Instance != null);
 
         OutlineManager.Instance.Register(gameObject);
+    }
+    private void SetAdministratingTrue()
+    {
+        playerController.PlayerModel.IsAdministrating = true;
+    }
+    private void SetAdministratingFalse()
+    {
+    playerController.PlayerModel.IsAdministrating = false;
     }
 }
