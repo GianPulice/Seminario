@@ -243,7 +243,6 @@ GameObject:
   - component: {fileID: 7723058615688763938}
   - component: {fileID: 1385675152178789835}
   - component: {fileID: 1629447272769817170}
-  - component: {fileID: 1554791982822326670}
   - component: {fileID: 5293894267413759506}
   - component: {fileID: 6634048651698242}
   m_Layer: 0
@@ -262,8 +261,8 @@ Transform:
   m_GameObject: {fileID: 4151118635797804631}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7198979, z: -0, w: 0.69407994}
-  m_LocalPosition: {x: -4.650879, y: 2.055, z: 1.4521656}
-  m_LocalScale: {x: 3, y: 2.5, z: 2.5}
+  m_LocalPosition: {x: -4.4643, y: 2.055, z: 1.4734}
+  m_LocalScale: {x: 3, y: 1.5471761, z: 3.1043062}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4501250456709689228}
@@ -275,7 +274,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4151118635797804631}
-  m_Mesh: {fileID: 4300000, guid: a0f3afc2724cb8246b01fbef27e7cd6c, type: 3}
+  m_Mesh: {fileID: 4300000, guid: 5e901bb3c1091fb4782d5e36a9be13dc, type: 3}
 --- !u!23 &1629447272769817170
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -320,28 +319,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &1554791982822326670
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4151118635797804631}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: a0f3afc2724cb8246b01fbef27e7cd6c, type: 3}
 --- !u!135 &5293894267413759506
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -361,7 +338,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.43
+  m_Radius: 0.58
   m_Center: {x: 0.0000038376506, y: 0.45, z: 0.00006094581}
 --- !u!208 &6634048651698242
 NavMeshObstacle:
@@ -377,7 +354,7 @@ NavMeshObstacle:
   m_MoveThreshold: 0.1
   m_Carve: 1
   m_CarveOnlyStationary: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.91, z: 0}
   m_TimeToStationary: 0.5
 --- !u!1 &7638262073088767978
 GameObject:
@@ -750,10 +727,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 167078512657808145, guid: bd598f7c3e3eead4cb3646f43c174255, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 167078512657808147, guid: bd598f7c3e3eead4cb3646f43c174255, type: 3}
-      propertyPath: looping
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
