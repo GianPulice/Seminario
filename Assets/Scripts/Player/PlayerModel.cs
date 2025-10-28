@@ -48,7 +48,7 @@ public class PlayerModel : MonoBehaviour
     public bool IsCooking { get => isCooking; set => isCooking = value; }
     public bool IsAdministrating { get => isAdministrating; set => isAdministrating = value; }
     public bool IsInTeleportPanel { get => isInTeleportPanel; set => isInTeleportPanel = value; }
-
+    [HideInInspector] public bool IsUITransitioning;
 
     void Awake()
     {
