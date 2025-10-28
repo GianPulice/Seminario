@@ -15,6 +15,7 @@ public class ClientView : MonoBehaviour
 
     private Animator anim;
     private Transform order; // GameObject padre de la UI
+    private Transform orderBorder;
     private List<SpriteRenderer> spritesTypeList = new List<SpriteRenderer>();
 
     private List<string> orderFoodNames = new List<string>(); /// <summary>
@@ -127,13 +128,14 @@ public class ClientView : MonoBehaviour
 
     public void RotateOrderUIToLookAtPlayer()
     {
-        Vector3 playerDirection = (playerController.transform.position - order.position).normalized;
+        Vector3 playerDirection = (playerController.transform.position - transform.position).normalized;
         Vector3 lookDirection = new Vector3(playerDirection.x, 0, playerDirection.z);
 
         if (lookDirection != Vector3.zero)
         {
             Quaternion rotation = Quaternion.LookRotation(lookDirection);
             order.rotation = rotation;
+            orderBorder.rotation = rotation;
         }
     }
 
@@ -145,6 +147,7 @@ public class ClientView : MonoBehaviour
 
         anim = GetComponentInChildren<Animator>();
         order = transform.Find("Order");
+        orderBorder = transform.Find("OrderBorder");
 
         foreach (Transform child in order)
         {

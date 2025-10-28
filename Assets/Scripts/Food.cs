@@ -357,8 +357,6 @@ public class Food : MonoBehaviour, IInteractable
 
         SetMeshRootActive(defaultMesh, true);
         SetMeshRootActive(foodMesh, false);
-
-        //transform.position = Vector3.zero;
     }
 
     private void SaveTable(Table table)

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
+using UnityEngine.UI;
 
 public class ScenesManager : Singleton<ScenesManager>
 {
@@ -16,6 +17,7 @@ public class ScenesManager : Singleton<ScenesManager>
     [SerializeField] private GameObject exitGamePanel;
 
     [SerializeField] private TextMeshProUGUI loadingScenePanelText;
+    [SerializeField] private Slider loadingBar;
 
     private event Action onSceneLoadedEvent;
 
@@ -61,7 +63,9 @@ public class ScenesManager : Singleton<ScenesManager>
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         asyncLoad.allowSceneActivation = false;
 
-        bool additiveScenesLoaded = false; 
+        StartCoroutine(UpdateLoadingSlider(asyncLoad));
+
+        bool additiveScenesLoaded = false;
 
         while (!asyncLoad.isDone)
         {
@@ -75,7 +79,7 @@ public class ScenesManager : Singleton<ScenesManager>
                     }
                 }
 
-                additiveScenesLoaded = true;
+                additiveScenesLoaded = true;   
                 StartCoroutine(DisableLoadingScenePanelAfterSeconds());
                 asyncLoad.allowSceneActivation = true;
             }
@@ -121,8 +125,11 @@ public class ScenesManager : Singleton<ScenesManager>
     private IEnumerator DisableLoadingScenePanelAfterSeconds()
     {
         yield return new WaitForSeconds(scenesManagerData.DuringTimeLoadingScenePanel);
+        yield return new WaitUntil(() => loadingBar.value == 1f);
+        yield return new WaitForSeconds(0.3f); // Esperar un tiempito mas extra
 
         isInLoadingScenePanel = false;
+        loadingBar.value = 0f;
         loadingScenePanel.SetActive(false);
     }
 
@@ -161,5 +168,25 @@ public class ScenesManager : Singleton<ScenesManager>
     private void UpdateCurrentSceneName()
     {
         currentScene = SceneManager.GetActiveScene();
+    }
+
+    private IEnumerator UpdateLoadingSlider(AsyncOperation asyncLoad)
+    {
+        float totalTime = 0.9f + scenesManagerData.DuringTimeLoadingScenePanel;
+        float timer = 0f;
+
+        while (timer < totalTime)
+        {
+            timer += Time.deltaTime;
+
+            float sceneProgress = Mathf.Clamp01(asyncLoad.progress / 0.9f); // normaliza a 0-1
+            float timeProgress = Mathf.Clamp01(timer / totalTime);
+
+            loadingBar.value = Mathf.Min(sceneProgress, timeProgress);
+
+            yield return null;
+        }
+
+        loadingBar.value = 1f;
     }
 }
