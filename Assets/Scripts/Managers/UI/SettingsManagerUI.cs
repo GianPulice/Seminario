@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System;
 
 public class SettingsManagerUI : MonoBehaviour
 {
@@ -43,6 +44,8 @@ public class SettingsManagerUI : MonoBehaviour
     [SerializeField] private TMP_Text sensitivityJoystickXText;
     [SerializeField] private TMP_Text sensitivityJoystickYText;
 
+    private static event Action onBackButtonPressed;
+    public static Action OnBackButtonPressed { get => onBackButtonPressed; set => onBackButtonPressed = value; }
 
     void Awake()
     {
@@ -131,7 +134,11 @@ public class SettingsManagerUI : MonoBehaviour
         }
     }
 
-
+    public void ButtonBack()
+    {
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        onBackButtonPressed?.Invoke();
+    }
     private void SuscribeToMainMenuEvent()
     {
         MainMenu.OnButtonSettingsClickToShowCorrectPanel += SetPanelAudio;

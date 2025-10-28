@@ -31,6 +31,11 @@ public class MainMenu : MonoBehaviour
         StartCoroutine(PlayMainMenuMusic());
     }
 
+    private void OnDestroy()
+    {
+        SettingsManagerUI.OnBackButtonPressed -= HandleSettingsBackFromMainMenu;
+    }
+
     public void SetSelectedGameObject(GameObject go)
     {
         if (EventSystem.current != null)
@@ -110,7 +115,7 @@ public class MainMenu : MonoBehaviour
 
         for (int i = 0; i < buttonsMainMenu.Count; i++)
         {
-            if (i != 1) 
+            if (i != 1)
             {
                 buttonsMainMenu[i].gameObject.SetActive(true);
             }
@@ -131,6 +136,7 @@ public class MainMenu : MonoBehaviour
     private void InvokeEventToSendButtonsReferences()
     {
         onSendButtonsToEventSystem?.Invoke(buttonsMainMenu.ConvertAll(b => b.gameObject));
+        SettingsManagerUI.OnBackButtonPressed += HandleSettingsBackFromMainMenu;
     }
 
     private void InitializeLoadGameButtonIfLoadDataExists()
@@ -140,7 +146,31 @@ public class MainMenu : MonoBehaviour
             buttonsMainMenu[1].gameObject.SetActive(false);
         }
     }
+    private void HandleSettingsBackFromMainMenu()
+    {
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        ignoreFirstButtonSelected = true;
+        for (int i = 0; i < buttonsMainMenu.Count; i++)
+        {
+            if (i != 1)
+            {
+                buttonsMainMenu[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                if (SaveSystemManager.SaveExists())
+                {
+                    buttonsMainMenu[i].gameObject.SetActive(true);
 
+                }
+            }
+        }
+        panelSettings.SetActive(false);
+        if (EventSystem.current != null && buttonsMainMenu.Count > 2)
+        {
+            EventSystem.current.SetSelectedGameObject(buttonsMainMenu[2].gameObject);
+        }
+    }
     private IEnumerator LoadSceneAfterButtonClick()
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");

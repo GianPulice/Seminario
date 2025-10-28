@@ -119,6 +119,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &264434083 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 485123705401854878, guid: bbb3ae877a0bcb649936246b5811e52b, type: 3}
+  m_PrefabInstance: {fileID: 675287189}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d31f9cc1c9ce83c4bb078cccf7567f02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &675287189
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -258,6 +269,18 @@ PrefabInstance:
     - target: {fileID: 2165949246195104403, guid: bbb3ae877a0bcb649936246b5811e52b, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2212384849297925051, guid: bbb3ae877a0bcb649936246b5811e52b, type: 3}
+      propertyPath: onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 264434083}
+    - target: {fileID: 2212384849297925051, guid: bbb3ae877a0bcb649936246b5811e52b, type: 3}
+      propertyPath: onClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ButtonBack
+      objectReference: {fileID: 0}
+    - target: {fileID: 2212384849297925051, guid: bbb3ae877a0bcb649936246b5811e52b, type: 3}
+      propertyPath: onClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MainMenu, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 2290912438526491429, guid: bbb3ae877a0bcb649936246b5811e52b, type: 3}
       propertyPath: m_AnchorMax.y
