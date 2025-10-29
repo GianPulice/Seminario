@@ -25,7 +25,7 @@ public class CookingManagerUI : MonoBehaviour
 
     private static event Action<string> onButtonGetFood;
 
-    private event Action onEnterCook, onExitCook;
+    private static event Action onEnterCook, onExitCook;
 
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
@@ -36,6 +36,8 @@ public class CookingManagerUI : MonoBehaviour
 
     public static Action<string> OnButtonSetFood { get => onButtonGetFood; set => onButtonGetFood = value; }
 
+    public static Action OnExitCook { get => onExitCook; set => onExitCook = value; }
+
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
 
@@ -43,7 +45,7 @@ public class CookingManagerUI : MonoBehaviour
     void Awake()
     {
         SuscribeToUpdateManagerEvent();
-        InitializeLambdaEvents();
+        //InitializeLambdaEvents();
         SuscribeToPlayerViewEvents();
         SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
         GetComponents();
@@ -58,6 +60,7 @@ public class CookingManagerUI : MonoBehaviour
 
     void OnDestroy()
     {
+        //ClearLambas();
         UnscribeToUpdateManagerEvent();
         UnSuscribeToPlayerViewEvents();
         UnscribeToPauseManagerRestoreSelectedGameObjectEvent();
@@ -211,6 +214,7 @@ public class CookingManagerUI : MonoBehaviour
             button.SetSelected(false);
         }
     }
+
     public void ButtonExit()
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
@@ -227,22 +231,26 @@ public class CookingManagerUI : MonoBehaviour
         UpdateManager.OnUpdate -= UpdateCookingManagerUI;
     }
 
-    private void InitializeLambdaEvents()
+    private void OnEnterInCookMode()
     {
-        onEnterCook += () => ActiveOrDeactivateRootGameObject(true);
-        onExitCook += () => ActiveOrDeactivateRootGameObject(false);
+        ActiveOrDeactivateRootGameObject(true);
+    }
+
+    private void OnExitInCookMode()
+    {
+        ActiveOrDeactivateRootGameObject(false);
     }
 
     private void SuscribeToPlayerViewEvents()
     {
-        PlayerView.OnEnterInCookMode += onEnterCook;
-        PlayerView.OnExitInCookMode += onExitCook;
+        PlayerView.OnEnterInCookMode += OnEnterInCookMode;
+        PlayerView.OnExitInCookMode += OnExitInCookMode;
     }
 
     private void UnSuscribeToPlayerViewEvents()
     {
-        PlayerView.OnEnterInCookMode -= onEnterCook;
-        PlayerView.OnExitInCookMode -= onExitCook;
+        PlayerView.OnEnterInCookMode -= OnEnterInCookMode;
+        PlayerView.OnExitInCookMode -= OnExitInCookMode;
     }
 
     private void SuscribeToPauseManagerRestoreSelectedGameObjectEvent()
