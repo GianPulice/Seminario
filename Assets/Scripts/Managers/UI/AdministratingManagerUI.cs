@@ -39,8 +39,10 @@ public class AdministratingManagerUI : MonoBehaviour
     private bool ignoreFirstButtonSelected = true;
     private int currentActiveTabIndex = 0;
 
+    //--- Variable estaticas ---
+    private static int lastTabIndex = -1;
     // --- Constantes ---
-    private const int TOTAL_TABS = 3;
+    private const string PREF_LAST_TAB = "Admin_LastTabIndex";
     void Awake()
     {
         GetComponents();
@@ -237,17 +239,40 @@ public class AdministratingManagerUI : MonoBehaviour
     {
         DeviceManager.Instance.IsUIModeActive = false;
         onClearSelectedCurrentGameObject?.Invoke();
-        if (panelAnimator != null) panelAnimator.AnimateOut();
+
+        if (tabGroup != null)
+        {
+            lastTabIndex = tabGroup.GetCurrentTabIndex();
+        }
+
+        if (panelAnimator != null)
+            panelAnimator.AnimateOut();
     }
 
     private void SetupInitialTab()
     {
-        //DeviceManager.Instance.IsUIModeActive = true;
         ignoreFirstButtonSelected = true;
+        
+        if (tabGroup == null) return;
 
-        if (tabGroup != null && tabGroup.StartingSelectedButton != null)
+        //Determino la tab a mostrar
+        int indexToSelect = (lastTabIndex >= 0 && lastTabIndex < tabGroup.GetTabCount())
+        ? lastTabIndex
+        : 0;
+
+        tabGroup.SelectTabByIndex(indexToSelect);
+        tabGroup.ForceShowCurrentTab();
+
+        // Forzar selección visual del botón correcto
+        if (tabGroup.CurrentSelectedButton != null)
         {
-            onSetSelectedCurrentGameObject?.Invoke(tabGroup.StartingSelectedButton.gameObject);
+            onSetSelectedCurrentGameObject?.Invoke(tabGroup.CurrentSelectedButton.gameObject);
+        }
+
+        // Actualizar información si está en el tab de Upgrades
+        if (indexToSelect == 2)
+        {
+            ShowCurrentZoneInformation(0);
         }
     }
 

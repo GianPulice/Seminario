@@ -10,12 +10,10 @@ public class SettingsManagerUI : MonoBehaviour
     /// </summary>
 
     [Header("General:")]
+    [SerializeField] private TabGroup tabGroup;
     [SerializeField] private GameObject panelAudio;
     [SerializeField] private GameObject panelVideo;
     [SerializeField] private GameObject panelControls;
-    [SerializeField] private Button buttonAudio;
-    [SerializeField] private Button buttonVideo;
-    [SerializeField] private Button buttonControls;
 
     [Header("Audio Options:")]
     [SerializeField] private Slider generalSlider;
@@ -56,6 +54,10 @@ public class SettingsManagerUI : MonoBehaviour
         InitializeAudioOptions();
         InitializeVideoOptions();
         InitializeControlOptions();
+        if (tabGroup != null)
+        {
+            tabGroup.SelectTabByIndex(0);
+        }
     }
 
     // Simulacion de Update
@@ -72,64 +74,10 @@ public class SettingsManagerUI : MonoBehaviour
     }
 
 
-    // Funciones asignadas a OnPointerEnter para el mouse y combinadas con los Inputs del joystick
-    // El objetivo es que se abran los paneles correctamente y se cierren correctamente
-    public void SetPanelAudio()
-    {
-        // Color blanco
-        ColorBlock color = buttonAudio.colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
+    public void SetPanelAudio() => tabGroup.SelectTabByIndex(0);
+    public void SetPanelVideo() => tabGroup.SelectTabByIndex(1);
+    public void SetPanelControls() => tabGroup.SelectTabByIndex(2);
 
-        if (buttonAudio.colors == color)
-        {
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-
-            SetButtonNormalColorInWhite(buttonVideo);
-            SetButtonNormalColorInWhite(buttonControls);
-
-            DisableAllPanels();
-            SetButtonNormalColorInGreen(buttonAudio);
-            panelAudio.SetActive(true);
-        }
-    }
-
-    public void SetPanelVideo()
-    {
-        // Color blanco
-        ColorBlock color = buttonVideo.colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-
-        if (buttonVideo.colors == color)
-        {
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-
-            SetButtonNormalColorInWhite(buttonAudio);
-            SetButtonNormalColorInWhite(buttonControls);
-
-            DisableAllPanels();
-            SetButtonNormalColorInGreen(buttonVideo);
-            panelVideo.SetActive(true);
-        }
-    }
-
-    public void SetPanelControls()
-    {
-        // Color blanco
-        ColorBlock color = buttonControls.colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-
-        if (buttonControls.colors == color)
-        {
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-
-            SetButtonNormalColorInWhite(buttonAudio);
-            SetButtonNormalColorInWhite(buttonVideo);
-
-            DisableAllPanels();
-            SetButtonNormalColorInGreen(buttonControls);
-            panelControls.SetActive(true);
-        }
-    }
 
 
     private void SuscribeToMainMenuEvent()
@@ -352,27 +300,6 @@ public class SettingsManagerUI : MonoBehaviour
     private void UpdateTextControls(TMP_Text currentText, float value)
     {
         currentText.text = Mathf.RoundToInt(value).ToString();
-    }
-
-    private void DisableAllPanels()
-    {
-        panelAudio.SetActive(false);
-        panelVideo.SetActive(false);
-        panelControls.SetActive(false);
-    }
-
-    private void SetButtonNormalColorInWhite(Button currentButton)
-    {
-        ColorBlock color = currentButton.colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-        currentButton.colors = color;
-    }
-
-    private void SetButtonNormalColorInGreen(Button currentButton)
-    {
-        ColorBlock color = currentButton.colors;
-        color.normalColor = new Color32(0x28, 0xFF, 0x00, 0xFF);
-        currentButton.colors = color;
     }
 
     private void CheckJoystickInputsToInteractWithPanels()
