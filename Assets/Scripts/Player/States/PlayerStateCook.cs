@@ -22,6 +22,7 @@ public class PlayerStateCook<T> : State<T>
         base.Enter();
         //Debug.Log("Cook");
 
+        CookingManagerUI.OnExitCook += OnExitStateWhenClickOnButtonCloseUI;
         PlayerView.OnEnterInCookMode?.Invoke();
 
         playerModel.Rb.velocity = Vector3.zero;
@@ -44,10 +45,24 @@ public class PlayerStateCook<T> : State<T>
 
     public override void Exit()
     {
+        CookingManagerUI.OnExitCook -= OnExitStateWhenClickOnButtonCloseUI;
+
         PlayerView.OnExitInCookMode?.Invoke();
         playerView.ShowOrHideDish(lastDishState);
         playerModel.IsCooking = false;
 
         playerModel.CapsuleCollider.material = playerModel.PhysicsMaterial;
+    }
+
+    // Obligatorio para llamar cuando el player se destruye
+    public void UnsuscribeToEventWhenPlayerDestroy()
+    {
+        CookingManagerUI.OnExitCook -= OnExitStateWhenClickOnButtonCloseUI;
+    }
+
+
+    private void OnExitStateWhenClickOnButtonCloseUI()
+    {
+        Fsm.TransitionTo(inputToIdle);
     }
 }
