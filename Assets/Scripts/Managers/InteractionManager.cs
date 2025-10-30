@@ -6,8 +6,6 @@ public class InteractionManager : Singleton<InteractionManager>
 
     private IInteractable currentTarget;
 
-    private PlayerModel playerModel;
-
     private bool isPlayerInUI = false;
     
 
@@ -17,7 +15,6 @@ public class InteractionManager : Singleton<InteractionManager>
         SuscribeToPlayerViewEvents();
         SuscribeToUpdateManagerEvent();
         SuscribeToScenesManagerEvent();
-        playerModel = FindFirstObjectByType<PlayerModel>();
     }
 
     // Simulacion de Update
@@ -126,13 +123,6 @@ public class InteractionManager : Singleton<InteractionManager>
     {
         if (InteractionManagerUI.Instance == null) return;
         if (!InteractionManagerUI.Instance.CenterPointUI.gameObject.activeSelf) return;
-
-        if (playerModel == null)
-        {
-            playerModel = FindFirstObjectByType<PlayerModel>();
-            if (playerModel == null) return; // Si no hay jugador, no podemos interactuar
-        }
-        if (playerModel.IsUITransitioning) return;
 
         if (currentTarget != null && !PauseManager.Instance.IsGamePaused)
         {

@@ -17,8 +17,6 @@ public class AdminUIAppear : MonoBehaviour
     [Header("Animación - Easing")]
     [SerializeField] private LeanTweenType showEase = LeanTweenType.easeOutBack;
     [SerializeField] private LeanTweenType hideEase = LeanTweenType.easeInQuad;
-    [SerializeField] private AnimationCurve showCurve;
-    [SerializeField] private AnimationCurve hideCurve;
 
     [Header("Eventos")]
     [Tooltip("Se dispara cuando la animación de entrada (aparecer) ha terminado.")]

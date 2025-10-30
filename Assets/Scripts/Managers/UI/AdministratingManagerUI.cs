@@ -24,27 +24,28 @@ public class AdministratingManagerUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textPriceCurrentZoneUnlock;
 
 
-    private event Action onEnterAdmin, onExitAdmin;
+    private static event Action onEnterAdmin, onExitAdmin;
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
     private static event Action onStartTabern;
 
+    public static Action OnExitAdmin { get => onExitAdmin; set => onExitAdmin = value; } 
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
     public static Action OnStartTabern { get => onStartTabern; set => onStartTabern = value; }
 
     // --- Variables de control ---
-    private PlayerModel playerModel;
     private GameObject lastSelectedButtonFromAdminPanel;
     private bool ignoreFirstButtonSelected = true;
     private int currentActiveTabIndex = 0;
 
+    //--- Variable estaticas ---
+    private static int lastTabIndex = -1;
     // --- Constantes ---
-    private const int TOTAL_TABS = 3;
+    private const string PREF_LAST_TAB = "Admin_LastTabIndex";
     void Awake()
     {
         GetComponents();
-        InitializeLambdaEvents();
         InitializeAnimatorEventBindings();
         SuscribeToPlayerViewEvents();
         SuscribeToUpdateManagerEvent();
@@ -96,7 +97,7 @@ public class AdministratingManagerUI : MonoBehaviour
 
     private void RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI()
     {
-        if (playerModel != null && playerModel.IsAdministrating)
+        if (panelAdministrating.activeSelf)
         {
             ignoreFirstButtonSelected = true;
             DeviceManager.Instance.IsUIModeActive = true;
@@ -106,8 +107,7 @@ public class AdministratingManagerUI : MonoBehaviour
 
     private void CheckLastSelectedButtonIfAdminPanelIsOpen()
     {
-        if (EventSystem.current != null && PauseManager.Instance != null && !PauseManager.Instance.IsGamePaused &&
-            playerModel != null && playerModel.IsAdministrating)
+        if (EventSystem.current != null && PauseManager.Instance != null && !PauseManager.Instance.IsGamePaused)
         {
             GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
             if (currentSelected != null && currentSelected.transform.IsChildOf(this.transform))
@@ -169,11 +169,7 @@ public class AdministratingManagerUI : MonoBehaviour
     public void ButtonExit()
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
-        if (playerModel != null && playerModel.IsAdministrating)
-        {
-            playerModel.IsAdministrating = false;
-            PlayerView.OnExitInAdministrationMode?.Invoke();
-        }
+        onExitAdmin?.Invoke();
     }
 
     public void ButtonBuyIngredient(string ingredientName)
@@ -222,45 +218,66 @@ public class AdministratingManagerUI : MonoBehaviour
     #endregion
 
     #region === Animaciones de Entrada / Salida ===
-    private void InitializeLambdaEvents()
+
+    private void OnEnterInAdminMode()
     {
-        onEnterAdmin += () => HandlePlayerEnterAdmin();
-        onExitAdmin += () => HandlePlayerExitAdmin();
+        HandlePlayerEnterAdmin();
     }
+
+    private void OnExitAdminMode()
+    {
+        HandlePlayerExitAdmin();
+    }
+
     private void HandlePlayerEnterAdmin()
     {
-        if(playerModel!=null) playerModel.IsUITransitioning = true;
-
         PrepareInitialUIState();
         if (panelAnimator != null) panelAnimator.AnimateIn();
     }
 
     private void HandlePlayerExitAdmin()
     {
-        if (playerModel != null) playerModel.IsUITransitioning = true;
-
         DeviceManager.Instance.IsUIModeActive = false;
         onClearSelectedCurrentGameObject?.Invoke();
-        if (panelAnimator != null) panelAnimator.AnimateOut();
+
+        if (tabGroup != null)
+        {
+            lastTabIndex = tabGroup.GetCurrentTabIndex();
+        }
+
+        if (panelAnimator != null)
+            panelAnimator.AnimateOut();
     }
 
     private void SetupInitialTab()
     {
-        if (playerModel != null) playerModel.IsUITransitioning = false;
-
-        DeviceManager.Instance.IsUIModeActive = true;
         ignoreFirstButtonSelected = true;
+        
+        if (tabGroup == null) return;
 
-        if (tabGroup != null && tabGroup.StartingSelectedButton != null)
+        //Determino la tab a mostrar
+        int indexToSelect = (lastTabIndex >= 0 && lastTabIndex < tabGroup.GetTabCount())
+        ? lastTabIndex
+        : 0;
+
+        tabGroup.SelectTabByIndex(indexToSelect);
+        tabGroup.ForceShowCurrentTab();
+
+        // Forzar selección visual del botón correcto
+        if (tabGroup.CurrentSelectedButton != null)
         {
-            onSetSelectedCurrentGameObject?.Invoke(tabGroup.StartingSelectedButton.gameObject);
+            onSetSelectedCurrentGameObject?.Invoke(tabGroup.CurrentSelectedButton.gameObject);
+        }
+
+        // Actualizar información si está en el tab de Upgrades
+        if (indexToSelect == 2)
+        {
+            ShowCurrentZoneInformation(0);
         }
     }
 
     private void CleanupAfterAnimation()
     {
-        if (playerModel != null) playerModel.IsUITransitioning = false;
-
         panelTabern.SetActive(false);
         panelIngredients.SetActive(false);
         panelUpgrades.SetActive(false);
@@ -268,6 +285,7 @@ public class AdministratingManagerUI : MonoBehaviour
 
     private void PrepareInitialUIState()
     {
+        DeviceManager.Instance.IsUIModeActive = true;
         int initialTabIndex = tabGroup?.GetButtonIndex(tabGroup.StartingSelectedButton) ?? 0;
         if (initialTabIndex == 2) ShowCurrentZoneInformation(0);
     }
@@ -283,19 +301,18 @@ public class AdministratingManagerUI : MonoBehaviour
 
     private void SuscribeToPlayerViewEvents()
     {
-        PlayerView.OnEnterInAdministrationMode += onEnterAdmin;
-        PlayerView.OnExitInAdministrationMode += onExitAdmin;
+        PlayerView.OnEnterInAdministrationMode += OnEnterInAdminMode;
+        PlayerView.OnExitInAdministrationMode += OnExitAdminMode;
     }
 
     private void UnsuscribeToPlayerViewEvents()
     {
-        PlayerView.OnEnterInAdministrationMode -= onEnterAdmin;
-        PlayerView.OnExitInAdministrationMode -= onExitAdmin;
+        PlayerView.OnEnterInAdministrationMode -= OnEnterInAdminMode;
+        PlayerView.OnExitInAdministrationMode -= OnExitAdminMode;
     }
 
     private void GetComponents()
     {
-        playerModel = FindFirstObjectByType<PlayerModel>();
         if (panelAnimator == null)
             Debug.LogError("Falta AdminUIAppear", this);
         if (tabGroup == null)

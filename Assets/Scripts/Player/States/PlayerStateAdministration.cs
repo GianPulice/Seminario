@@ -23,6 +23,7 @@ public class PlayerStateAdministration<T> : State<T>
         base.Enter();
         //Debug.Log("Administration");
 
+        AdministratingManagerUI.OnExitAdmin += OnExitStateWhenClickOnButtonCloseUI;
         PlayerView.OnEnterInAdministrationMode?.Invoke();
 
         playerModel.Rb.velocity = Vector3.zero;
@@ -47,10 +48,23 @@ public class PlayerStateAdministration<T> : State<T>
     {
         base.Exit();
 
+        AdministratingManagerUI.OnExitAdmin -= OnExitStateWhenClickOnButtonCloseUI;
         PlayerView.OnExitInAdministrationMode?.Invoke();
         playerView.ShowOrHideDish(lastDishState);
         playerModel.IsAdministrating = false;
 
         playerModel.CapsuleCollider.material = playerModel.PhysicsMaterial;
+    }
+
+    // Obligatorio para llamar cuando el player se destruye
+    public void UnsuscribeToEventWhenPlayerDestroy()
+    {
+        AdministratingManagerUI.OnExitAdmin -= OnExitStateWhenClickOnButtonCloseUI;
+    }
+
+
+    private void OnExitStateWhenClickOnButtonCloseUI()
+    {
+        Fsm.TransitionTo(inputToIdle);
     }
 }

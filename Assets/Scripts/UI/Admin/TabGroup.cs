@@ -14,12 +14,13 @@ public class TabGroup : MonoBehaviour
     [SerializeField] private List<GameObject> pagesToSwap;
 
     public TabTweenButton StartingSelectedButton => startingSelectedButton;
+    public TabTweenButton CurrentSelectedButton { get; private set; }
 
     private int currentTabIndex = -1;
     void Awake()
     {
-        tabButtons = GetComponentsInChildren<TabTweenButton>().ToList();
-
+        if (tabButtons == null || tabButtons.Count == 0)
+            tabButtons = GetComponentsInChildren<TabTweenButton>(true).ToList();
         foreach (TabTweenButton button in tabButtons)
         {
             button.Initialize(this);
@@ -32,36 +33,44 @@ public class TabGroup : MonoBehaviour
         {
             OnTabSelected(startingSelectedButton);
         }
+        else if (tabButtons.Count > 0)
+        {
+            OnTabSelected(tabButtons[0]);
+        }
         else
         {
-            foreach (var button in tabButtons)
-            {
-                button.SetSelected(false);
-            }
-            foreach (var page in pagesToSwap)
-            {
-                if (page != null) page.SetActive(false);
-            }
+            DeselectAllTabsAndHidePages();
         }
     }
     public void OnTabSelected(TabTweenButton selectedButton)
     {
+        if (selectedButton == null)
+        {
+            Debug.LogWarning("Se intentó seleccionar un Tab nulo.", this);
+            return;
+        }
+
         foreach (TabTweenButton button in tabButtons)
         {
             button.SetSelected(button == selectedButton);
         }
+
         int selectedIndex = tabButtons.IndexOf(selectedButton);
-        currentTabIndex = selectedIndex;
         if (selectedIndex < 0)
         {
             Debug.LogError("El botón seleccionado no está en la lista de tabs.", this);
             return;
         }
+
+        currentTabIndex = selectedIndex;
+        CurrentSelectedButton = selectedButton;
+
         if (pagesToSwap.Count != tabButtons.Count)
         {
             Debug.LogError("Error: La cantidad de botones no coincide con la cantidad de paneles.", this);
             return;
         }
+
         for (int i = 0; i < pagesToSwap.Count; i++)
         {
             if (pagesToSwap[i] != null)
@@ -70,25 +79,54 @@ public class TabGroup : MonoBehaviour
             }
         }
     }
+    private void DeselectAllTabsAndHidePages()
+    {
+        foreach (var button in tabButtons)
+            button.SetSelected(false);
+
+        foreach (var page in pagesToSwap)
+            if (page != null)
+                page.SetActive(false);
+    }
+    public int GetCurrentTabIndex()
+    {
+        return currentTabIndex >= 0 ? currentTabIndex : 0;
+    }
+
     public int GetTabCount()
     {
         return tabButtons.Count;
     }
 
-    public int GetCurrentTabIndex()
+    public void RefreshAllTabsVisuals()
     {
-        return currentTabIndex;
+        foreach (var tab in tabButtons)
+        {
+            tab.ForceRefreshSelectedState();
+        }
+    }
+    public void ForceShowCurrentTab()
+    {
+        if (currentTabIndex < 0 || currentTabIndex >= pagesToSwap.Count)
+            return;
+
+        for (int i = 0; i < pagesToSwap.Count; i++)
+        {
+            if (pagesToSwap[i] != null)
+            {
+                pagesToSwap[i].SetActive(i == currentTabIndex);
+            }
+        }
+
+        RefreshAllTabsVisuals();
     }
     public void SelectTabByIndex(int index)
     {
         if (index < 0 || index >= tabButtons.Count)
-        {
             return;
-        }
         if (index == currentTabIndex)
-        {
             return;
-        }
+
 
         TabTweenButton buttonToSelect = tabButtons[index];
         OnTabSelected(buttonToSelect);
@@ -97,6 +135,7 @@ public class TabGroup : MonoBehaviour
     {
         return tabButtons.IndexOf(button);
     }
+
 }
 
 

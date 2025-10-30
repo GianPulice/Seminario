@@ -70,7 +70,7 @@ public class GenericTweenButton : MonoBehaviour,
 
         if (targetImage == null)
         {
-            targetImage = targetTransform.GetComponent<Image>();
+            targetImage = targetTransform.GetComponentInChildren<Image>();
         }
 
         initialScale = targetTransform.localScale;
@@ -81,21 +81,29 @@ public class GenericTweenButton : MonoBehaviour,
         }
 
     }
+    private void OnEnable()
+    {
+        if (isSelected)
+        {
+            UpdateVisuals();
+        }
+    }
     private void OnDisable()
     {
-        LeanTween.cancel(targetTransform.gameObject);
+        if (targetTransform != null)
+            LeanTween.cancel(targetTransform.gameObject);
 
-        targetTransform.localScale = initialScale;
-        if (targetImage != null)
-        {
+        if (targetTransform != null)
+            targetTransform.localScale = initialScale;
+
+        if (targetImage != null && !isSelected)
             targetImage.color = normalColor;
-        }
+
         if (currentHoverOnlyButton == this)
             currentHoverOnlyButton = null;
 
         isPointerOver = false;
         isPointerDown = false;
-        isSelected = false;
     }
     public virtual void OnPointerEnter(PointerEventData eventData)
     {
@@ -104,18 +112,18 @@ public class GenericTweenButton : MonoBehaviour,
         if (behavior == ButtonBehavior.HoverOnly)
         {
             GenericTweenButton oldButton = currentHoverOnlyButton;
-
             currentHoverOnlyButton = this;
 
             if (oldButton != null && oldButton != this)
-            {
                 oldButton.UpdateVisuals();
-            }
         }
         UpdateVisuals();
         OnPointerEnterEvent.Invoke();
     }
-
+    public void ForceRefreshSelectedState()
+    {
+        UpdateVisuals();
+    }
     public virtual void OnPointerExit(PointerEventData eventData)
     {
         isPointerOver = false;
@@ -143,9 +151,6 @@ public class GenericTweenButton : MonoBehaviour,
         if (behavior == ButtonBehavior.ToggleSelect)
         {
             isSelected = !isSelected;
-        }
-        if (behavior == ButtonBehavior.ToggleSelect)
-        {
             UpdateVisuals();
         }
         OnClick?.Invoke();
@@ -153,6 +158,8 @@ public class GenericTweenButton : MonoBehaviour,
 
     protected void UpdateVisuals()
     {
+        if (targetTransform == null) return;
+
         LeanTween.cancel(targetTransform.gameObject);
 
         Vector3 targetScale = GetTargetScale();
@@ -161,6 +168,7 @@ public class GenericTweenButton : MonoBehaviour,
             .setEase(easeType)
             .setIgnoreTimeScale(true)
             .id;
+
         if (targetImage != null)
         {
             Color targetColor = GetTargetColor();
@@ -173,68 +181,45 @@ public class GenericTweenButton : MonoBehaviour,
 
     protected Vector3 GetTargetScale()
     {
-        if (isPointerDown)
+        if (isPointerDown) return initialScale * pressScale;
+
+        if (behavior == ButtonBehavior.ToggleSelect && isSelected)
         {
-            return initialScale * pressScale;
+            return isPointerOver
+                ? initialScale * selectedScale * 1.05f
+                : initialScale * selectedScale;
         }
 
-        if (behavior == ButtonBehavior.ToggleSelect)
-        {
-            if (isSelected)
-            {
-                if (isPointerOver)
-                {
-                    return initialScale * selectedScale * 1.05f; // ej. 1.2 * 1.05
-                }
-                return initialScale * selectedScale;
-            }
-        }
+        if (isPointerOver) return initialScale * hoverScale;
 
-        if (isPointerOver)
-        {
-            return initialScale * hoverScale;
-        }
-
-        // Estado normal
         return initialScale;
     }
 
     protected Color GetTargetColor()
     {
         if (behavior == ButtonBehavior.ToggleSelect && isSelected)
-        {
             return selectedColor;
-        }
 
         if (behavior == ButtonBehavior.HoverOnly && currentHoverOnlyButton == this)
-        {
             return hoverColor;
-        }
-        if (isPointerOver && behavior == ButtonBehavior.ToggleSelect)
-        {
-            return hoverColor;
-        }
 
-        // Estado normal
+        if (isPointerOver && behavior == ButtonBehavior.ToggleSelect)
+            return hoverColor;
+
         return normalColor;
     }
 
     public virtual void SetSelected(bool selected)
     {
         if (behavior != ButtonBehavior.ToggleSelect) return;
-
         if (isSelected == selected) return; // No hacer nada si ya está en ese estado
 
         isSelected = selected;
         UpdateVisuals();
 
         if (selected)
-        {
             OnPointerEnterEvent.Invoke();
-        }
         else
-        {
             OnPointerExitEvent.Invoke();
-        }
     }
 }

@@ -8,12 +8,13 @@ public class PlayerController : MonoBehaviour
     private PlayerCollisions playerCollisions;
 
     private FSM<PlayerStates> fsm;
+    private PlayerStateCook<PlayerStates> psCook;
+    private PlayerStateAdministration<PlayerStates> psAdmin;
 
     private static event Action onHandOverFood;
     private static event Action onTakeOrder;
     private static event Action<GameObject> onSupportFood;
     private static event Action onThrowFoodToTrash;
-    private static event Action onOpenOrCloseBook;
 
     // Estos 2 eventos corresponden a entregar el plato una vez tomado el pedido
     private static event Action<Table> onTableCollisionEnterForHandOverFood;
@@ -34,7 +35,6 @@ public class PlayerController : MonoBehaviour
     public static Action OnTakeOrder { get => onTakeOrder; set => onTakeOrder = value; }
     public static Action<GameObject> OnSupportFood { get => onSupportFood; set => onSupportFood = value; }
     public static Action OnThrowFoodToTrash { get => onThrowFoodToTrash; set => onThrowFoodToTrash = value; }
-    public static Action OnOpenOrCloseBook { get => onOpenOrCloseBook; set => onOpenOrCloseBook = value; }
 
     // Estos 2 eventos corresponden a Entregar el plato una vez tomado el pedido
     public static Action<Table> OnTableCollisionEnterForHandOverFood { get => onTableCollisionEnterForHandOverFood; set => onTableCollisionEnterForHandOverFood = value; }
@@ -72,6 +72,8 @@ public class PlayerController : MonoBehaviour
     void OnDestroy()
     {
         UnsuscribeToUpdateManagerEvents();
+        psCook.UnsuscribeToEventWhenPlayerDestroy();
+        psAdmin.UnsuscribeToEventWhenPlayerDestroy();
     }
 
     void OnCollisionEnter(Collision collision)
@@ -121,9 +123,9 @@ public class PlayerController : MonoBehaviour
         PlayerStateIdle<PlayerStates> psIdle = new PlayerStateIdle<PlayerStates>(PlayerStates.Walk, PlayerStates.Jump, PlayerStates.Cook, PlayerStates.Admin, playerModel);
         PlayerStateWalk<PlayerStates> psWalk = new PlayerStateWalk<PlayerStates> (PlayerStates.Idle, PlayerStates.Run, PlayerStates.Jump, PlayerStates.Cook, PlayerStates.Admin, playerModel);
         PlayerStateJump<PlayerStates> psJump = new PlayerStateJump<PlayerStates>(PlayerStates.Idle, playerModel);
-        PlayerStateCook<PlayerStates> psCook = new PlayerStateCook<PlayerStates>(PlayerStates.Idle, playerModel, playerView);
+        psCook = new PlayerStateCook<PlayerStates>(PlayerStates.Idle, playerModel, playerView);
         PlayerStateRun<PlayerStates> psRun = new PlayerStateRun<PlayerStates>(PlayerStates.Idle, PlayerStates.Walk, PlayerStates.Jump, PlayerStates.Cook, PlayerStates.Admin, playerModel);
-        PlayerStateAdministration<PlayerStates> psAdmin = new PlayerStateAdministration<PlayerStates>(PlayerStates.Idle, playerModel, playerView);
+        psAdmin = new PlayerStateAdministration<PlayerStates>(PlayerStates.Idle, playerModel, playerView);
 
         psIdle.AddTransition(PlayerStates.Walk, psWalk);
         psIdle.AddTransition(PlayerStates.Jump, psJump);
@@ -161,7 +163,6 @@ public class PlayerController : MonoBehaviour
         if (playerModel.IsCooking || playerModel.IsAdministrating || playerModel.IsInTeleportPanel) return;
 
         ShowOrHideDish();
-        OpenBook();
     }
 
     private void ShowOrHideDish()
@@ -184,13 +185,5 @@ public class PlayerController : MonoBehaviour
                 playerView.ShowOrHideDish(true);
             }
         }   
-    }
-
-    private void OpenBook()
-    {
-        if (PlayerInputs.Instance.Inventory())
-        {
-            onOpenOrCloseBook?.Invoke();
-        }
     }
 }
