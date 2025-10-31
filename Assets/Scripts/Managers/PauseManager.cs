@@ -7,6 +7,8 @@ public class PauseManager : Singleton<PauseManager>
 {
     [Header("UI")]
     [SerializeField] private PauseAppear pausePanel;
+    [SerializeField] private GameObject pauseOpacity;
+    [SerializeField] private GameObject pauseText;
     [SerializeField] private GameObject settingsPanel;
 
     [Header("UI Elements")]
@@ -117,6 +119,7 @@ public class PauseManager : Singleton<PauseManager>
     public void OnPausePanelHideComplete()
     {
         onRestoreSelectedGameObject?.Invoke();
+        pauseOpacity.SetActive(false);
     }
 
     private void SuscribeToUpdateManagerEvent()
@@ -135,6 +138,7 @@ public class PauseManager : Singleton<PauseManager>
 
         AudioManager.Instance.PauseCurrentMusic();
         StartCoroutine(AudioManager.Instance.PlayMusic("Pause"));
+        pauseOpacity.SetActive(true);
         pauseButtonsContainer.SetActive(true);
 
         Time.timeScale = 0f;
@@ -157,7 +161,7 @@ public class PauseManager : Singleton<PauseManager>
         
         AudioManager.Instance.StopMusic("Pause");
         AudioManager.Instance.ResumeLastMusic();
-
+        
         if (settingsPanel.activeSelf)
         {
             settingsPanel.SetActive(false);
@@ -167,6 +171,7 @@ public class PauseManager : Singleton<PauseManager>
     private void ShowSettings()
     {
         pauseButtonsContainer.SetActive(false);
+        pauseText.SetActive(false);
         settingsPanel.SetActive(true);
         onButtonSettingsClickToShowCorrectPanel?.Invoke();
     }
@@ -174,6 +179,7 @@ public class PauseManager : Singleton<PauseManager>
     private void HideSettings()
     {
         pauseButtonsContainer.SetActive(true);
+        pauseText.SetActive(true);
         settingsPanel.SetActive(false);
         EventSystem.current.SetSelectedGameObject(settingsSelectedButton);
     }
