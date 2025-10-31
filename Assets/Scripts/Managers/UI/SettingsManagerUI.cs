@@ -78,8 +78,6 @@ public class SettingsManagerUI : MonoBehaviour
     public void SetPanelVideo() => tabGroup.SelectTabByIndex(1);
     public void SetPanelControls() => tabGroup.SelectTabByIndex(2);
 
-
-
     private void SuscribeToMainMenuEvent()
     {
         MainMenu.OnButtonSettingsClickToShowCorrectPanel += SetPanelAudio;
