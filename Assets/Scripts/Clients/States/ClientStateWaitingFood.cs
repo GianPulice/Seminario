@@ -30,7 +30,7 @@ public class ClientStateWaitingFood<T> : State<T>
         base.Enter();
         Debug.Log("WaitingFood");
 
-        //clientModel.StopVelocity(); /// Recorda que esta linea de codigo se puede borrar y funciona igual / incluso mejor, porque el SetDestination automaticamente frena la velocidad cuando llega a un punto
+        CheckIfTableIsDirty();
         clientModel.LookAt(clientModel.CurrentTable.DishPosition.position, clientView.Anim.transform);
         clientView.ExecuteAnimParameterName("Sit");
         clientView.StartCoroutine(DuringSitAnimationAfterExitTime());
@@ -41,6 +41,8 @@ public class ClientStateWaitingFood<T> : State<T>
     {
         base.Execute();
 
+        // Ejecutar todo el tiempo que mire a la silla
+        clientModel.LookAt(clientModel.CurrentTable.DishPosition.position, clientView.Anim.transform);
         ExecuteTimers();
         CheckIfFoodIsInDish();
     }
@@ -65,7 +67,8 @@ public class ClientStateWaitingFood<T> : State<T>
     private IEnumerator DuringSitAnimationAfterExitTime()
     {
         yield return new WaitForSeconds(4.12f); // Tiempo que tarda en sentarse por completo
-        
+
+        // Chequear el tema de transition duration en las settings de la transicion de "Sit" a "DuringSit"
         clientView.ExecuteAnimParameterName("DuringSit");
         clientView.Anim.transform.position += Vector3.up * 0.38f;
         clientView.SetSpriteTypeName("SpriteWaitingToBeAttended");
@@ -158,5 +161,10 @@ public class ClientStateWaitingFood<T> : State<T>
         {
             clientStateEating.IsEating = true;
         }
+    }
+
+    private void CheckIfTableIsDirty()
+    {
+        clientModel.WasTableDirtyWhenSeated = clientModel.CurrentTable.IsDirty;
     }
 }

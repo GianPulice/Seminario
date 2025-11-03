@@ -34,6 +34,8 @@ public class Food : MonoBehaviour, IInteractable
     private Transform stovePosition;
     private Transform playerDishPosition;
 
+    private Vector3 nativeScaleSize;
+
     [SerializeField] private FoodType foodType;
     private CookingStates currentCookingState;
 
@@ -104,6 +106,8 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (gameObject.activeSelf && !isServedInTable && !isInPlayerDishPosition && cookingManager.AvailableDishPositions.Count > 0)
         {
+            transform.localScale = nativeScaleSize;
+
             if (cookingBar.gameObject.activeSelf)
             {
                 cookingBar.gameObject.SetActive(false);
@@ -239,6 +243,8 @@ public class Food : MonoBehaviour, IInteractable
         meshRenderer = defaultMesh.ms;
         originalColor = meshRenderer.material.color;
         currentCookingState = CookingStates.Raw;
+
+        nativeScaleSize = transform.localScale;
     }
 
     private void SetupFoodMesh(ref FoodMesh foodMesh, string gameObjectHierarchyName)
@@ -336,6 +342,8 @@ public class Food : MonoBehaviour, IInteractable
     private void RestartValues()
     {
         meshRenderer.material.color = originalColor;
+
+        transform.localScale = nativeScaleSize;
 
         cookingBar.gameObject.SetActive(true);
         smoke.gameObject.SetActive(false);

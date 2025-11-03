@@ -92,7 +92,7 @@ public class CookingManager : MonoBehaviour
         if (targetPosition != null)
         {
             currentFood.transform.SetParent(targetPosition);
-            float offsetY = currentFood.GetBottomOffset() - 0.065f;
+            float offsetY = currentFood.GetBottomOffset() - 0.030f;
             currentFood.transform.position = targetPosition.position + new Vector3(0, offsetY, 0);
         }
 

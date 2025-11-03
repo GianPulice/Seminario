@@ -33,6 +33,9 @@ public class InteractionManager : Singleton<InteractionManager>
 
         PlayerView.OnExitInAdministrationMode += HandlePlayerExitUI;
         PlayerView.OnExitInCookMode += HandlePlayerExitUI;
+
+        Trash.OnShowPanelTrash += HandlePlayerEnterUI;
+        Trash.OnHidePanelTrash += HandlePlayerExitUI;
     }
 
     private void SuscribeToUpdateManagerEvent()
@@ -42,10 +45,11 @@ public class InteractionManager : Singleton<InteractionManager>
 
     private void SuscribeToScenesManagerEvent()
     {
-        ScenesManager.Instance.OnSceneLoadedEvent += OnCleanReferencesWhenChangeScene;
+        ScenesManager.Instance.OnSceneLoadedEvent += OnCleanReferences;
+        IngredientInventoryManagerUI.OnInventoryOpen += OnCleanReferences;
     }
 
-    private void OnCleanReferencesWhenChangeScene()
+    private void OnCleanReferences()
     {
         if (currentTarget != null)
         {

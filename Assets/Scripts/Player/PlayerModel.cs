@@ -33,6 +33,7 @@ public class PlayerModel : MonoBehaviour
     private bool isCooking = false;
     private bool isAdministrating = false;
     private bool isInTeleportPanel = false;
+    private bool isInTrashPanel = false;
 
     public PlayerTabernData PlayerTabernData { get => playerTabernData; }
 
@@ -48,6 +49,8 @@ public class PlayerModel : MonoBehaviour
     public bool IsCooking { get => isCooking; set => isCooking = value; }
     public bool IsAdministrating { get => isAdministrating; set => isAdministrating = value; }
     public bool IsInTeleportPanel { get => isInTeleportPanel; set => isInTeleportPanel = value; }
+    public bool IsInTrashPanel { get => isInTrashPanel; set => isInTrashPanel = value; }
+
 
     void Awake()
     {
@@ -60,7 +63,7 @@ public class PlayerModel : MonoBehaviour
     public void Movement()
     {
         if (PlayerInputs.Instance == null) return;
-        if (isCooking || isAdministrating || isInTeleportPanel) return;
+        if (isCooking || isAdministrating || isInTeleportPanel || isInTrashPanel) return;
 
         Vector3 cameraForward = playerCamera.transform.forward;
         cameraForward.y = 0;

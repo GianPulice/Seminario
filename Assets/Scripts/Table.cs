@@ -52,6 +52,7 @@ public class Table : MonoBehaviour, IInteractable
     public float CurrentCleanProgress { get => currentCleanProgress; set => currentCleanProgress = value; }
 
     public bool IsOccupied { get => isOccupied; set => isOccupied = value; }
+    public bool IsDirty { get => isDirty; }
 
 
     void Awake()
