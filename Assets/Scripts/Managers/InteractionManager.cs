@@ -98,7 +98,7 @@ public class InteractionManager : Singleton<InteractionManager>
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
         IInteractable newTarget = null;
 
-        if (Physics.Raycast(ray, out RaycastHit hit, interactionManagerData.InteractionDistance, LayerMask.GetMask("Interactable")))
+        if (Physics.Raycast(ray, out RaycastHit hit, interactionManagerData.InteractionDistance, LayerMask.GetMask("Interactable", "InteractableFood")))
         {
             newTarget = hit.collider.GetComponent<IInteractable>() ??
                         hit.collider.GetComponentInChildren<IInteractable>() ??
@@ -123,6 +123,7 @@ public class InteractionManager : Singleton<InteractionManager>
             }
         }
     }
+
     private void InteractWithTarget()
     {
         if (InteractionManagerUI.Instance == null) return;
