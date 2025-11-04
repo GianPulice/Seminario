@@ -9,7 +9,6 @@ public class AdministratingManagerUI : MonoBehaviour
 {
     [Header("Paneles Principales")]
     [SerializeField] private GameObject panelAdministrating;
-    [SerializeField] private GameObject panelTabern;
     [SerializeField] private GameObject panelIngredients;
     [SerializeField] private GameObject panelUpgrades;
     [SerializeField] private AdminUIAppear panelAnimator;
@@ -278,7 +277,6 @@ public class AdministratingManagerUI : MonoBehaviour
 
     private void CleanupAfterAnimation()
     {
-        panelTabern.SetActive(false);
         panelIngredients.SetActive(false);
         panelUpgrades.SetActive(false);
     }
