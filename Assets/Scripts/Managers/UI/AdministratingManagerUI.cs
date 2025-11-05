@@ -17,6 +17,10 @@ public class AdministratingManagerUI : MonoBehaviour
     [Tooltip("Referencia al script TabGroup que gestiona los botones y paneles")]
     [SerializeField] private TabGroup tabGroup;
 
+    [Header("Botones de Lógica")]
+    [Tooltip("El botón tipo Switch para Iniciar/Cerrar la taberna")]
+    [SerializeField] private SwitchTweenButton startTavernSwitch;
+
     [Header("Referencias (Panel Upgrades)")]
     [SerializeField] private List<ZoneUnlock> zoneUnlocks = new List<ZoneUnlock>();
     [SerializeField] private Image currentImageZoneUnlock;
@@ -37,11 +41,11 @@ public class AdministratingManagerUI : MonoBehaviour
     private GameObject lastSelectedButtonFromAdminPanel;
     private bool ignoreFirstButtonSelected = true;
     private int currentActiveTabIndex = 0;
+    private bool localTavernState = false;
 
     //--- Variable estaticas ---
     private static int lastTabIndex = -1;
-    // --- Constantes ---
-    private const string PREF_LAST_TAB = "Admin_LastTabIndex";
+    
     void Awake()
     {
         GetComponents();
@@ -160,10 +164,26 @@ public class AdministratingManagerUI : MonoBehaviour
     #endregion
 
     #region == Botones de Lógica ===
-    public void ButtonStartTabern()
+    public void OnStartTavernSwitchClicked()
     {
-        onStartTabern?.Invoke();
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        if (startTavernSwitch == null) return;
+
+        bool isTavernOn = startTavernSwitch.GetSelectedState();
+
+        if (isTavernOn)
+        {
+            Debug.Log("¡Taberna ABIERTA!");
+            onStartTabern?.Invoke();
+            localTavernState = true;
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_On"
+        }
+        else
+        {
+            Debug.Log("¡Taberna CERRADA!");
+            // onStopTabern?.Invoke();
+            localTavernState = false;
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_Off"
+        }
     }
     public void ButtonExit()
     {
@@ -267,7 +287,10 @@ public class AdministratingManagerUI : MonoBehaviour
         {
             onSetSelectedCurrentGameObject?.Invoke(tabGroup.CurrentSelectedButton.gameObject);
         }
-
+        if (startTavernSwitch != null)
+        {
+            startTavernSwitch.SetSelected(localTavernState); 
+        }
         // Actualizar información si está en el tab de Upgrades
         if (indexToSelect == 2)
         {
