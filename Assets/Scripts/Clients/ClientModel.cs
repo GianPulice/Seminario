@@ -16,6 +16,7 @@ public class ClientModel : MonoBehaviour
     [SerializeField] private ClientData clientData;
 
     private ClientManager clientManager;
+    private OrderDataUI currentOrderDataUI;
 
     private Rigidbody rb;
     private NavMeshAgent navMeshAgent;
@@ -32,6 +33,7 @@ public class ClientModel : MonoBehaviour
     public ClientData ClientData { get => clientData; }
 
     public ClientManager ClientManager { get => clientManager; }
+    public OrderDataUI CurrentOrderDataUI { get => currentOrderDataUI; set => currentOrderDataUI = value; }
 
     public NavMeshAgent NavMeshAgent { get => navMeshAgent; }
     public Table CurrentTable { get => currentTable; set => currentTable = value; }
