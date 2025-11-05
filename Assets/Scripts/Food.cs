@@ -402,6 +402,8 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (isInPlayerDishPosition && currentTable != null && currentTable.IsOccupied)
         {
+            Vector3 biggerSize = nativeScaleSize * 2f;
+            SetGlobalScale(transform, biggerSize);
             cookingManager.ReleaseDishPosition(playerDishPosition);
 
             Transform freeSpot = null;
@@ -436,6 +438,8 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (currentFood != null && isInPlayerDishPosition)
         {
+            Vector3 biggerSize = nativeScaleSize * 1.5f; 
+            SetGlobalScale(transform, biggerSize);
             cookingManager.ReleaseDishPosition(playerDishPosition);
             isInPlayerDishPosition = false;
             EnabledOrDisablePhysics(foodMesh, true);
@@ -449,5 +453,15 @@ public class Food : MonoBehaviour, IInteractable
             cookingManager.ReleaseDishPosition(playerDishPosition);
             ReturnObjetToPool();
         }
+    }
+
+    private void SetGlobalScale(Transform transform, Vector3 globalScale)
+    {
+        transform.localScale = Vector3.one;
+        transform.localScale = new Vector3(
+            globalScale.x / transform.lossyScale.x * transform.localScale.x,
+            globalScale.y / transform.lossyScale.y * transform.localScale.y,
+            globalScale.z / transform.lossyScale.z * transform.localScale.z
+        );
     }
 }
