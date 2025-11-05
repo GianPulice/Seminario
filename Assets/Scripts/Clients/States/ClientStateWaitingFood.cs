@@ -61,6 +61,7 @@ public class ClientStateWaitingFood<T> : State<T>
         waitingFoodTime = 0f;
         clientModel.ClientManager.SetParentToHisPoolGameObject(clientModel.ClientType, clientModel);
         canExecuteTimers = false;
+        OrdersManagerUI.Instance.RemoveOrder(clientModel.CurrentOrderDataUI);
     }
 
 
