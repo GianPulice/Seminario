@@ -26,6 +26,8 @@ public class ClientStateEating<T> : State<T>
     {
         base.Enter();
         Debug.Log("Eating");
+
+        clientView.SetSpriteTypeName("SpriteEating");
     }
 
     public override void Execute()

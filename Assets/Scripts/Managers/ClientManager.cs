@@ -1,8 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClientManager : MonoBehaviour
+public class ClientManager : Singleton<ClientManager>
 {
     [SerializeField] private ClientManagerData clientManagerData;
 
@@ -19,6 +20,7 @@ public class ClientManager : MonoBehaviour
     private float spawnTime = 0f;
 
     private bool isTabernOpen = false;
+    private bool canOpenTabern = true;
 
     [SerializeField] private bool spawnDifferentTypeOfClients;
     [SerializeField] private bool spawnTheSameClient;
@@ -26,9 +28,12 @@ public class ClientManager : MonoBehaviour
     public Transform SpawnPosition { get => spawnPosition; }
     public Transform OutsidePosition { get => outsidePosition; }
 
+    public bool IsTabernOpen { get => isTabernOpen; }
+
 
     void Awake()
     {
+        CreateSingleton(false);
         SuscribeToUpdateManagerEvent();
         SuscribeToOpenTabernButtonEvent();
         InitializeClientPoolDictionary();
@@ -141,11 +146,21 @@ public class ClientManager : MonoBehaviour
 
     private void SetIsTabernOpen()
     {
-        isTabernOpen = true;
+        if (canOpenTabern)
+        {
+            canOpenTabern = false;
+            isTabernOpen = true;
+        }
     }
+
     private void SetIsTabernClosed()
     {
-        isTabernOpen = false;
+        if (OrdersManagerUI.Instance.TotalOrdersBeforeTabernOpen >= clientManagerData.MinimumOrdersServedToCloseTabern)
+        {
+            isTabernOpen = false;
+            OrdersManagerUI.Instance.RemoveTotalOrdersWhenCloseTabern();
+            StartCoroutine(DelayForOpenTabernAgain());
+        }
     }
 
     private void GetClientRandomFromPool()
@@ -241,6 +256,13 @@ public class ClientManager : MonoBehaviour
                 foodSpriteDict.Add(pair.FoodType, pair.Sprite);
             }
         }
+    }
+
+    private IEnumerator DelayForOpenTabernAgain()
+    {
+        yield return new WaitForSeconds(clientManagerData.DelayToOpenTabernAgainAfterClose);
+
+        canOpenTabern = true;
     }
 }
 

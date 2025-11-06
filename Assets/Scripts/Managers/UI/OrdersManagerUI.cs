@@ -6,7 +6,11 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
     [SerializeField] private RectTransform ordersContainer; // Donde se instancian los pedidos
     [SerializeField] private GameObject orderUIPrefab;
 
-    [SerializeField] private List<OrderItemUI> activeOrders = new List<OrderItemUI>();
+    private List<OrderItemUI> activeOrders = new List<OrderItemUI>();
+
+    private int totalOrdersBeforeTabernOpen = 0;
+
+    public int TotalOrdersBeforeTabernOpen { get => totalOrdersBeforeTabernOpen; }
 
 
     void Awake()
@@ -26,6 +30,11 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
 
         uiItem.SetupOrder(newOrderDataUI);
         activeOrders.Add(uiItem);
+
+        if (ClientManager.Instance.IsTabernOpen)
+        {
+            totalOrdersBeforeTabernOpen++;
+        }
     }
 
     public void RemoveOrder(OrderDataUI orderDataUI)
@@ -37,5 +46,10 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
             activeOrders.Remove(itemToRemove);
             Destroy(itemToRemove.gameObject);
         }
+    }
+
+    public void RemoveTotalOrdersWhenCloseTabern()
+    {
+        totalOrdersBeforeTabernOpen = 0;
     }
 }
