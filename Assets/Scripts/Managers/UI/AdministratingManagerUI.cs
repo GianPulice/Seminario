@@ -21,11 +21,15 @@ public class AdministratingManagerUI : MonoBehaviour
     [Tooltip("El botón tipo Switch para Iniciar/Cerrar la taberna")]
     [SerializeField] private SwitchTweenButton startTavernSwitch;
 
+    [Header("Referencias (Panel Ingredients)")]
+    [SerializeField] private GameObject ingredientButtonContainer;
+
     [Header("Referencias (Panel Upgrades)")]
     [SerializeField] private List<ZoneUnlock> zoneUnlocks = new List<ZoneUnlock>();
     [SerializeField] private Image currentImageZoneUnlock;
     [SerializeField] private TextMeshProUGUI textPriceCurrentZoneUnlock;
 
+    private List<IngredientButtonUI> ingredientButtons = new List<IngredientButtonUI>();
 
     private static event Action onEnterAdmin, onExitAdmin;
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
@@ -202,11 +206,28 @@ public class AdministratingManagerUI : MonoBehaviour
                 AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
                 IngredientInventoryManager.Instance.IncreaseIngredientStock(ingredient);
                 MoneyManager.Instance.SubMoney(price);
+                
+                UpdateAllIngredientButtons();
             }
             else
             {
                 AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
             }
+        }
+    }
+    private void UpdateAllIngredientButtons()
+    {
+        if (ingredientButtons == null || IngredientInventoryManager.Instance == null)
+            return;
+
+        foreach (var btnUI in ingredientButtons)
+        {
+            IngredientType type = btnUI.IngredientType;
+
+            int price = IngredientInventoryManager.Instance.GetPriceOfIngredient(type);
+            int stock = IngredientInventoryManager.Instance.GetStock(type); 
+
+            btnUI.UpdateUI(price, stock);
         }
     }
 

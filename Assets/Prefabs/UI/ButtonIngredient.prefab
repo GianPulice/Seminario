@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 2561372000521758111}
   - component: {fileID: 3924476276626503007}
   - component: {fileID: 4640293588413788589}
+  - component: {fileID: 7496697224545151119}
   m_Layer: 5
   m_Name: ButtonIngredient
   m_TagString: Untagged
@@ -185,6 +186,21 @@ MonoBehaviour:
   OnPointerExitEvent:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7496697224545151119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3963186507187367575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3abfb3064b19466458b1044b02f884fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientType: 0
+  priceText: {fileID: 0}
+  stockText: {fileID: 4887681272736791472}
 --- !u!1 &5232047866761184181
 GameObject:
   m_ObjectHideFlags: 0
@@ -287,7 +303,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Cost:'
+  m_text: 'Amount:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
