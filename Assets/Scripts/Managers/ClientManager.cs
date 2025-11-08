@@ -119,13 +119,13 @@ public class ClientManager : Singleton<ClientManager>
     private void SuscribeToOpenTabernButtonEvent()
     {
         AdministratingManagerUI.OnStartTabern += SetIsTabernOpen;
-       // AdministratingManagerUI.OnCloseTabern += SetIsTabernClosed;
+        AdministratingManagerUI.OnCloseTabern += SetIsTabernClosed;
     }
 
     private void UnsuscribeToOpenTabernButtonEvent()
     {
         AdministratingManagerUI.OnStartTabern -= SetIsTabernOpen;
-      //  AdministratingManagerUI.OnCloseTabern -= SetIsTabernClosed;
+        AdministratingManagerUI.OnCloseTabern -= SetIsTabernClosed;
     }
 
     private void SpawnClients()

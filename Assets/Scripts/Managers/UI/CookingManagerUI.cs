@@ -12,6 +12,8 @@ public class CookingManagerUI : MonoBehaviour
     [SerializeField] private GameObject panelInformation;
     [SerializeField] private GameObject cookingCamera;
 
+    [SerializeField] private CookingUIAppear cookingAnim;
+
     /// <summary>
     /// Agregar ruido de cancelacion si no tiene ingredientes para cocinar una receta
     /// </summary>
@@ -25,7 +27,7 @@ public class CookingManagerUI : MonoBehaviour
 
     private static event Action<string> onButtonGetFood;
 
-    private static event Action onEnterCook, onExitCook;
+    private static event Action onEnterCook, onExitCookRequest;
 
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
@@ -36,7 +38,7 @@ public class CookingManagerUI : MonoBehaviour
 
     public static Action<string> OnButtonSetFood { get => onButtonGetFood; set => onButtonGetFood = value; }
 
-    public static Action OnExitCook { get => onExitCook; set => onExitCook = value; }
+    public static Action OnExitCook { get => onExitCookRequest; set => onExitCookRequest = value; }
 
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
@@ -49,8 +51,13 @@ public class CookingManagerUI : MonoBehaviour
         SuscribeToPlayerViewEvents();
         SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
         GetComponents();
-    }
 
+        InitializeAnimatorBindings();
+    }
+    private void Start()
+    {
+        ShowInformationRecipe(FoodType.BeastStew.ToString());
+    }
     // Simulacion de Update
     void UpdateCookingManagerUI()
     {
@@ -64,6 +71,12 @@ public class CookingManagerUI : MonoBehaviour
         UnscribeToUpdateManagerEvent();
         UnSuscribeToPlayerViewEvents();
         UnscribeToPauseManagerRestoreSelectedGameObjectEvent();
+
+        if (cookingAnim != null)
+        {
+            cookingAnim.OnAnimateInComplete.RemoveListener(SetupAfterAnimationIn);
+            cookingAnim.OnAnimateOutComplete.RemoveListener(CleanupAfterAnimationOut);
+        }
     }
 
 
@@ -149,9 +162,9 @@ public class CookingManagerUI : MonoBehaviour
         if (selectedIngredients.Contains(ingredient))
         {
             // --- Deseleccionar ---
-            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); 
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
             selectedIngredients.Remove(ingredient);
-            tweenButton.SetSelected(false); 
+            tweenButton.SetSelected(false);
         }
         else
         {
@@ -167,7 +180,7 @@ public class CookingManagerUI : MonoBehaviour
             // Añadir
             AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
             selectedIngredients.Add(ingredient);
-            tweenButton.SetSelected(true); 
+            tweenButton.SetSelected(true);
         }
     }
     public void CookSelectedIngredients()
@@ -204,7 +217,7 @@ public class CookingManagerUI : MonoBehaviour
         AudioManager.Instance.PlayOneShotSFX("ButtonCancel"); // <-- RUIDO DE CANCELACIÓN AÑADIDO
         DeselectAllIngredients();
     }
-    
+
     public void DeselectAllIngredients()
     {
         selectedIngredients.Clear();
@@ -218,7 +231,7 @@ public class CookingManagerUI : MonoBehaviour
     public void ButtonExit()
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
-        onExitCook?.Invoke();
+        onExitCookRequest?.Invoke();
     }
 
     private void SuscribeToUpdateManagerEvent()
@@ -231,26 +244,27 @@ public class CookingManagerUI : MonoBehaviour
         UpdateManager.OnUpdate -= UpdateCookingManagerUI;
     }
 
-    private void OnEnterInCookMode()
+    private void InitializeAnimatorBindings()
     {
-        ActiveOrDeactivateRootGameObject(true);
-    }
-
-    private void OnExitInCookMode()
-    {
-        ActiveOrDeactivateRootGameObject(false);
+        if (cookingAnim == null)
+        {
+            Debug.LogError("CookingUIAppear (cookingAnim) no está asignado en el Inspector!", this);
+            return;
+        }
+        cookingAnim.OnAnimateInComplete.AddListener(SetupAfterAnimationIn);
+        cookingAnim.OnAnimateOutComplete.AddListener(CleanupAfterAnimationOut);
     }
 
     private void SuscribeToPlayerViewEvents()
     {
-        PlayerView.OnEnterInCookMode += OnEnterInCookMode;
-        PlayerView.OnExitInCookMode += OnExitInCookMode;
+        PlayerView.OnEnterInCookMode += HandleEnterCookMode;
+        PlayerView.OnExitInCookMode += HandleExitCookMode;
     }
 
     private void UnSuscribeToPlayerViewEvents()
     {
-        PlayerView.OnEnterInCookMode -= OnEnterInCookMode;
-        PlayerView.OnExitInCookMode -= OnExitInCookMode;
+        PlayerView.OnEnterInCookMode -= HandleEnterCookMode;
+        PlayerView.OnExitInCookMode -= HandleExitCookMode;
     }
 
     private void SuscribeToPauseManagerRestoreSelectedGameObjectEvent()
@@ -265,46 +279,101 @@ public class CookingManagerUI : MonoBehaviour
 
     private void GetComponents()
     {
-        Transform rootButtonsInformationReciepes = rootGameObject.transform.Find("ButtonsInformationReciepes");
-
-        foreach (Transform childs in rootButtonsInformationReciepes.transform)
+        if (rootGameObject == null)
         {
-            GenericTweenButton button = childs.GetComponent<GenericTweenButton>();
-            if (button != null) buttonsInformationReciepes.Add(button);
+            Debug.LogError("¡Error! 'rootGameObject' no está asignado en el Inspector de CookingManagerUI.", this);
+            return;
+        }
+        Transform rootButtonsInformationReciepes = rootGameObject.transform.Find("ButtonsInformationRecipes");
+
+        if (rootButtonsInformationReciepes != null)
+        {
+            foreach (Transform childs in rootButtonsInformationReciepes.transform)
+            {
+                GenericTweenButton button = childs.GetComponent<GenericTweenButton>();
+                if (button != null) buttonsInformationReciepes.Add(button);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No se pudo encontrar el hijo 'ButtonsInformationReciepes' dentro de 'rootGameObject'.", this);
         }
 
         Transform rootButtonsIngredients = rootGameObject.transform.Find("ButtonsIngredients");
 
-        foreach (Transform childs in rootButtonsIngredients.transform)
+        if (rootButtonsIngredients != null)
         {
-            GenericTweenButton button = childs.GetComponent<GenericTweenButton>();
-            if (button != null) buttonsIngredients.Add(button);
+            foreach (Transform childs in rootButtonsIngredients.transform)
+            {
+                GenericTweenButton button = childs.GetComponent<GenericTweenButton>();
+                if (button != null) buttonsIngredients.Add(button);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No se pudo encontrar el hijo 'ButtonsIngredients' dentro de 'rootGameObject'.", this);
         }
     }
 
-    private void ActiveOrDeactivateRootGameObject(bool state)
+    private void HandleEnterCookMode()
     {
-        rootGameObject.SetActive(state);
-        panelInformation.SetActive(state);
-        cookingCamera.SetActive(state);
+        panelInformation.SetActive(true);
+        cookingCamera.SetActive(true);
 
-        if (state)
+        // Inicia la animación de los 3 paneles
+        if (cookingAnim != null)
+            cookingAnim.AnimateIn();
+    }
+
+    /// <summary>
+    /// Se llama por PlayerView.OnExitInCookMode.
+    /// Inicia la animación de salida.
+    /// </summary>
+    private void HandleExitCookMode()
+    {
+        // Inicia la animación de salida
+        if (cookingAnim != null)
+            cookingAnim.AnimateOut();
+    }
+
+    /// <summary>
+    /// Se llama cuando cookingAnim.OnAnimateInComplete se dispara.
+    /// Configura el estado de UI (modo, foco, etc.).
+    /// </summary>
+    private void SetupAfterAnimationIn()
+    {
+        DeviceManager.Instance.IsUIModeActive = true;
+
+        if (buttonsInformationReciepes.Count > 0)
         {
-            DeviceManager.Instance.IsUIModeActive = true;
             onSetSelectedCurrentGameObject?.Invoke(buttonsInformationReciepes[0].gameObject);
         }
         else
         {
-            ignoreFirstButtonSelected = true;
-            DeviceManager.Instance.IsUIModeActive = false;
-            onClearSelectedCurrentGameObject?.Invoke();
-            DeselectAllIngredients();
+            Debug.LogWarning("No hay botones de información de recetas para seleccionar.", this);
         }
+        ignoreFirstButtonSelected = true;
+    }
+
+    /// <summary>
+    /// Se llama cuando cookingAnim.OnAnimateOutComplete se dispara.
+    /// Limpia el estado de UI.
+    /// </summary>
+    private void CleanupAfterAnimationOut()
+    {
+        panelInformation.SetActive(false);
+        cookingCamera.SetActive(false);
+
+        // Limpia el estado
+        ignoreFirstButtonSelected = true;
+        DeviceManager.Instance.IsUIModeActive = false;
+        onClearSelectedCurrentGameObject?.Invoke();
+        DeselectAllIngredients();
     }
 
     private void RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI()
     {
-        if (rootGameObject.activeSelf)
+        if (rootGameObject != null && rootGameObject.activeSelf)
         {
             ignoreFirstButtonSelected = true;
             DeviceManager.Instance.IsUIModeActive = true;
@@ -314,7 +383,7 @@ public class CookingManagerUI : MonoBehaviour
 
     private void CheckLastSelectedButtonIfCookingPanelIsOpen()
     {
-        if (EventSystem.current != null && PauseManager.Instance != null && !PauseManager.Instance.IsGamePaused && rootGameObject.activeSelf)
+        if (EventSystem.current != null && PauseManager.Instance != null && !PauseManager.Instance.IsGamePaused && rootGameObject != null && rootGameObject.activeSelf)
         {
             lastSelectedButtonFromCookingPanel = EventSystem.current.currentSelectedGameObject;
         }

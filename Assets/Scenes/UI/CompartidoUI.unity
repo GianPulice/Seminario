@@ -180,6 +180,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moneyText: {fileID: 9178700833119072759}
+  rectTransformToMove: {fileID: 9178700833119072760}
+  normalPosition: {x: 0, y: 0}
+  adminPosition: {x: -800, y: -50}
+  animTime: 0.4
+  easeType: 2
 --- !u!114 &462249288 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2688621389849827705, guid: 8de37d0ee703ba447ae3cbf1d3026117, type: 3}
@@ -1849,6 +1854,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &9178700833119072760 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8344298290115502619, guid: 6f7e2664996a533478a3d7122c640bb4, type: 3}
+  m_PrefabInstance: {fileID: 9178700833119072758}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

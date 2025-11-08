@@ -30,12 +30,13 @@ public class AdministratingManagerUI : MonoBehaviour
     private static event Action onEnterAdmin, onExitAdmin;
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
-    private static event Action onStartTabern;
+    private static event Action onStartTabern,onCloseTabern;
 
     public static Action OnExitAdmin { get => onExitAdmin; set => onExitAdmin = value; } 
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
     public static Action OnStartTabern { get => onStartTabern; set => onStartTabern = value; }
+    public static Action OnCloseTabern { get => onCloseTabern; set => onCloseTabern = value; }
 
     // --- Variables de control ---
     private GameObject lastSelectedButtonFromAdminPanel;
@@ -180,7 +181,7 @@ public class AdministratingManagerUI : MonoBehaviour
         else
         {
             Debug.Log("¡Taberna CERRADA!");
-            // onStopTabern?.Invoke();
+            onCloseTabern?.Invoke();
             localTavernState = false;
             AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_Off"
         }
