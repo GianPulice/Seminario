@@ -15,17 +15,23 @@ public class IngredientButtonUI : MonoBehaviour
 
     public void UpdateUI(int price, int stock)
     {
-        if (priceText == null) return;
-        if (stockText == null) return;
+        UpdatePrice(price);
+        UpdateStock(stock);
+    }
 
+    public void UpdatePrice(int price)
+    {
         if (priceText != null)
         {
             priceText.text = $"Cost: {price}";
         }
+    }
 
+    public void UpdateStock(int stock)
+    {
         if (stockText != null)
         {
-            stockText.text = $"Stock: {stock}"; 
+            stockText.text = $"Stock: {stock}";
         }
     }
 }

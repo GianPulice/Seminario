@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Linq;
 
 public class AdministratingManagerUI : MonoBehaviour
 {
@@ -293,7 +294,9 @@ public class AdministratingManagerUI : MonoBehaviour
     private void SetupInitialTab()
     {
         ignoreFirstButtonSelected = true;
-        
+
+        UpdateAllIngredientButtons();
+
         if (tabGroup == null) return;
 
         //Determino la tab a mostrar
@@ -360,6 +363,24 @@ public class AdministratingManagerUI : MonoBehaviour
             Debug.LogError("Falta AdminUIAppear", this);
         if (tabGroup == null)
             tabGroup = GetComponent<TabGroup>();
+        
+        if (ingredientButtonContainer != null)
+        {
+            // Busca recursivamente en todos los hijos del contenedor
+            // El 'true' incluye los objetos inactivos, lo cual es bueno
+            ingredientButtons = ingredientButtonContainer.GetComponentsInChildren<IngredientButtonUI>(true).ToList();
+
+            if (ingredientButtons.Count == 0)
+            {
+                Debug.LogWarning($"No se encontró ningún script 'IngredientButtonUI' en los hijos de {ingredientButtonContainer.name}", this);
+            }
+        }
+        else
+        {
+            Debug.LogError("'Ingredient Button Container' no está asignado en el Inspector de AdministratingManagerUI.", this);
+        }
+
+
 
         GameObject ZonesToUnlockFather = GameObject.Find("ZonesToUnlock");
         if (ZonesToUnlockFather != null)

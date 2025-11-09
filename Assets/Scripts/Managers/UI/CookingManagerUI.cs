@@ -8,38 +8,41 @@ using System.Linq;
 
 public class CookingManagerUI : MonoBehaviour
 {
+    [Header("Main References")]
     [SerializeField] private GameObject rootGameObject; // GameObject padre con los botones de hijos
     [SerializeField] private GameObject panelInformation;
     [SerializeField] private GameObject cookingCamera;
 
+    [Header("AnimScript GameObject")]
     [SerializeField] private CookingUIAppear cookingAnim;
 
     /// <summary>
     /// Agregar ruido de cancelacion si no tiene ingredientes para cocinar una receta
     /// </summary>
 
+    [Header("ButtonContainers")]
+    [SerializeField] private GameObject recipeButtonsContainer;
+    [SerializeField] private GameObject ingredientButtonsContainer;
+
+    [Header("RecipeUI")]
     [SerializeField] private List<RecipeInformationUI> recipesInformationUI;
 
     private List<GenericTweenButton> buttonsInformationReciepes = new List<GenericTweenButton>();
-    private List<GenericTweenButton> buttonsIngredients = new List<GenericTweenButton>();
+    private List<IngredientButtonUI> buttonsIngredients = new List<IngredientButtonUI>();
 
+    // --- Variables de Estado ---
     private GameObject lastSelectedButtonFromCookingPanel;
+    private List<IngredientType> selectedIngredients = new List<IngredientType>();
+    private bool ignoreFirstButtonSelected = true;
 
+    // --- Eventos Estáticos ---
     private static event Action<string> onButtonGetFood;
-
     private static event Action onEnterCook, onExitCookRequest;
-
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
 
-    private List<IngredientType> selectedIngredients = new List<IngredientType>();
-
-    private bool ignoreFirstButtonSelected = true;
-
     public static Action<string> OnButtonSetFood { get => onButtonGetFood; set => onButtonGetFood = value; }
-
     public static Action OnExitCook { get => onExitCookRequest; set => onExitCookRequest = value; }
-
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
 
@@ -206,6 +209,8 @@ public class CookingManagerUI : MonoBehaviour
                     AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
                     onButtonGetFood?.Invoke(recipe.FoodType.ToString());
                     Debug.Log($"Cocinaste {recipe.FoodType}!");
+                    UpdateStocksForSelectedIngredients();
+                    UpdateStocksForSelectedIngredients();
                     DeselectAllIngredients();
                     return;
                 }
@@ -214,7 +219,7 @@ public class CookingManagerUI : MonoBehaviour
 
         // --- Lógica de fallo ---
         Debug.Log("No hay receta con esos ingredientes o no alcanza el stock.");
-        AudioManager.Instance.PlayOneShotSFX("ButtonCancel"); // <-- RUIDO DE CANCELACIÓN AÑADIDO
+        AudioManager.Instance.PlayOneShotSFX("ButtonCancel");
         DeselectAllIngredients();
     }
 
@@ -222,9 +227,40 @@ public class CookingManagerUI : MonoBehaviour
     {
         selectedIngredients.Clear();
 
-        foreach (var button in buttonsIngredients)
+        foreach (var buttonUI in buttonsIngredients)
         {
-            button.SetSelected(false);
+            GenericTweenButton tweenButton = buttonUI.GetComponent<GenericTweenButton>();
+            if (tweenButton != null)
+            {
+                tweenButton.SetSelected(false);
+            }
+        }
+    }
+
+    private void UpdateAllIngredientStocks()
+    {
+        if (buttonsIngredients == null || IngredientInventoryManager.Instance == null) return;
+        foreach (var btnUI in buttonsIngredients)
+        {
+            IngredientType type = btnUI.IngredientType;
+            int stock = IngredientInventoryManager.Instance.GetStock(type);
+            btnUI.UpdateStock(stock);
+        }
+    }
+
+    private void UpdateStocksForSelectedIngredients()
+    {
+        if (buttonsIngredients == null || IngredientInventoryManager.Instance == null) return;
+
+        // Evitamos duplicados por si hay repetidos en la lista de selección
+        foreach (var type in selectedIngredients.Distinct())
+        {
+            var btnUI = buttonsIngredients.FirstOrDefault(b => b.IngredientType == type);
+            if (btnUI != null)
+            {
+                int stock = IngredientInventoryManager.Instance.GetStock(type);
+                btnUI.UpdateStock(stock);
+            }
         }
     }
 
@@ -279,39 +315,27 @@ public class CookingManagerUI : MonoBehaviour
 
     private void GetComponents()
     {
-        if (rootGameObject == null)
+        if (recipeButtonsContainer != null)
         {
-            Debug.LogError("¡Error! 'rootGameObject' no está asignado en el Inspector de CookingManagerUI.", this);
-            return;
+            buttonsInformationReciepes = recipeButtonsContainer.GetComponentsInChildren<GenericTweenButton>(true).ToList();
         }
-        Transform rootButtonsInformationReciepes = rootGameObject.transform.Find("ButtonsInformationRecipes");
-
-        if (rootButtonsInformationReciepes != null)
+        else
         {
-            foreach (Transform childs in rootButtonsInformationReciepes.transform)
+            Debug.LogError("'Recipe Buttons Container' no está asignado en el Inspector.", this);
+        }
+
+        if (ingredientButtonsContainer != null)
+        {
+            buttonsIngredients = ingredientButtonsContainer.GetComponentsInChildren<IngredientButtonUI>(true).ToList();
+
+            if (buttonsIngredients.Count == 0)
             {
-                GenericTweenButton button = childs.GetComponent<GenericTweenButton>();
-                if (button != null) buttonsInformationReciepes.Add(button);
+                Debug.LogWarning($"No se encontró ningún script 'IngredientButtonUI' en los hijos de {ingredientButtonsContainer.name}", this);
             }
         }
         else
         {
-            Debug.LogWarning("No se pudo encontrar el hijo 'ButtonsInformationReciepes' dentro de 'rootGameObject'.", this);
-        }
-
-        Transform rootButtonsIngredients = rootGameObject.transform.Find("ButtonsIngredients");
-
-        if (rootButtonsIngredients != null)
-        {
-            foreach (Transform childs in rootButtonsIngredients.transform)
-            {
-                GenericTweenButton button = childs.GetComponent<GenericTweenButton>();
-                if (button != null) buttonsIngredients.Add(button);
-            }
-        }
-        else
-        {
-            Debug.LogWarning("No se pudo encontrar el hijo 'ButtonsIngredients' dentro de 'rootGameObject'.", this);
+            Debug.LogError("'Ingredient Buttons Container' no está asignado en el Inspector.", this);
         }
     }
 
@@ -320,6 +344,7 @@ public class CookingManagerUI : MonoBehaviour
         panelInformation.SetActive(true);
         cookingCamera.SetActive(true);
 
+        UpdateAllIngredientStocks();
         // Inicia la animación de los 3 paneles
         if (cookingAnim != null)
             cookingAnim.AnimateIn();
@@ -331,6 +356,7 @@ public class CookingManagerUI : MonoBehaviour
     /// </summary>
     private void HandleExitCookMode()
     {
+        UpdateAllIngredientStocks();
         // Inicia la animación de salida
         if (cookingAnim != null)
             cookingAnim.AnimateOut();
@@ -353,6 +379,7 @@ public class CookingManagerUI : MonoBehaviour
             Debug.LogWarning("No hay botones de información de recetas para seleccionar.", this);
         }
         ignoreFirstButtonSelected = true;
+
     }
 
     /// <summary>
@@ -392,20 +419,21 @@ public class CookingManagerUI : MonoBehaviour
     private void CheckJoystickInputsToChangeSelection()
     {
         if (EventSystem.current == null || EventSystem.current.currentSelectedGameObject == null) return;
-
         GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
-
         if (PlayerInputs.Instance.L1() || PlayerInputs.Instance.R1())
         {
             if (buttonsInformationReciepes.Any(b => b.gameObject == currentSelected))
             {
-                onSetSelectedCurrentGameObject?.Invoke(buttonsIngredients[0].gameObject);
+                if (buttonsIngredients.Count > 0)
+                    onSetSelectedCurrentGameObject?.Invoke(buttonsIngredients[0].gameObject);
             }
 
             else if (buttonsIngredients.Any(b => b.gameObject == currentSelected))
             {
-                onSetSelectedCurrentGameObject?.Invoke(buttonsInformationReciepes[0].gameObject);
+                if (buttonsInformationReciepes.Count > 0)
+                    onSetSelectedCurrentGameObject?.Invoke(buttonsInformationReciepes[0].gameObject);
             }
+
         }
     }
 }
