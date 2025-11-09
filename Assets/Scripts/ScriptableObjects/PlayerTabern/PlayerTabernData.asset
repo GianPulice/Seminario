@@ -12,7 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5854127ee200fc14e99d73d9431ae630, type: 3}
   m_Name: PlayerTabernData
   m_EditorClassIdentifier: 
-  walkSpeed: 300
-  runSpeed: 500
+  walkSpeed: 7
+  runSpeed: 10
   groundDrag: 5
-  jumpForce: 11
+  groundForceMult: 10
+  jumpForce: 10
+  jumpCooldown: 0.5
+  airMultiplier: 0.4
+  playerHeight: 2
+  jumpGravityMult: 1.7
+  fallGravityMult: 2
+  maxSlopeAngle: 45
+  slopeForceMult: 20
+  slopeStickForce: 80

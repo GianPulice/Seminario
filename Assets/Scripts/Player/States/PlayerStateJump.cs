@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerStateJump<T> : State<T>
@@ -17,11 +18,9 @@ public class PlayerStateJump<T> : State<T>
     {
         base.Enter();
         //Debug.Log("Jump");
-        Vector3 velocity = playerModel.Rb.velocity;
-        velocity.y = 0f;
-        playerModel.Rb.velocity = velocity;
-
-        playerModel.Rb.AddForce(Vector3.up * playerModel.PlayerTabernData.JumpForce, ForceMode.Impulse);
+       
+        playerModel.JumpStart();
+        
     }
 
     public override void Execute()

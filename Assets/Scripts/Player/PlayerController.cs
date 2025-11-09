@@ -61,12 +61,16 @@ public class PlayerController : MonoBehaviour
     {
         fsm.OnExecute();
         CheckInputs();
+        Debug.Log($"player Ready to Jump? {playerModel.ReadyToJump}");
     }
 
     // Simulacion de FixedUpdate
     void FixedUpdatePlayerController()
     {
-        playerModel.Movement();
+        playerModel.HandleMovement();
+        playerModel.HandleDrag();
+        playerModel.SpeedControl();
+        playerModel.HandleGravity();
     }
 
     void OnDestroy()
@@ -116,12 +120,12 @@ public class PlayerController : MonoBehaviour
         playerCollisions = new PlayerCollisions(this);
     }
 
-    private void InitializeFSM() 
+    private void InitializeFSM()
     {
         fsm = new FSM<PlayerStates>();
 
         PlayerStateIdle<PlayerStates> psIdle = new PlayerStateIdle<PlayerStates>(PlayerStates.Walk, PlayerStates.Jump, PlayerStates.Cook, PlayerStates.Admin, playerModel);
-        PlayerStateWalk<PlayerStates> psWalk = new PlayerStateWalk<PlayerStates> (PlayerStates.Idle, PlayerStates.Run, PlayerStates.Jump, PlayerStates.Cook, PlayerStates.Admin, playerModel);
+        PlayerStateWalk<PlayerStates> psWalk = new PlayerStateWalk<PlayerStates>(PlayerStates.Idle, PlayerStates.Run, PlayerStates.Jump, PlayerStates.Cook, PlayerStates.Admin, playerModel);
         PlayerStateJump<PlayerStates> psJump = new PlayerStateJump<PlayerStates>(PlayerStates.Idle, playerModel);
         psCook = new PlayerStateCook<PlayerStates>(PlayerStates.Idle, playerModel, playerView);
         PlayerStateRun<PlayerStates> psRun = new PlayerStateRun<PlayerStates>(PlayerStates.Idle, PlayerStates.Walk, PlayerStates.Jump, PlayerStates.Cook, PlayerStates.Admin, playerModel);
@@ -137,7 +141,7 @@ public class PlayerController : MonoBehaviour
         psWalk.AddTransition(PlayerStates.Cook, psCook);
         psWalk.AddTransition(PlayerStates.Run, psRun);
         psWalk.AddTransition(PlayerStates.Admin, psAdmin);
-        
+
         psJump.AddTransition(PlayerStates.Idle, psIdle);
         psJump.AddTransition(PlayerStates.Walk, psWalk);
 
@@ -184,6 +188,6 @@ public class PlayerController : MonoBehaviour
             {
                 playerView.ShowOrHideDish(true);
             }
-        }   
+        }
     }
 }
