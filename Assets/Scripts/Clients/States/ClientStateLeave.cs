@@ -110,7 +110,12 @@ public class ClientStateLeave<T> : State<T>
                     clientView.SetSpriteTypeName("SpriteHappy");
                     int paymentAmout = GratuityManager.Instance.GetPayment(clientModel.ClientType, clientView.CurrentSelectedFood);
                     MoneyManager.Instance.AddMoney(paymentAmout);
-                    GratuityManager.Instance.TryGiveGratuity(paymentAmout);
+
+                    // Solamente dar propina si la mesa estaba sucia cuando se sento
+                    if (!clientModel.WasTableDirtyWhenSeated)
+                    {
+                        GratuityManager.Instance.TryGiveGratuity(paymentAmout);
+                    }
                 }
 
                 clientModel.ReturnFoodFromTableToPool();

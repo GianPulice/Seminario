@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Linq;
 
 public class AdministratingManagerUI : MonoBehaviour
 {
     [Header("Paneles Principales")]
     [SerializeField] private GameObject panelAdministrating;
-    [SerializeField] private GameObject panelTabern;
     [SerializeField] private GameObject panelIngredients;
     [SerializeField] private GameObject panelUpgrades;
     [SerializeField] private AdminUIAppear panelAnimator;
@@ -18,31 +18,40 @@ public class AdministratingManagerUI : MonoBehaviour
     [Tooltip("Referencia al script TabGroup que gestiona los botones y paneles")]
     [SerializeField] private TabGroup tabGroup;
 
+    [Header("Botones de Lógica")]
+    [Tooltip("El botón tipo Switch para Iniciar/Cerrar la taberna")]
+    [SerializeField] private SwitchTweenButton startTavernSwitch;
+
+    [Header("Referencias (Panel Ingredients)")]
+    [SerializeField] private GameObject ingredientButtonContainer;
+
     [Header("Referencias (Panel Upgrades)")]
     [SerializeField] private List<ZoneUnlock> zoneUnlocks = new List<ZoneUnlock>();
     [SerializeField] private Image currentImageZoneUnlock;
     [SerializeField] private TextMeshProUGUI textPriceCurrentZoneUnlock;
 
+    private List<IngredientButtonUI> ingredientButtons = new List<IngredientButtonUI>();
 
     private static event Action onEnterAdmin, onExitAdmin;
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
-    private static event Action onStartTabern;
+    private static event Action onStartTabern,onCloseTabern;
 
     public static Action OnExitAdmin { get => onExitAdmin; set => onExitAdmin = value; } 
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
     public static Action OnStartTabern { get => onStartTabern; set => onStartTabern = value; }
+    public static Action OnCloseTabern { get => onCloseTabern; set => onCloseTabern = value; }
 
     // --- Variables de control ---
     private GameObject lastSelectedButtonFromAdminPanel;
     private bool ignoreFirstButtonSelected = true;
     private int currentActiveTabIndex = 0;
+    private bool localTavernState = false;
 
     //--- Variable estaticas ---
     private static int lastTabIndex = -1;
-    // --- Constantes ---
-    private const string PREF_LAST_TAB = "Admin_LastTabIndex";
+    
     void Awake()
     {
         GetComponents();
@@ -161,10 +170,26 @@ public class AdministratingManagerUI : MonoBehaviour
     #endregion
 
     #region == Botones de Lógica ===
-    public void ButtonStartTabern()
+    public void OnStartTavernSwitchClicked()
     {
-        onStartTabern?.Invoke();
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        if (startTavernSwitch == null) return;
+
+        bool isTavernOn = startTavernSwitch.GetSelectedState();
+
+        if (isTavernOn)
+        {
+            Debug.Log("¡Taberna ABIERTA!");
+            onStartTabern?.Invoke();
+            localTavernState = true;
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_On"
+        }
+        else
+        {
+            Debug.Log("¡Taberna CERRADA!");
+            onCloseTabern?.Invoke();
+            localTavernState = false;
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_Off"
+        }
     }
     public void ButtonExit()
     {
@@ -182,11 +207,28 @@ public class AdministratingManagerUI : MonoBehaviour
                 AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
                 IngredientInventoryManager.Instance.IncreaseIngredientStock(ingredient);
                 MoneyManager.Instance.SubMoney(price);
+                
+                UpdateAllIngredientButtons();
             }
             else
             {
                 AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
             }
+        }
+    }
+    private void UpdateAllIngredientButtons()
+    {
+        if (ingredientButtons == null || IngredientInventoryManager.Instance == null)
+            return;
+
+        foreach (var btnUI in ingredientButtons)
+        {
+            IngredientType type = btnUI.IngredientType;
+
+            int price = IngredientInventoryManager.Instance.GetPriceOfIngredient(type);
+            int stock = IngredientInventoryManager.Instance.GetStock(type); 
+
+            btnUI.UpdateUI(price, stock);
         }
     }
 
@@ -252,7 +294,9 @@ public class AdministratingManagerUI : MonoBehaviour
     private void SetupInitialTab()
     {
         ignoreFirstButtonSelected = true;
-        
+
+        UpdateAllIngredientButtons();
+
         if (tabGroup == null) return;
 
         //Determino la tab a mostrar
@@ -268,7 +312,10 @@ public class AdministratingManagerUI : MonoBehaviour
         {
             onSetSelectedCurrentGameObject?.Invoke(tabGroup.CurrentSelectedButton.gameObject);
         }
-
+        if (startTavernSwitch != null)
+        {
+            startTavernSwitch.SetSelected(localTavernState); 
+        }
         // Actualizar información si está en el tab de Upgrades
         if (indexToSelect == 2)
         {
@@ -278,7 +325,6 @@ public class AdministratingManagerUI : MonoBehaviour
 
     private void CleanupAfterAnimation()
     {
-        panelTabern.SetActive(false);
         panelIngredients.SetActive(false);
         panelUpgrades.SetActive(false);
     }
@@ -317,6 +363,24 @@ public class AdministratingManagerUI : MonoBehaviour
             Debug.LogError("Falta AdminUIAppear", this);
         if (tabGroup == null)
             tabGroup = GetComponent<TabGroup>();
+        
+        if (ingredientButtonContainer != null)
+        {
+            // Busca recursivamente en todos los hijos del contenedor
+            // El 'true' incluye los objetos inactivos, lo cual es bueno
+            ingredientButtons = ingredientButtonContainer.GetComponentsInChildren<IngredientButtonUI>(true).ToList();
+
+            if (ingredientButtons.Count == 0)
+            {
+                Debug.LogWarning($"No se encontró ningún script 'IngredientButtonUI' en los hijos de {ingredientButtonContainer.name}", this);
+            }
+        }
+        else
+        {
+            Debug.LogError("'Ingredient Button Container' no está asignado en el Inspector de AdministratingManagerUI.", this);
+        }
+
+
 
         GameObject ZonesToUnlockFather = GameObject.Find("ZonesToUnlock");
         if (ZonesToUnlockFather != null)

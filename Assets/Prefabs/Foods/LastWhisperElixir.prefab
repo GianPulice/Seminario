@@ -387,7 +387,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2952208275092089464}
   - component: {fileID: -4751430896841583275}
-  m_Layer: 10
+  m_Layer: 18
   m_Name: LastWhisperElixir
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -440,7 +440,7 @@ GameObject:
   - component: {fileID: 973099689603491557}
   - component: {fileID: 5472801207302008576}
   - component: {fileID: 7827057858288740378}
-  m_Layer: 10
+  m_Layer: 18
   m_Name: DefaultMesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -659,23 +659,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1574037054344148531, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: -0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 1574037054344148531, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 1574037054344148531, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 1574037054344148531, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 1574037054344148531, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 270
       objectReference: {fileID: 0}
     - target: {fileID: 1574037054344148531, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -692,18 +692,18 @@ PrefabInstance:
     - target: {fileID: 1768558180592799431, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: -876546973899608171, guid: a806524ba4db37f49be759dc4b7a172a, type: 3}
+      objectReference: {fileID: -876546973899608171, guid: ce908e23cbb03b542827036daf70a9a7, type: 3}
     - target: {fileID: 3736188386333214535, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 7027636043351174211, guid: 2a0a73b7aa6ec3d4c987dc1e117c22e7, type: 3}
+      objectReference: {fileID: 7027636043351174211, guid: aea7d6d91987a4a4b9ede0b0a500f5d3, type: 3}
     - target: {fileID: 4751758426818728351, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: m_Name
       value: LastWhisperElixirMesh
       objectReference: {fileID: 0}
     - target: {fileID: 4751758426818728351, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: m_Layer
-      value: 10
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 4751758426818728351, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: m_IsActive
@@ -749,8 +749,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.019946897, y: 0.005333434, z: 0.019314008}
-  m_Center: {x: -0.0000635096, y: -0.002925414, z: 0.000056354173}
+  m_Size: {x: 0.012137269, y: 0.011309201, z: 0.019314004}
+  m_Center: {x: 0.00021120724, y: 0.00006247425, z: 0.000056354165}
 --- !u!54 &170899601350449425
 Rigidbody:
   m_ObjectHideFlags: 0

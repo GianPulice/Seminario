@@ -9,6 +9,8 @@ public class ClientView : MonoBehaviour
 
     [SerializeField] private ClientsFoodPreferencesData clientsFoodPreferencesData;
 
+    private ClientModel clientModel;
+
     private PlayerController playerController;
     private ClientManager clientManager;
     private Table tablePlayerCollision; 
@@ -108,17 +110,20 @@ public class ClientView : MonoBehaviour
             FoodType selectedFood = clientsFoodPreferencesData.GetRandomFood();
             currentSelectedFood = selectedFood;
 
-            Sprite sprite = clientManager.GetSpriteForRandomFood(selectedFood);
+            Sprite spriteSelectedFood = clientManager.GetSpriteForRandomFood(selectedFood);
 
-            if (sprite != null)
+            clientModel.CurrentOrderDataUI = new OrderDataUI(spriteSelectedFood, clientModel.ClientData.ClientImage, clientModel.ClientData.MaxTimeWaitingFood);
+            OrdersManagerUI.Instance.AddOrder(clientModel.CurrentOrderDataUI);
+
+            if (spriteSelectedFood != null)
             {
                 DisableAllSpriteTypes();
                 spritesTypeList[0].gameObject.SetActive(true);
 
-                spritesTypeList[0].sprite = sprite;
+                spritesTypeList[0].sprite = spriteSelectedFood;
                 orderFoodNames.Clear();
                 orderFoodNames.Add(selectedFood.ToString());
-                AutoAdjustSpriteScale(sprite);
+                AutoAdjustSpriteScale(spriteSelectedFood);
 
                 canTakeOrder = false;
                 ClearTable();
@@ -142,6 +147,8 @@ public class ClientView : MonoBehaviour
 
     private void GetComponents()
     {
+        clientModel = GetComponent<ClientModel>();
+
         playerController = FindFirstObjectByType<PlayerController>();
         clientManager = FindFirstObjectByType<ClientManager>();
 

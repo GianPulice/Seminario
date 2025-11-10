@@ -8,6 +8,9 @@ public class MoneyManager : Singleton<MoneyManager>
     [SerializeField] private ObjectPooler floatingMoneyTextPool;
     [SerializeField] private FloatingMoneyText floatingMoneyText;
 
+    [SerializeField] private Color tipColor = Color.green;
+    [SerializeField] private Color deductionColor = Color.red;
+
     private TextMeshProUGUI moneyText;
 
     private float currentMoney;
@@ -111,11 +114,13 @@ public class MoneyManager : Singleton<MoneyManager>
         if (positive)
         {
             go.TextAmount.text = "+" + amount.ToString();
+            go.TextAmount.color = tipColor;
         }
 
         else
         {
             go.TextAmount.text = "-" + amount.ToString();
+            go.TextAmount.color = deductionColor;
         }
 
         Destroy(go.gameObject, go.MaxTimeToReturnObjectToPool);

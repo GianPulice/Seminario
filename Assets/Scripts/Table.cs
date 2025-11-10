@@ -15,7 +15,8 @@ public class Table : MonoBehaviour, IInteractable
     private GameObject dish;
     private ParticleSystem dirty;
 
-    private NavMeshObstacle[] navMeshObstacle;
+    //private NavMeshObstacle[] navMeshObstacles;
+    private NavMeshObstacle navMeshObstacleChair;
 
     private List<Transform> dishPositions = new List<Transform>(); // Representa las posiciones hijas del plato
 
@@ -52,6 +53,7 @@ public class Table : MonoBehaviour, IInteractable
     public float CurrentCleanProgress { get => currentCleanProgress; set => currentCleanProgress = value; }
 
     public bool IsOccupied { get => isOccupied; set => isOccupied = value; }
+    public bool IsDirty { get => isDirty; }
 
 
     void Awake()
@@ -193,7 +195,9 @@ public class Table : MonoBehaviour, IInteractable
     /// </summary>
     public void SetNavMeshObstacles(bool current)
     {
-        for (int i = 0; i < navMeshObstacle.Length; i++)
+        navMeshObstacleChair.enabled = current;
+
+        /*for (int i = 0; i < navMeshObstacle.Length; i++)
         {
             // No ejecutar si ya estaba activado y current es true, esto sirve por si se fue de la cola de espera porque no se libero ninguna silla
             if (navMeshObstacle[i].isActiveAndEnabled && current)
@@ -202,7 +206,7 @@ public class Table : MonoBehaviour, IInteractable
             }
 
             navMeshObstacle[i].enabled = current;
-        }
+        }*/
     }
 
     private void FindObjectsAndComponents()
@@ -214,7 +218,8 @@ public class Table : MonoBehaviour, IInteractable
         dish = transform.Find("Dish").gameObject;
         dirty = GetComponentInChildren<ParticleSystem>(true); // Indica que busca componentes en gameObject desactivados
 
-        navMeshObstacle = GetComponentsInChildren<NavMeshObstacle>();
+        //navMeshObstacles = GetComponentsInChildren<NavMeshObstacle>();
+        navMeshObstacleChair = transform.Find("Chair").GetComponent<NavMeshObstacle>();
 
         foreach (Transform childs in dish.transform)
         {

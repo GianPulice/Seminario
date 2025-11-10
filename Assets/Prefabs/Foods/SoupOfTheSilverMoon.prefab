@@ -223,6 +223,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2104986312914596161}
   - component: {fileID: 343737191731669359}
+  - component: {fileID: 2642671130440068723}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -302,6 +303,14 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!222 &2642671130440068723
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3572889315996797891}
+  m_CullTransparentMesh: 1
 --- !u!1 &3969530511557929506
 GameObject:
   m_ObjectHideFlags: 0
@@ -387,7 +396,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2952208275092089464}
   - component: {fileID: -4751430896841583275}
-  m_Layer: 10
+  m_Layer: 18
   m_Name: SoupOfTheSilverMoon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -440,7 +449,7 @@ GameObject:
   - component: {fileID: 973099689603491557}
   - component: {fileID: 5472801207302008576}
   - component: {fileID: 7827057858288740378}
-  m_Layer: 10
+  m_Layer: 18
   m_Name: DefaultMesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -695,7 +704,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4751758426818728351, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: m_Layer
-      value: 10
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 4751758426818728351, guid: b30bea62e8465144fb6cfb2bea8e9fef, type: 3}
       propertyPath: m_IsActive

@@ -18,8 +18,6 @@ public class MainMenu : MonoBehaviour
 
     public static Action<List<GameObject>> OnSendButtonsToEventSystem { get => onSendButtonsToEventSystem; set => onSendButtonsToEventSystem = value; }
     public static Action OnButtonSettingsClickToShowCorrectPanel { get => onButtonSettingsClickToShowCorrectPanel; set => onButtonSettingsClickToShowCorrectPanel = value; }
-
-
     void Awake()
     {
         InvokeEventToSendButtonsReferences();

@@ -5648,7 +5648,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0000066757, y: 0.000024796}
+  m_AnchoredPosition: {x: -650, y: -287}
   m_SizeDelta: {x: 400, y: 310}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &172900672
@@ -6126,8 +6126,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -247}
-  m_SizeDelta: {x: 1788.0281, y: 109.3205}
+  m_AnchoredPosition: {x: 0.38056, y: -485.34}
+  m_SizeDelta: {x: 1890.8, y: 109.3205}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &289933346
 MonoBehaviour:
@@ -11220,7 +11220,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0000076294, y: 0.000017524}
+  m_AnchoredPosition: {x: -650, y: -286.99997}
   m_SizeDelta: {x: 175, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &340939077
@@ -12582,7 +12582,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000015259, y: 0.000024438}
+  m_AnchoredPosition: {x: -650, y: -286.99997}
   m_SizeDelta: {x: 50, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1132070564
@@ -12784,11 +12784,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 694406329}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 650.9932, y: 334.9834}
-  m_Pivot: {x: 0.5, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 274}
+  m_SizeDelta: {x: 1375.9446, y: 84.5917}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1228516974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12809,9 +12809,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Saving your data
-
-    Do not close the application.'
+  m_text: Saving your Data, please don't exit application.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -12846,7 +12844,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -12876,7 +12874,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -213.7655, w: 0}
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -13102,6 +13100,8 @@ MonoBehaviour:
   moneyManagerData: {fileID: 11400000, guid: a1db7c9a3a06a5f45b725c20ec253879, type: 2}
   floatingMoneyTextPool: {fileID: 984179508}
   floatingMoneyText: {fileID: 459090452467391953, guid: a999ff67fa213b54ca6a3d0b001e9331, type: 3}
+  tipColor: {r: 0, g: 1, b: 0, a: 1}
+  deductionColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!4 &1264300542
 Transform:
   m_ObjectHideFlags: 0
@@ -18197,8 +18197,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.3816, y: -422.9452}
-  m_SizeDelta: {x: 1890.7632, y: 192.3104}
+  m_AnchoredPosition: {x: 601, y: -72.20383}
+  m_SizeDelta: {x: 599.6577, y: 618.663}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1439070540
 MonoBehaviour:
@@ -23913,10 +23913,16 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: af8e69a686ade214d9e2f69488c8a60e, type: 3}
   - name: Axe_Attack2
     clip: {fileID: 8300000, guid: f72c79298600b4049add578afef4685b, type: 3}
-  - name: Axe_Attack3
-    clip: {fileID: 8300000, guid: e375db06048046043af2d038cda26c4a, type: 3}
-  - name: Axe_Appear
-    clip: {fileID: 8300000, guid: 33bfd66ec13128c4881ad25f128d0713, type: 3}
+  - name: Cooking
+    clip: {fileID: 8300000, guid: 810f997e67b0a1142915cc151be06765, type: 3}
+  - name: Correct Delivery
+    clip: {fileID: 8300000, guid: 7a3c30246c2f8c24daa21d97fab0d1f9, type: 3}
+  - name: Campana
+    clip: {fileID: 8300000, guid: 7f78beda3f6bb1746a559f2eca2c6ef0, type: 3}
+  - name: Metallic Click
+    clip: {fileID: 8300000, guid: 8e746bda97a9f634f9c225c03bd4bfcb, type: 3}
+  - name: Metallic Select
+    clip: {fileID: 8300000, guid: 5aa948679296f2649802b2f562804537, type: 3}
 --- !u!1 &1708547971
 GameObject:
   m_ObjectHideFlags: 0

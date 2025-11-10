@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -13,6 +14,10 @@ public class IngredientInventoryManagerUI : MonoBehaviour
     private Transform slotParentObject;
     private List<Transform> slotPositions = new List<Transform>();
     private Dictionary<IngredientType, (GameObject slot, TextMeshProUGUI text)> ingredientSlots = new();
+
+    private static Action onInventoryOpen;
+
+    public static Action OnInventoryOpen { get => onInventoryOpen; set => onInventoryOpen = value; }
 
 
     void Awake()
@@ -125,6 +130,7 @@ public class IngredientInventoryManagerUI : MonoBehaviour
 
     private void OpenInventory()
     {
+        onInventoryOpen?.Invoke();
         InteractionManagerUI.Instance.ShowOrHideCenterPointUI(false);
         inventoryPanel.enabled = true;
 

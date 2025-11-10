@@ -29,11 +29,17 @@ public class PlayerModel : MonoBehaviour
 
     private float speed;
     private float distanceToGround = 1.05f;
-   
+
     private bool isCooking = false;
     private bool isAdministrating = false;
     private bool isInTeleportPanel = false;
+    private bool isInTrashPanel = false;
 
+    private bool readyToJump = true;
+    private bool exitingSlope = false;
+
+    private RaycastHit slopeHit;
+    private Vector3 moveDir;
     public PlayerTabernData PlayerTabernData { get => playerTabernData; }
 
     public PlayerCamera PlayerCamera { get => playerCamera; set => playerCamera = value; }
@@ -44,10 +50,12 @@ public class PlayerModel : MonoBehaviour
 
     public float Speed { get => speed; set => speed = value; }
 
-    public bool IsGrounded { get =>  Physics.SphereCast(transform.position, 0.3f, Vector3.down, out _, distanceToGround, groundLayer); }
+    public bool IsGrounded { get => Physics.Raycast(transform.position, Vector3.down, playerTabernData.PlayerHeight / 2 + 0.2f, groundLayer); }
     public bool IsCooking { get => isCooking; set => isCooking = value; }
     public bool IsAdministrating { get => isAdministrating; set => isAdministrating = value; }
     public bool IsInTeleportPanel { get => isInTeleportPanel; set => isInTeleportPanel = value; }
+    public bool IsInTrashPanel { get => isInTrashPanel; set => isInTrashPanel = value; }
+    public bool ReadyToJump { get => readyToJump; set => readyToJump = value; }
 
     void Awake()
     {
@@ -56,52 +64,119 @@ public class PlayerModel : MonoBehaviour
         SpawnPlayerPosition();
     }
 
-
-    public void Movement()
+    public void HandleMovement()
     {
         if (PlayerInputs.Instance == null) return;
-        if (isCooking || isAdministrating || isInTeleportPanel) return;
+        if (isCooking || isAdministrating || isInTeleportPanel || isInTrashPanel) return;
 
-        Vector3 cameraForward = playerCamera.transform.forward;
-        cameraForward.y = 0;
-        cameraForward.Normalize();
+        Vector2 input = PlayerInputs.Instance.GetMoveAxis();
 
-        Vector3 right = playerCamera.transform.right;
-        Vector3 movement = (cameraForward * PlayerInputs.Instance.GetMoveAxis().y + right * PlayerInputs.Instance.GetMoveAxis().x).normalized * speed * Time.fixedDeltaTime;
+        moveDir = transform.forward * input.y + transform.right * input.x;
+        float currentSpeed = speed;
 
-        rb.velocity = new Vector3(movement.x, rb.velocity.y, movement.z);
+        if (OnSlope()&& !exitingSlope)
+        {
+            rb.AddForce(GetSlopeMoveDirection() * currentSpeed * playerTabernData.SlopeForceMult, ForceMode.Force);
+            if (rb.velocity.y > 0)
+                rb.AddForce(Vector3.down * playerTabernData.SlopeStickForce, ForceMode.Force);
+        }
+
+        else if (IsGrounded)
+            rb.AddForce(moveDir.normalized * currentSpeed * playerTabernData.GroundForceMult, ForceMode.Force);
+        else if (!IsGrounded)
+            rb.AddForce(moveDir.normalized * currentSpeed * playerTabernData.GroundForceMult * PlayerTabernData.AirMultiplier, ForceMode.Force);
+
+        rb.useGravity = !OnSlope();
+
+    }
+    public void JumpStart()
+    {
+        readyToJump = false;
+        HandleJump();
+        Invoke(nameof(ResetJump), PlayerTabernData.JumpCooldown);
+
+    }
+    public void HandleJump()
+    {
+        exitingSlope = true;
+        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+
+        rb.AddForce(transform.up * PlayerTabernData.JumpForce, ForceMode.Impulse);
+    }
+    public void HandleDrag()
+    {
+        if (rb == null || playerTabernData == null) return;
 
         if (IsGrounded)
+            rb.drag = playerTabernData.GroundDrag;
+        else
+            rb.drag = 0;
+
+    }
+    public void SpeedControl()
+    {
+        if (OnSlope() && !exitingSlope)
         {
-            rb.AddForce(Vector3.down * 10f, ForceMode.Force);
+            if (rb.velocity.magnitude > speed)
+            {
+                rb.velocity = rb.velocity.normalized * speed;
+            }
+        }
+        else
+        {
+            Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            float currentSpeed = speed;
+            if (flatVel.magnitude > currentSpeed)
+            {
+                Vector3 limitedVel = flatVel.normalized * currentSpeed;
+                rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
+            }
+
         }
 
-        float targetDrag = IsGrounded ? playerTabernData.GroundDrag : 0.15f;
-        rb.drag = Mathf.Lerp(rb.drag, targetDrag, Time.fixedDeltaTime * 10f);        
     }
-
-    public void LookAt(Vector3 target)
+    public void ResetJump()
     {
-        Vector3 newDirection = (target - transform.position).normalized;
-        Vector3 lookDirection = new Vector3(newDirection.x, 0, newDirection.z);
+        readyToJump = true;
+        exitingSlope = false;
+    }
+    public void HandleGravity()
+    {
+        if (IsGrounded) return;
+        float gravity = Physics.gravity.y;
 
-        if (lookDirection != Vector3.zero)
+        if (rb.velocity.y > 0)
         {
-            Quaternion rotation = Quaternion.LookRotation(lookDirection);
-            transform.rotation = rotation;
+            rb.velocity += Vector3.up * gravity * (playerTabernData.JumpGravityMult - 1) * Time.fixedDeltaTime;
         }
-    }
+        // Caída --> más gravedad
+        else if(rb.velocity.y < 0)
+        {
+            rb.velocity += Vector3.up * gravity * (playerTabernData.FallGravityMult - 1) * Time.fixedDeltaTime;
+        }
 
-    public void StopVelocity()
+
+    }
+    private bool OnSlope()
     {
-        rb.velocity = Vector3.zero;
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerTabernData.PlayerHeight / 2 + 0.5f))
+        {
+            float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            return angle < playerTabernData.MaxSlopeAngle && angle != 0;
+        }
+        return false;
     }
 
+    private Vector3 GetSlopeMoveDirection()
+    {
+        return Vector3.ProjectOnPlane(moveDir, slopeHit.normal).normalized;
+    }
 
     private void GetComponents()
     {
         playerCamera = GetComponentInChildren<PlayerCamera>();
         rb = GetComponent<Rigidbody>();
+        rb.freezeRotation = true;
         capsuleCollider = GetComponent<CapsuleCollider>();
     }
 
@@ -114,7 +189,7 @@ public class PlayerModel : MonoBehaviour
     {
         if (spawnPosition == SpawnPoints.Cooking)
         {
-            transform.position = CookingZone.transform.position;  
+            transform.position = CookingZone.transform.position;
         }
 
         else if (spawnPosition == SpawnPoints.Admin)

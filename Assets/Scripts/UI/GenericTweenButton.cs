@@ -25,11 +25,11 @@ public class GenericTweenButton : MonoBehaviour,
     [SerializeField] private RectTransform targetTransform;
 
     [Tooltip("La Imagen a la que se le cambiará el color. Si es nulo, buscará una en este GameObject.")]
-    [SerializeField] private Image targetImage;
+    [SerializeField] protected Image targetImage;
 
     [Header("Configuración de Animación")]
     [Tooltip("Tiempo que tardan las animaciones (en segundos).")]
-    [SerializeField][Range(0.1f, 1)] private float animTime = 0.15f;
+    [SerializeField][Range(0.1f, 1)] protected float animTime = 0.15f;
     [Tooltip("La escala cuando el cursor está encima (ej: 1.1 = 110%).")]
     [SerializeField] private float hoverScale = 1.1f;
     [Tooltip("La escala cuando se presiona el botón (ej: 0.9 = 90%).")]
@@ -61,7 +61,7 @@ public class GenericTweenButton : MonoBehaviour,
     protected int currentTweenId = -1;
 
     private static GenericTweenButton currentHoverOnlyButton;
-    protected void Awake()
+    protected virtual void Awake()
     {
         if (targetTransform == null)
         {
@@ -156,7 +156,7 @@ public class GenericTweenButton : MonoBehaviour,
         OnClick?.Invoke();
     }
 
-    protected void UpdateVisuals()
+    protected virtual void UpdateVisuals()
     {
         if (targetTransform == null) return;
 
@@ -221,5 +221,9 @@ public class GenericTweenButton : MonoBehaviour,
             OnPointerEnterEvent.Invoke();
         else
             OnPointerExitEvent.Invoke();
+    }
+    public bool GetSelectedState()
+    {
+        return isSelected;
     }
 }
