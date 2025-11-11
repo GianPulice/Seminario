@@ -8,33 +8,42 @@ public class CreditsPopUp : MonoBehaviour
     [SerializeField] private AnimationCurve animationCurve;
     [SerializeField] private float animationDuration = 0.7f;
 
-    private RectTransform rectTransform;
+    [Tooltip("La posición X oculta a la izquierda.")]
+    [SerializeField] private float hiddenXPosition = -1500f;
 
+    private Vector2 centerPosition = Vector2.zero;
+    private Vector2 hiddenPositionLeft;
+    
+    private RectTransform rectTransform;
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
+
+        hiddenPositionLeft = new Vector2(hiddenXPosition, rectTransform.anchoredPosition.y);
+
         gameObject.SetActive(false);
     }
 
-    public void AnimateFromButton(Transform targetButton)
+    public void AnimateIn()
     {
         LeanTween.cancel(gameObject);
         gameObject.SetActive(true);
 
-        Vector3 endPosition = targetButton.position;
-        float startX = -(rectTransform.rect.width * rectTransform.lossyScale.x);
-        Vector3 startPosition = new Vector3(startX, endPosition.y, endPosition.z);
-        
-        transform.position = startPosition;
+        rectTransform.anchoredPosition = hiddenPositionLeft;
         transform.localScale = Vector3.zero;
 
         var scaleTween = LeanTween.scale(gameObject, Vector3.one, animationDuration / 2); // Aparecer rápido
         SetEase(scaleTween);
-        var moveTween = LeanTween.move(gameObject, endPosition, animationDuration)
+        
+        var moveTween = LeanTween.move(rectTransform, centerPosition, animationDuration)
             .setDelay(0.1f);
         SetEase(moveTween);
     }
-    public void CloseToLeft()
+
+    /// <summary>
+    /// Animación de Salida: Derecha a Izquierda (de 0 a -1500)
+    /// </summary>
+    public void AnimateOut()
     {
         LeanTween.cancel(gameObject);
 
@@ -43,22 +52,20 @@ public class CreditsPopUp : MonoBehaviour
             gameObject.SetActive(true);
         }
 
-        float endX = -(rectTransform.rect.width * rectTransform.lossyScale.x);
-        Vector3 endPosition = new Vector3(endX, transform.position.y, transform.position.z);
-
-        var moveTween = LeanTween.move(gameObject, endPosition, animationDuration);
+        var moveTween = LeanTween.move(rectTransform, hiddenPositionLeft, animationDuration);
         SetEase(moveTween);
-
+       
         var scaleTween = LeanTween.scale(gameObject, Vector3.zero, animationDuration / 2)
-            .setDelay(animationDuration / 2); // Que empiece a escalar a cero en la mitad de la animación de movimiento
+            .setDelay(animationDuration / 2); 
 
         SetEase(scaleTween);
 
-        scaleTween.setOnComplete(() => gameObject.SetActive(false));
+        moveTween.setOnComplete(() => gameObject.SetActive(false));
     }
+
     private void SetEase(LTDescr tween)
     {
-        if (easeType == LeanTweenType.animationCurve)
+        if (easeType == LeanTweenType.animationCurve && animationCurve != null)
         {
             tween.setEase(animationCurve);
         }
