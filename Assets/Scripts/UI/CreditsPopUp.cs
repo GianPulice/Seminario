@@ -24,6 +24,11 @@ public class CreditsPopUp : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    public void StartAnim()
+    {
+        AnimateIn();
+    }
+
     public void AnimateIn()
     {
         LeanTween.cancel(gameObject);

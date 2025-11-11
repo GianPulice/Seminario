@@ -38,6 +38,7 @@ public class LoadingObjectUI : MonoBehaviour
 
         LeanTween.rotateAroundLocal(outsideRing.gameObject, Vector3.forward, 360f, timeToCompleteLoop)
             .setEase(outsideRingEase)
+            .setIgnoreTimeScale(true)
             .setLoopCount(-1); // -1 para bucle infinito
     }
 
@@ -50,6 +51,7 @@ public class LoadingObjectUI : MonoBehaviour
 
         LeanTween.rotateAroundLocal(insideSquare.gameObject, Vector3.forward, -360f, timeToCompleteLoop)
             .setEase(insideSquareEase)
+            .setIgnoreTimeScale(true)
             .setLoopCount(-1);
     }
 
@@ -59,6 +61,7 @@ public class LoadingObjectUI : MonoBehaviour
 
         LeanTween.rotateAroundLocal(gameObject, Vector3.forward, triangleShiftRotateDegrees, triangleLoopDuration)
              .setEase(triangleShiftEase) // El ease de un timer no importa
+             .setIgnoreTimeScale(true)
              .setLoopCount(-1); // Repetir infinitamente
     }
    
