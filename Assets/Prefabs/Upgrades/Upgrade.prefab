@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7974181702782839146}
-  - component: {fileID: 1418855702847386520}
+  - component: {fileID: 6048724343949430683}
   m_Layer: 0
-  m_Name: ZoneToUnlock
+  m_Name: Upgrade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1418855702847386520
+--- !u!114 &6048724343949430683
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,30 +41,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 8800638899650124033}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d68098172e04e274bb733e534b5262c8, type: 3}
+  m_Script: {fileID: 11500000, guid: 73c23d5a617a68f458a0b6ee9ba888c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  zoneUnlockData: {fileID: 11400000, guid: 892d429cb3e60904fb9c19a2b5aac81f, type: 2}
-  debris:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  tablesToActive:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  debris: []
+  tablesToActive: []

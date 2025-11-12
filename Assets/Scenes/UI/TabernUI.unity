@@ -1042,9 +1042,9 @@ MonoBehaviour:
   tabGroup: {fileID: 1945898060514863359}
   startTavernSwitch: {fileID: 1893695497}
   ingredientButtonContainer: {fileID: 1945898060514863361}
-  zoneUnlocks: []
-  currentImageZoneUnlock: {fileID: 1945898060514863358}
-  textPriceCurrentZoneUnlock: {fileID: 1945898060514863357}
+  currentImageUpgrade: {fileID: 1945898060514863358}
+  textPriceCurrentUpgradeUnlock: {fileID: 1945898060514863357}
+  textInformationCurrentUpgrade: {fileID: 1674357813}
 --- !u!4 &1463775457
 Transform:
   m_ObjectHideFlags: 0
@@ -1064,6 +1064,17 @@ Transform:
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3745503986742854704, guid: b5a0d12236ac25d459f124aa795fdfd7, type: 3}
   m_PrefabInstance: {fileID: 3915831371882863597}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1674357813 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1625955642737359822, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+  m_PrefabInstance: {fileID: 1945898060514863356}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -2162,6 +2173,10 @@ PrefabInstance:
       propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1463775456}
+    - target: {fileID: 2795699281443271670, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3314895767299192535, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
       propertyPath: m_Pivot.x
       value: 0
