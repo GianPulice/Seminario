@@ -70,7 +70,6 @@ public class AdministratingManagerUI : MonoBehaviour
         if (panelAnimator != null)
         {
             panelAnimator.OnAnimateInComplete.RemoveListener(SetupInitialTab);
-            panelAnimator.OnAnimateOutComplete.RemoveListener(CleanupAfterAnimation);
         }
     }
 
@@ -183,7 +182,7 @@ public class AdministratingManagerUI : MonoBehaviour
             localTavernState = true;
             AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_On"
         }
-        else
+        if(!isTavernOn && ClientManager.Instance.CanCloseTabern)
         {
             Debug.Log("¡Taberna CERRADA!");
             onCloseTabern?.Invoke();
@@ -305,7 +304,7 @@ public class AdministratingManagerUI : MonoBehaviour
         {
             lastTabIndex = tabGroup.GetCurrentTabIndex();
         }
-
+     
         if (panelAnimator != null)
             panelAnimator.AnimateOut();
     }
@@ -336,16 +335,10 @@ public class AdministratingManagerUI : MonoBehaviour
             startTavernSwitch.SetSelected(localTavernState); 
         }
         // Actualizar información si está en el tab de Upgrades
-        if (indexToSelect == 2)
+        if (indexToSelect == 2 && UpgradesManager.Instance != null && UpgradesManager.Instance.GetUpgrade(0) != null)
         {
             ShowCurrentZoneInformation(0);
         }
-    }
-
-    private void CleanupAfterAnimation()
-    {
-        panelIngredients.SetActive(false);
-        panelUpgrades.SetActive(false);
     }
 
     private void PrepareInitialUIState()
@@ -361,7 +354,11 @@ public class AdministratingManagerUI : MonoBehaviour
     private void InitializeAnimatorEventBindings()
     {
         panelAnimator.OnAnimateInComplete.AddListener(SetupInitialTab);
-        panelAnimator.OnAnimateOutComplete.AddListener(CleanupAfterAnimation);
+        panelAnimator.OnAnimateOutStart.AddListener(() =>
+        {
+            panelIngredients.SetActive(false);
+            panelUpgrades.SetActive(false);
+        });
     }
 
     private void SuscribeToPlayerViewEvents()
@@ -398,6 +395,7 @@ public class AdministratingManagerUI : MonoBehaviour
         {
             Debug.LogError("'Ingredient Button Container' no está asignado en el Inspector de AdministratingManagerUI.", this);
         }
+        startTavernSwitch.OnTryEnableCondition = () => ClientManager.Instance.CanCloseTabern;
     }
 
     #endregion

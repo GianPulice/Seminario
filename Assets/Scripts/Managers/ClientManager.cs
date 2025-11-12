@@ -36,7 +36,13 @@ public class ClientManager : Singleton<ClientManager>
 
     public bool IsTabernOpen { get => isTabernOpen; }
 
-
+    public bool CanCloseTabern
+    {
+        get
+        {
+            return OrdersManagerUI.Instance.TotalOrdersBeforeTabernOpen >= clientManagerData.MinimumOrdersServedToCloseTabern;
+        }
+    }
     void Awake()
     {
         CreateSingleton(false);
