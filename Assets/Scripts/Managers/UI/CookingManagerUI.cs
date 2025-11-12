@@ -219,7 +219,7 @@ public class CookingManagerUI : MonoBehaviour
 
         // --- Lógica de fallo ---
         Debug.Log("No hay receta con esos ingredientes o no alcanza el stock.");
-        AudioManager.Instance.PlayOneShotSFX("ButtonCancel");
+        AudioManager.Instance.PlayOneShotSFX("ButtonWrong");
         DeselectAllIngredients();
     }
 

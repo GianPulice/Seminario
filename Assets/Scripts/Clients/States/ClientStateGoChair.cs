@@ -7,7 +7,7 @@ public class ClientStateGoChair<T> : State<T>
     private ClientView clientView;
     private Func<Transform> getTargetTransform;
 
-    private float distanceToChair = 6f;
+    private float distanceToChair = 12f;
 
     private bool isNearTable = false;
 

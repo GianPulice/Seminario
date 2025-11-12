@@ -20,19 +20,39 @@ public class ClientsFoodPreferencesData : ScriptableObject
     }
 
 
-    public FoodType GetRandomFood()
+    public FoodType? GetRandomFood()
     {
-        int roll = UnityEngine.Random.Range(0, 100);
+        var availableFoods = foodChances.FindAll(f => RecipeProgressManager.Instance.IsRecipeUnlocked(f.FoodType));
+
+        if (availableFoods.Count == 0)
+            return null;
+
+        int totalProbability = 0;
+        foreach (var food in availableFoods)
+            totalProbability += food.Probability;
+
+        int roll = UnityEngine.Random.Range(0, totalProbability);
         int cumulative = 0;
 
-        foreach (var option in foodChances)
+        foreach (var option in availableFoods)
         {
             cumulative += option.Probability;
             if (roll < cumulative)
                 return option.FoodType;
         }
 
-        // En caso de que la suma no llegue a 100, devuelve el ultimo
-        return foodChances[foodChances.Count - 1].FoodType;
+        // Si por alguna razón no salió en el roll, devolver el que tiene mayor probabilidad
+        FoodChances highestProbabilityFood = null;
+        int highestProb = int.MinValue;
+        foreach (var food in availableFoods)
+        {
+            if (food.Probability > highestProb)
+            {
+                highestProb = food.Probability;
+                highestProbabilityFood = food;
+            }
+        }
+
+        return highestProbabilityFood.FoodType;
     }
 }

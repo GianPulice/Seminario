@@ -9,13 +9,13 @@ public class GratuityManagerData : ScriptableObject
 
     [Range(0, 100)]
     [SerializeField] private float probabilityToGiveGratuity;
-    [SerializeField] private float missedClientCost;
+    //[SerializeField] private float missedClientCost;
     [SerializeField] private float minimumPayment;
 
     public List<GratuityOptions> GratuityOptionsPercentage { get => gratuityOptionsPercentage; }
 
     public float ProbabilityToGiveGratuity { get => probabilityToGiveGratuity; }
-    public float MissedClientCost { get => missedClientCost; }
+    //public float MissedClientCost { get => missedClientCost; }
     public float MinimumPyament { get => minimumPayment; }
 
 

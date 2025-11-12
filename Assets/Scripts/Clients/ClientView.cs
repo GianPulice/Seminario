@@ -107,10 +107,13 @@ public class ClientView : MonoBehaviour
         {
             orderFoodNames.Clear();
 
-            FoodType selectedFood = clientsFoodPreferencesData.GetRandomFood();
-            currentSelectedFood = selectedFood;
+            FoodType? selectedFood = clientsFoodPreferencesData.GetRandomFood();
 
-            Sprite spriteSelectedFood = clientManager.GetSpriteForRandomFood(selectedFood);
+            if (!selectedFood.HasValue) return;
+
+            currentSelectedFood = selectedFood.Value;
+
+            Sprite spriteSelectedFood = clientManager.GetSpriteForRandomFood(selectedFood.Value);
 
             clientModel.CurrentOrderDataUI = new OrderDataUI(spriteSelectedFood, clientModel.ClientData.ClientImage, clientModel.ClientData.MaxTimeWaitingFood);
             OrdersManagerUI.Instance.AddOrder(clientModel.CurrentOrderDataUI);

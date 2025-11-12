@@ -62,6 +62,11 @@ public class Table : MonoBehaviour, IInteractable
         StartCoroutine(RegisterOutline());
     }
 
+    void OnEnable()
+    {
+        StartCoroutine(RegisterTable());
+    }
+
     void OnDestroy()
     {
         OutlineManager.Instance.Unregister(table);
@@ -191,11 +196,11 @@ public class Table : MonoBehaviour, IInteractable
     }
 
     /// <summary>
-    /// Analizar el metodo por el tema de el NavMesh del NPC
+    /// Comentado porque el NPC se sienta en la posicion incorrecta
     /// </summary>
     public void SetNavMeshObstacles(bool current)
     {
-        navMeshObstacleChair.enabled = current;
+        //navMeshObstacleChair.enabled = current;
 
         /*for (int i = 0; i < navMeshObstacle.Length; i++)
         {
@@ -232,5 +237,12 @@ public class Table : MonoBehaviour, IInteractable
         yield return new WaitUntil(() => OutlineManager.Instance != null);
 
         OutlineManager.Instance.Register(table);
+    }
+
+    private IEnumerator RegisterTable()
+    {
+        yield return new WaitUntil(() => TablesManager.Instance != null);
+
+        TablesManager.Instance.RegisterTableInListWhenActive(this);
     }
 }

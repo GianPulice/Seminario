@@ -26,9 +26,9 @@ public class AdministratingManagerUI : MonoBehaviour
     [SerializeField] private GameObject ingredientButtonContainer;
 
     [Header("Referencias (Panel Upgrades)")]
-    [SerializeField] private List<ZoneUnlock> zoneUnlocks = new List<ZoneUnlock>();
-    [SerializeField] private Image currentImageZoneUnlock;
-    [SerializeField] private TextMeshProUGUI textPriceCurrentZoneUnlock;
+    [SerializeField] private Image currentImageUpgrade;
+    [SerializeField] private TextMeshProUGUI textPriceCurrentUpgradeUnlock;
+    [SerializeField] private TextMeshProUGUI textInformationCurrentUpgrade;
 
     private List<IngredientButtonUI> ingredientButtons = new List<IngredientButtonUI>();
 
@@ -234,14 +234,22 @@ public class AdministratingManagerUI : MonoBehaviour
 
     public void ButtonUnlockNewZone(int index)
     {
-        if (zoneUnlocks == null || index < 0 || index >= zoneUnlocks.Count) return;
-        if (zoneUnlocks[index].IsUnlocked) return;
-        
-        int price = zoneUnlocks[index].ZoneUnlockData.Cost;
+        var upgrade = UpgradesManager.Instance.GetUpgrade(index);
+        if (upgrade == null) return;
+
+        // Si ya está desbloqueado, no hacemos nada
+        if (!upgrade.CanUpgrade)
+        {
+            //AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
+            return;
+        }
+
+        int price = upgrade.UpgradesData.Cost;
+
         if (MoneyManager.Instance.CurrentMoney >= price)
         {
             AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
-            zoneUnlocks[index].UnlockZone();
+            UpgradesManager.Instance.UnlockUpgrade(index);
             MoneyManager.Instance.SubMoney(price);
         }
         else
@@ -252,9 +260,20 @@ public class AdministratingManagerUI : MonoBehaviour
 
     public void ShowCurrentZoneInformation(int index)
     {
-        if (zoneUnlocks == null || index < 0 || index >= zoneUnlocks.Count) return;
-        currentImageZoneUnlock.sprite = zoneUnlocks[index].ZoneUnlockData.ImageZoneUnlock;
-        textPriceCurrentZoneUnlock.text = "Price: " + zoneUnlocks[index].ZoneUnlockData.Cost.ToString();
+        var upgrade = UpgradesManager.Instance.GetUpgrade(index);
+        if (upgrade == null) return;
+
+        if (!upgrade.CanUpgrade)
+        {
+            /// Agregar un sprite generico que muestre que ya tenes la zona desbloqueada
+            return;
+        }
+
+        var data = upgrade.UpgradesData;
+
+        currentImageUpgrade.sprite = data.ImageZoneUnlock;
+        textPriceCurrentUpgradeUnlock.text = $"Price: {data.Cost}";
+        textInformationCurrentUpgrade.text = data.InformationCurrentZone;
     }
 
     #endregion
@@ -378,17 +397,6 @@ public class AdministratingManagerUI : MonoBehaviour
         else
         {
             Debug.LogError("'Ingredient Button Container' no está asignado en el Inspector de AdministratingManagerUI.", this);
-        }
-
-
-
-        GameObject ZonesToUnlockFather = GameObject.Find("ZonesToUnlock");
-        if (ZonesToUnlockFather != null)
-        {
-            foreach (Transform childs in ZonesToUnlockFather.transform)
-            {
-                zoneUnlocks.Add(childs.GetComponent<ZoneUnlock>());
-            }
         }
     }
 

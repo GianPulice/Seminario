@@ -14,6 +14,8 @@ public class ClientManager : Singleton<ClientManager>
     [SerializeField] private List<ObjectPooler> clientPools;
     [SerializeField] private List<FoodTypeSpritePair> foodSpritePairs;
 
+    private List<ClientType> availableClientTypes = new List<ClientType>();
+
     private Dictionary<ClientType, ObjectPooler> clientPoolDictionary = new();
     private Dictionary<FoodType, Sprite> foodSpriteDict = new();
 
@@ -25,8 +27,12 @@ public class ClientManager : Singleton<ClientManager>
     [SerializeField] private bool spawnDifferentTypeOfClients;
     [SerializeField] private bool spawnTheSameClient;
 
+    public ClientManagerData ClientManagerData { get => clientManagerData; }
+
     public Transform SpawnPosition { get => spawnPosition; }
     public Transform OutsidePosition { get => outsidePosition; }
+
+    public List<ClientType> AvailableClientTypes { get => availableClientTypes; set => availableClientTypes = value; }
 
     public bool IsTabernOpen { get => isTabernOpen; }
 
@@ -38,6 +44,7 @@ public class ClientManager : Singleton<ClientManager>
         SuscribeToOpenTabernButtonEvent();
         InitializeClientPoolDictionary();
         InitializeFoodSpriteDictionary();
+        InitializeCurrentClientsThatCanSpawn();
     }
 
     // Simulacion de Update
@@ -169,10 +176,17 @@ public class ClientManager : Singleton<ClientManager>
 
         if (spawnTime >= clientManagerData.TimeToWaitForSpawnNewClient)
         {
-            int randomIndex = UnityEngine.Random.Range(0, clientPools.Count);
-            string prefabName = clientPools[randomIndex].Prefab.name;
-            clientAbstractFactory.CreateObject(prefabName);
-            
+            ClientType? selectedType = clientManagerData.GetRandomClient(availableClientTypes);
+
+            if (selectedType.HasValue)
+            {
+                if (clientPoolDictionary.TryGetValue(selectedType.Value, out ObjectPooler pool))
+                {
+                    string prefabName = pool.Prefab.name;
+                    clientAbstractFactory.CreateObject(prefabName);
+                }
+            }
+
             spawnTime = 0f;
         }
     }
@@ -256,6 +270,12 @@ public class ClientManager : Singleton<ClientManager>
                 foodSpriteDict.Add(pair.FoodType, pair.Sprite);
             }
         }
+    }
+
+    private void InitializeCurrentClientsThatCanSpawn()
+    {
+        availableClientTypes.Clear();
+        availableClientTypes.Add(ClientType.Goblin);
     }
 
     private IEnumerator DelayForOpenTabernAgain()

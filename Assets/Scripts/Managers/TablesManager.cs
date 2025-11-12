@@ -11,9 +11,17 @@ public class TablesManager : Singleton<TablesManager>
     void Awake()
     {
         CreateSingleton(false);
-        InitializeTables();
+        InitializeTablesThatAreActiveByDefault();
     }
 
+
+    public void RegisterTableInListWhenActive(Table currentTable)
+    {
+        if (!tables.Contains(currentTable))
+        {
+            tables.Add(currentTable);
+        }
+    }
 
     public Table GetRandomAvailableTableForClient()
     {
@@ -47,10 +55,8 @@ public class TablesManager : Singleton<TablesManager>
     }
 
 
-    /// <summary>
-    /// Ajustar el metodo segun sea necesario en un futuro para agregar mesas cuando se desbloque zona o como se quiera
-    /// </summary>
-    private void InitializeTables()
+    // Solamente agrega a la lista las mesas que estan activas por default, las que se activan con desbloqueo no se agregan en este metodo
+    private void InitializeTablesThatAreActiveByDefault()
     {
         GameObject[] tableObjects = GameObject.FindGameObjectsWithTag("Table");
 
