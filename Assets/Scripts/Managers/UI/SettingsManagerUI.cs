@@ -73,6 +73,10 @@ public class SettingsManagerUI : MonoBehaviour
         UnsuscribeToUpdateEvent();
     }
 
+    public void CloseSettingsPanel()
+    {
+        gameObject.SetActive(false);
+    }
 
     public void SetPanelAudio() => tabGroup.SelectTabByIndex(0);
     public void SetPanelVideo() => tabGroup.SelectTabByIndex(1);
