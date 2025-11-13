@@ -11,8 +11,7 @@ public class GameManager : Singleton<GameManager>
 
     private GameSessionType gameSessionType = GameSessionType.None;
 
-    public Action OnGameSessionStarted { get => onGameSessionStarted; set => onGameSessionStarted = value; }    
-
+    public Action OnGameSessionStarted { get => onGameSessionStarted; set => onGameSessionStarted = value; }
     public GameSessionType GameSessionType { get => gameSessionType; set => gameSessionType = value; }
 
 
@@ -25,7 +24,6 @@ public class GameManager : Singleton<GameManager>
     {
         InitializeGameSessionByDefault();
     }
-
 
     // Esto sirve para inicializar el sistema de guardado correctamente si corremos el programa desde cualquier escena menos "MainMenu"
     private void InitializeGameSessionByDefault()
