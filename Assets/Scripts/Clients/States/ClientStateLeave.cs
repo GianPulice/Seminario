@@ -103,14 +103,14 @@ public class ClientStateLeave<T> : State<T>
                 if (clientModel.CurrentTable.CurrentFoods[0].CurrentCookingState != CookingStates.Cooked && clientModel.CurrentTable.CurrentFoods[0].FoodType == clientView.CurrentSelectedFood)
                 {
                     clientView.SetSpriteTypeName("SpriteHungry");
-                    MoneyManager.Instance.AddMoney(GratuityManager.Instance.GratuityManagerData.MinimumPyament);
+                    MoneyManager.Instance.AddMoney(ClientManager.Instance.ClientManagerData.MinimumPaymentAmount);
                 }
 
                 // Si la comida esta en el estado correcta y es la que pidio sumar el pago
                 else if (clientModel.CurrentTable.CurrentFoods[0].FoodType == clientView.CurrentSelectedFood)
                 {
                     clientView.SetSpriteTypeName("SpriteHappy");
-                    int paymentAmout = GratuityManager.Instance.GetPayment(clientModel.ClientType, clientView.CurrentSelectedFood);
+                    int paymentAmout = ClientManager.Instance.ClientManagerData.GetPayment(clientModel.CurrentTable.CurrentFoods[0].FoodType);
                     MoneyManager.Instance.AddMoney(paymentAmout);
 
                     // Solamente dar propina si la mesa estaba sucia cuando se sento
@@ -125,11 +125,11 @@ public class ClientStateLeave<T> : State<T>
             }
 
             // Verifica que no le hayan servido ninguna comida en el plato porque no le tomaron el pedido o no llegaron a entregarsela
-            /*else
+            else
             {
                 clientView.SetSpriteTypeName("SpriteHungry");
-                MoneyManager.Instance.SubMoney(GratuityManager.Instance.GratuityManagerData.MissedClientCost);
-            }*/
+                //MoneyManager.Instance.SubMoney(GratuityManager.Instance.GratuityManagerData.MissedClientCost);
+            }
         }
 
         // Si la mesa es null ejecuta este bloque, quiere decir que todas las mesas estaban ocupadas y se quedo esperando afuera

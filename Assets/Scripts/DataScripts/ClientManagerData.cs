@@ -5,9 +5,12 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "ClientManagerData", menuName = "ScriptableObjects/Tabern/Create New ClientManagerData")]
 public class ClientManagerData : ScriptableObject
 {
-    [SerializeField] private List<ClientSpawnChance> clientSpawnChances = new List<ClientSpawnChance>();
+    [SerializeField] private List<ClientSpawnChance> clientSpawnChances;
+    [SerializeField] private List<FoodPayment> foodPayments;
 
+    [SerializeField] private int minimumPaymentAmount;
     [SerializeField] private int minimumOrdersServedToCloseTabern;
+
     [SerializeField] private float timeToWaitForSpawnNewClient;
     [SerializeField] private float delayToOpenTabernAgainAfterClose;
 
@@ -18,6 +21,14 @@ public class ClientManagerData : ScriptableObject
         [Range(0, 100)] public int probability;
     }
 
+    [Serializable]
+    public class FoodPayment
+    {
+        public FoodType FoodType;
+        public int PaymentAmount;
+    }
+
+    public int MinimumPaymentAmount { get => minimumPaymentAmount; }
     public int MinimumOrdersServedToCloseTabern { get => minimumOrdersServedToCloseTabern; }
     public float TimeToWaitForSpawnNewClient { get => timeToWaitForSpawnNewClient; set => timeToWaitForSpawnNewClient = value; }
     public float DelayToOpenTabernAgainAfterClose { get => delayToOpenTabernAgainAfterClose; }
@@ -57,5 +68,16 @@ public class ClientManagerData : ScriptableObject
         }
 
         return highestProbabilityClient.clientType;
+    }
+
+    public int GetPayment(FoodType foodType)
+    {
+        foreach (var fp in foodPayments)
+        {
+            if (fp.FoodType == foodType)
+                return fp.PaymentAmount;
+        }
+
+        return 0;
     }
 }

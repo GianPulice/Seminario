@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 using System.Linq;
+using System.Collections;
 
 public class AdministratingManagerUI : MonoBehaviour
 {
@@ -26,6 +27,8 @@ public class AdministratingManagerUI : MonoBehaviour
     [SerializeField] private GameObject ingredientButtonContainer;
 
     [Header("Referencias (Panel Upgrades)")]
+    [SerializeField] private ConfirmationPanel confirmationPanel;
+    [SerializeField] private TextMeshProUGUI confirmationText;
     [SerializeField] private Image currentImageUpgrade;
     [SerializeField] private TextMeshProUGUI textPriceCurrentUpgradeUnlock;
     [SerializeField] private TextMeshProUGUI textInformationCurrentUpgrade;
@@ -78,7 +81,6 @@ public class AdministratingManagerUI : MonoBehaviour
     void UpdateAdministratingManagerUI()
     {
         CheckLastSelectedButtonIfAdminPanelIsOpen();
-        CheckJoystickInputsToInteractWithPanels();
     }
 
     private void SuscribeToUpdateManagerEvent()
@@ -134,38 +136,6 @@ public class AdministratingManagerUI : MonoBehaviour
         }
         ignoreFirstButtonSelected = false;
     }
-    #endregion
-
-    #region === Navegación por Joystick ===
-
-    private void CheckJoystickInputsToInteractWithPanels()
-    {
-        if (panelAdministrating.activeSelf)
-        {
-            if (PlayerInputs.Instance != null && tabGroup != null)
-            {
-                if (PlayerInputs.Instance.R1()) SetNexPanelUsingJoystickR1();
-                if (PlayerInputs.Instance.L1()) SetNexPanelUsingJoystickL1();
-            }
-        }
-    }
-
-    private void SetNexPanelUsingJoystickR1()
-    {
-        currentActiveTabIndex = tabGroup.GetCurrentTabIndex();
-        currentActiveTabIndex = (currentActiveTabIndex + 1) % tabGroup.GetTabCount();
-        tabGroup.SelectTabByIndex(currentActiveTabIndex);
-        AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-    }
-
-    private void SetNexPanelUsingJoystickL1()
-    {
-        currentActiveTabIndex = tabGroup.GetCurrentTabIndex();
-        currentActiveTabIndex = (currentActiveTabIndex - 1 + tabGroup.GetTabCount()) % tabGroup.GetTabCount();
-        tabGroup.SelectTabByIndex(currentActiveTabIndex);
-        AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-    }
-
     #endregion
 
     #region == Botones de Lógica ===
@@ -257,6 +227,19 @@ public class AdministratingManagerUI : MonoBehaviour
         }
     }
 
+    public void OnUpgradeButtonClicked(int index)
+    {
+        var upgrade = UpgradesManager.Instance.GetUpgrade(index);
+        var data = upgrade.UpgradesData;
+        confirmationText.text = $"Are you sure you want to spend <color=yellow>${data.Cost}</color> to buy this upgrade";
+
+        // Mostrar panel de confirmación y asignar la acción a realizar si presiona YES
+        if (confirmationPanel != null)
+        {
+            confirmationPanel.Show(() => ButtonUnlockNewZone(index));
+        }
+    }
+
     public void ShowCurrentZoneInformation(int index)
     {
         var upgrade = UpgradesManager.Instance.GetUpgrade(index);
@@ -307,6 +290,8 @@ public class AdministratingManagerUI : MonoBehaviour
      
         if (panelAnimator != null)
             panelAnimator.AnimateOut();
+
+        confirmationPanel.Hide();
     }
 
     private void SetupInitialTab()

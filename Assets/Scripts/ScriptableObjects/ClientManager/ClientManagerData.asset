@@ -14,11 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clientSpawnChances:
   - clientType: 2
-    probability: 60
-  - clientType: 0
-    probability: 34
+    probability: 100
   - clientType: 1
-    probability: 26
+    probability: 70
+  - clientType: 0
+    probability: 70
+  foodPayments:
+  - FoodType: 0
+    PaymentAmount: 20
+  - FoodType: 1
+    PaymentAmount: 30
+  - FoodType: 2
+    PaymentAmount: 10
+  - FoodType: 3
+    PaymentAmount: 40
+  - FoodType: 3
+    PaymentAmount: 50
+  minimumPaymentAmount: 20
   minimumOrdersServedToCloseTabern: 5
-  timeToWaitForSpawnNewClient: 2
+  timeToWaitForSpawnNewClient: 1
   delayToOpenTabernAgainAfterClose: 5

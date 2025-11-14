@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class OrdersManagerUI : Singleton<OrdersManagerUI>
 {
@@ -82,7 +83,9 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
         {
             if (order != null)
             {
-                order.gameObject.SetActive(false);
+                var img = order.GetComponentInChildren<Image>();
+                if (img != null)
+                    img.gameObject.SetActive(false);
             }
         }
     }
@@ -92,7 +95,9 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
         {
             if (order != null)
             {
-                order.gameObject.SetActive(true);
+                var img = order.GetComponentInChildren<Image>(true);
+                if (img != null)
+                    img.gameObject.SetActive(true);
             }
         }
     }
