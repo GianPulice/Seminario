@@ -1,19 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 
-public class CookingManager : MonoBehaviour
+public class CookingManager : Singleton<CookingManager>
 {
     [SerializeField] private AbstractFactory foodAbstractFactory;
     [SerializeField] private List<ObjectPooler> foodPools;
 
-    [Header("Positions")]
-    // Para las posiciones de las sarten
-    [SerializeField] private List<Transform> stovesPositions;
+    private CookingDeskUI currentDesk;
     private Transform currentStove;
-    private Queue<Transform> availableStovesPositions = new Queue<Transform>();
-    private HashSet<Transform> occupiedStovesPositions = new HashSet<Transform>();
 
     // Para las posiciones en la bandeja del player
     [SerializeField] private List<Transform> dishPositions;
@@ -28,15 +23,10 @@ public class CookingManager : MonoBehaviour
 
     void Awake()
     {
+        CreateSingleton(false);
         SuscribeToCookingManagerUIEvent();
-        EnqueueStovesPositions();
         EnqueueDishPositions();
         InitializeFoodPoolDictionary();
-    }
-
-    void Start()
-    {
-        StartCoroutine(PlayTabernMusic());
     }
 
     void OnDestroy()
@@ -44,6 +34,11 @@ public class CookingManager : MonoBehaviour
         UnsuscribeToCookingManagerUIEvent();
     }
 
+
+    public void SetCurrentDesk(CookingDeskUI desk)
+    {
+        currentDesk = desk;
+    }
 
     public void ReturnObjectToPool(FoodType foodType, Food currentFood)
     {
@@ -55,11 +50,7 @@ public class CookingManager : MonoBehaviour
 
     public void ReleaseStovePosition(Transform stovePosition)
     {
-        if (occupiedStovesPositions.Contains(stovePosition))
-        {
-            occupiedStovesPositions.Remove(stovePosition);
-            availableStovesPositions.Enqueue(stovePosition);
-        }
+        currentDesk?.ReleaseStove(stovePosition);
     }
 
     public void ReleaseDishPosition(Transform dishPosition)
@@ -116,44 +107,13 @@ public class CookingManager : MonoBehaviour
         {
             if (IngredientInventoryManager.Instance.TryCraftFood(foodType))
             {
-                currentStove = GetNextAvailableStove();
+                currentStove = currentDesk?.GetAvailableStove();
 
                 if (currentStove != null)
                 {
                     foodAbstractFactory.CreateObject(prefabFoodName, currentStove, new Vector3(0, 0.2f, 0));
                 }
             }
-        }
-    }
-
-    private Transform GetNextAvailableStove()
-    {
-        Transform targetPosition = null;
-
-        if (availableStovesPositions.Count == 0) return null;
-
-        while (availableStovesPositions.Count > 0)
-        {
-            targetPosition = availableStovesPositions.Dequeue();
-
-            if (occupiedStovesPositions.Contains(targetPosition))
-            {
-                availableStovesPositions.Enqueue(targetPosition);
-                continue;
-            }
-
-            occupiedStovesPositions.Add(targetPosition);
-            break;
-        }
-
-        return targetPosition;
-    }
-
-    private void EnqueueStovesPositions()
-    {
-        foreach (var position in stovesPositions)
-        {
-            availableStovesPositions.Enqueue(position);
         }
     }
 
@@ -176,12 +136,5 @@ public class CookingManager : MonoBehaviour
                 foodPoolDictionary[foodType] = foodPools[i];
             }
         }
-    }
-
-    private IEnumerator PlayTabernMusic()
-    {
-        yield return new WaitUntil(() => AudioManager.Instance != null);
-
-        StartCoroutine(AudioManager.Instance.PlayMusic("TabernBGM"));
     }
 }

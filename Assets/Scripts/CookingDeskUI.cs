@@ -1,9 +1,18 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class CookingDeskUI : MonoBehaviour, IInteractable
 {
     private PlayerController playerController;
+
+    [SerializeField] private Camera cookingCamera;
+    
+    [SerializeField] private List<Transform> stovePositionsThisDesk;
+    private Queue<Transform> availableStoves = new Queue<Transform>();
+    private HashSet<Transform> occupiedStoves = new HashSet<Transform>();
+
+    public Camera CookingCamera => cookingCamera;
 
     public InteractionMode InteractionMode { get => InteractionMode.Press; }
 
@@ -11,6 +20,8 @@ public class CookingDeskUI : MonoBehaviour, IInteractable
     void Awake()
     {
         GetComponents();
+        EnqueueCurrentStovesPositions();
+        InitializeCurrentCamer();
         StartCoroutine(RegisterOutline());
     }
 
@@ -23,6 +34,8 @@ public class CookingDeskUI : MonoBehaviour, IInteractable
     public void Interact(bool isPressed)
     {
         playerController.PlayerModel.IsCooking = true;
+        CookingManager.Instance.SetCurrentDesk(this);
+        CookingManagerUI.Instance.OpenKitchen(this);
     }
 
     public void ShowOutline()
@@ -45,10 +58,56 @@ public class CookingDeskUI : MonoBehaviour, IInteractable
         return true;
     }
 
+    public Transform GetAvailableStove()
+    {
+        if (availableStoves.Count == 0)
+            return null;
+
+        Transform stove = null;
+
+        while (availableStoves.Count > 0)
+        {
+            stove = availableStoves.Dequeue();
+
+            if (occupiedStoves.Contains(stove))
+            {
+                availableStoves.Enqueue(stove);
+                continue;
+            }
+
+            occupiedStoves.Add(stove);
+            break;
+        }
+
+        return stove;
+    }
+
+    public void ReleaseStove(Transform stove)
+    {
+        if (occupiedStoves.Contains(stove))
+        {
+            occupiedStoves.Remove(stove);
+            availableStoves.Enqueue(stove);
+        }
+    }
 
     private void GetComponents()
     {
         playerController = FindFirstObjectByType<PlayerController>();
+    }
+
+    private void EnqueueCurrentStovesPositions()
+    {
+        foreach (var pos in stovePositionsThisDesk)
+        {
+            availableStoves.Enqueue(pos);
+        }
+    }
+
+    private void InitializeCurrentCamer()
+    {
+        cookingCamera.targetTexture = null;
+        cookingCamera.enabled = false;
     }
 
     private IEnumerator RegisterOutline()

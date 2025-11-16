@@ -6,12 +6,13 @@ using UnityEngine.UI;
 using TMPro;
 using System.Linq;
 
-public class CookingManagerUI : MonoBehaviour
+public class CookingManagerUI : Singleton<CookingManagerUI>
 {
     [Header("Main References")]
     [SerializeField] private GameObject rootGameObject; // GameObject padre con los botones de hijos
     [SerializeField] private GameObject panelInformation;
-    [SerializeField] private GameObject cookingCamera;
+    [SerializeField] private RawImage cameraRawImage;
+    [SerializeField] private RenderTexture sharedRenderTexture;
 
     [Header("AnimScript GameObject")]
     [SerializeField] private CookingUIAppear cookingAnim;
@@ -32,6 +33,8 @@ public class CookingManagerUI : MonoBehaviour
 
     // --- Variables de Estado ---
     private GameObject lastSelectedButtonFromCookingPanel;
+    private CookingDeskUI currentOpenKitchen;
+    private Camera currentCamera;
     private List<IngredientType> selectedIngredients = new List<IngredientType>();
     private bool ignoreFirstButtonSelected = true;
 
@@ -49,18 +52,20 @@ public class CookingManagerUI : MonoBehaviour
 
     void Awake()
     {
+        CreateSingleton(false);
         SuscribeToUpdateManagerEvent();
-        //InitializeLambdaEvents();
         SuscribeToPlayerViewEvents();
         SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
         GetComponents();
 
         InitializeAnimatorBindings();
     }
-    private void Start()
+
+    void Start()
     {
         ShowInformationRecipe(FoodType.BeastStew.ToString());
     }
+
     // Simulacion de Update
     void UpdateCookingManagerUI()
     {
@@ -185,6 +190,13 @@ public class CookingManagerUI : MonoBehaviour
             tweenButton.SetSelected(true);
         }
     }
+
+    public void ButtonExit()
+    {
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        onExitCookRequest?.Invoke();
+    }
+
     public void CookSelectedIngredients()
     {
         foreach (var recipe in IngredientInventoryManager.Instance.GetAllRecipes())
@@ -236,6 +248,59 @@ public class CookingManagerUI : MonoBehaviour
         }
     }
 
+    public void OpenKitchen(CookingDeskUI kitchen)
+    {
+        if (kitchen == null) return;
+
+        // Si ya había otra cocina abierta, limpiamos su cámara
+        if (currentCamera != null)
+        {
+            currentCamera.targetTexture = null;   // importante limpiar
+            currentCamera.enabled = false;        // apagar
+        }
+
+        // Asignar nueva cocina
+        currentOpenKitchen = kitchen;
+        currentCamera = kitchen.CookingCamera;
+
+        // Activar la cámara nueva y asignarle la RenderTexture compartida
+        if (currentCamera != null)
+        {
+            currentCamera.enabled = true;
+            currentCamera.targetTexture = sharedRenderTexture;
+            // Opcional: ajustar Depth si querés sobreescribir otros canvases, etc.
+        }
+
+        // Asignar la textura al RawImage central (la UI solo tiene 1 RawImage)
+        if (cameraRawImage != null)
+        {
+            cameraRawImage.texture = sharedRenderTexture;
+        }
+
+        // Mostrar panel/UI (tu lógica existente)
+        panelInformation.SetActive(true);
+    }
+
+    public void CloseKitchen()
+    {
+        // Limpiar cámara activa
+        if (currentCamera != null)
+        {
+            currentCamera.targetTexture = null;
+            currentCamera.enabled = false;
+            currentCamera = null;
+        }
+
+        // Limpiar rawImage (opcional: asignar null o una textura por defecto)
+        if (cameraRawImage != null)
+            cameraRawImage.texture = null;
+
+        // Ocultar panel/UI
+        panelInformation.SetActive(false);
+        currentOpenKitchen = null;
+    }
+
+
     private void UpdateAllIngredientStocks()
     {
         if (buttonsIngredients == null || IngredientInventoryManager.Instance == null) return;
@@ -261,12 +326,6 @@ public class CookingManagerUI : MonoBehaviour
                 btnUI.UpdateStock(stock);
             }
         }
-    }
-
-    public void ButtonExit()
-    {
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
-        onExitCookRequest?.Invoke();
     }
 
     private void SuscribeToUpdateManagerEvent()
@@ -341,7 +400,6 @@ public class CookingManagerUI : MonoBehaviour
     private void HandleEnterCookMode()
     {
         panelInformation.SetActive(true);
-        cookingCamera.SetActive(true);
 
         UpdateAllIngredientStocks();
         // Inicia la animación de los 3 paneles
@@ -360,6 +418,7 @@ public class CookingManagerUI : MonoBehaviour
         // Inicia la animación de salida
         if (cookingAnim != null)
             cookingAnim.AnimateOut();
+        CloseKitchen();
     }
 
     /// <summary>
@@ -389,7 +448,6 @@ public class CookingManagerUI : MonoBehaviour
     private void CleanupAfterAnimationOut()
     {
         panelInformation.SetActive(false);
-        cookingCamera.SetActive(false);
 
         // Limpia el estado
         ignoreFirstButtonSelected = true;
