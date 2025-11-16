@@ -43,6 +43,7 @@ public class ClientManager : Singleton<ClientManager>
             return OrdersManagerUI.Instance.TotalOrdersBeforeTabernOpen >= clientManagerData.MinimumOrdersServedToCloseTabern;
         }
     }
+
     void Awake()
     {
         CreateSingleton(false);
@@ -51,6 +52,11 @@ public class ClientManager : Singleton<ClientManager>
         InitializeClientPoolDictionary();
         InitializeFoodSpriteDictionary();
         InitializeCurrentClientsThatCanSpawn();
+    }
+
+    void Start()
+    {
+        StartCoroutine(PlayTabernMusic());
     }
 
     // Simulacion de Update
@@ -289,6 +295,13 @@ public class ClientManager : Singleton<ClientManager>
         yield return new WaitForSeconds(clientManagerData.DelayToOpenTabernAgainAfterClose);
 
         canOpenTabern = true;
+    }
+
+    private IEnumerator PlayTabernMusic()
+    {
+        yield return new WaitUntil(() => AudioManager.Instance != null);
+
+        StartCoroutine(AudioManager.Instance.PlayMusic("TabernBGM"));
     }
 }
 
