@@ -7,6 +7,7 @@ public class ClientStateWaitingForChair<T> : State<T>
 
     private ClientStateLeave<T> clientStateLeave;
 
+    private Transform waitingDesk;
     private Transform auxiliarWaitingChairPosition;
 
     private float waitingForChairTime = 0f;
@@ -19,6 +20,8 @@ public class ClientStateWaitingForChair<T> : State<T>
         this.clientModel = clientModel;
         this.clientView = clientView;
         this.clientStateLeave = clientStateLeave;
+
+        waitingDesk = GameObject.Find("SM_Prop_Camp_Table_Rug_01").transform;
     }
 
 
@@ -36,6 +39,8 @@ public class ClientStateWaitingForChair<T> : State<T>
     public override void Execute()
     {
         base.Execute();
+
+        clientModel.LookAt(waitingDesk.position, clientView.Anim.transform);
 
         if (clientModel.CurrentTable == null)
         {

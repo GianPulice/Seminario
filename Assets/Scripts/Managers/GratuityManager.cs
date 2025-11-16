@@ -1,13 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GratuityManager : Singleton<GratuityManager>
 {
     [SerializeField] private GratuityManagerData gratuityManagerData;
-
-    [SerializeField] private List<ClientFoodPaymentData> clientFoodPaymentsData;
-
-    public GratuityManagerData GratuityManagerData { get => gratuityManagerData; }
 
 
     void Awake()
@@ -15,19 +10,6 @@ public class GratuityManager : Singleton<GratuityManager>
         CreateSingleton(false);
     }
 
-
-    public int GetPayment(ClientType client, FoodType foodType)
-    {
-        foreach (var entry in clientFoodPaymentsData)
-        {
-            if (entry.ClientType == client && entry.FoodType == foodType)
-            {
-                return entry.PaymentAmount;
-            }
-        }
-
-        return 0;
-    }
 
     public void TryGiveGratuity(int paymentAmount)
     {

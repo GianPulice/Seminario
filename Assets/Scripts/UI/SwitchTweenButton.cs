@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class SwitchTweenButton : GenericTweenButton
@@ -15,6 +17,8 @@ public class SwitchTweenButton : GenericTweenButton
     [SerializeField] private Color handleOnColor = Color.green;
     [Header("EaseType")]
     [SerializeField] private LeanTweenType handleEaseType = LeanTweenType.easeOutCirc;
+
+    public Func<bool> OnTryEnableCondition;
 
     protected override void Awake()
     {
@@ -57,5 +61,35 @@ public class SwitchTweenButton : GenericTweenButton
                 });
         }
     }
- 
+    public override void OnPointerClick(PointerEventData eventData)
+    {
+        if(isSelected && OnTryEnableCondition != null && !OnTryEnableCondition.Invoke())
+        {
+            PlayRejectAnimation();
+            AudioManager.Instance?.PlayOneShotSFX("ButtonClickWrong"); 
+            return;
+        }
+        base.OnPointerClick(eventData);
+    }
+    private void PlayRejectAnimation()
+    {
+        if (handleRect == null) return;
+
+        LeanTween.cancel(handleRect);
+
+        Vector2 originalPos = handleRect.anchoredPosition;
+
+        float shakeDistance = 12f; // cuánto se mueve
+        float shakeTime = 0.25f;
+
+        LeanTween.move(handleRect, originalPos + Vector2.right * shakeDistance, shakeTime * 0.3f)
+            .setEase(LeanTweenType.easeOutCubic)
+            .setIgnoreTimeScale(true)
+            .setOnComplete(() =>
+            {
+                LeanTween.move(handleRect, originalPos, shakeTime * 0.7f)
+                    .setEase(LeanTweenType.easeOutElastic)
+                    .setIgnoreTimeScale(true);
+            });
+    }
 }

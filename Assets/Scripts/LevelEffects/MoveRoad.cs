@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class MoveRoad : MonoBehaviour
 {
+    private Animator anim;
+
     [Header("Movement Configuration")]
     [SerializeField] private Transform[] waypoints;
     [SerializeField] private float moveSpeed = 5f;
@@ -22,9 +25,18 @@ public class MoveRoad : MonoBehaviour
     private bool isRotating = false;
     private Quaternion targetRotation;
     private Quaternion originalRotation;
-    
+
+    void Awake()
+    {
+        SuscribeToUpdateManagerEvent();
+    }
+
     void Start()
     {
+        anim = GetComponent<Animator>();
+
+        anim.SetBool("Walk", true);
+
         if (waypoints == null || waypoints.Length == 0)
         {
             Debug.LogError("No waypoints assigned in " + gameObject.name);
@@ -47,7 +59,8 @@ public class MoveRoad : MonoBehaviour
         targetRotation = transform.rotation;
     }
 
-    void Update()
+    // Simulacion de Update
+    void UpdateMoveRoad()
     {
         if (!isMoving || waypoints == null || waypoints.Length == 0)
             return;
@@ -61,7 +74,22 @@ public class MoveRoad : MonoBehaviour
             MoveToWaypoint();
         }
     }
-    
+
+    void OnDestroy()
+    {
+        UnsuscribeToUpdateManagerEvent();
+    }
+
+    private void SuscribeToUpdateManagerEvent()
+    {
+        UpdateManager.OnUpdate += UpdateMoveRoad;
+    }
+
+    private void UnsuscribeToUpdateManagerEvent()
+    {
+        UpdateManager.OnUpdate -= UpdateMoveRoad;
+    }
+
     private void MoveToWaypoint()
     {
         Transform targetWaypoint = waypoints[currentWaypointIndex];

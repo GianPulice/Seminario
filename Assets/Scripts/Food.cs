@@ -20,6 +20,7 @@ public class Food : MonoBehaviour, IInteractable
 
     [SerializeField] private FoodData foodData;
 
+
     private FoodMesh defaultMesh;
     private FoodMesh foodMesh;
 
@@ -29,7 +30,6 @@ public class Food : MonoBehaviour, IInteractable
     private Slider cookingBar;
     private MeshRenderer meshRenderer;
     private ParticleSystem smoke;
-    private Color originalColor;
 
     private Transform stovePosition;
     private Transform playerDishPosition;
@@ -241,9 +241,8 @@ public class Food : MonoBehaviour, IInteractable
         SetMeshRootActive(foodMesh, false);
 
         meshRenderer = defaultMesh.ms;
-        originalColor = meshRenderer.material.color;
         currentCookingState = CookingStates.Raw;
-
+        defaultMesh.ms.material = foodData.RawMaterial;
         nativeScaleSize = transform.localScale;
     }
 
@@ -268,6 +267,8 @@ public class Food : MonoBehaviour, IInteractable
             cookingBar.value = 0;
             cookTimeCounter = 0f;
 
+            meshRenderer.material = foodData.RawMaterial;
+
             while (cookTimeCounter <= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned) // Esto es para que la logica se ejecute durante el tiempo de coccion + el tiempo de quemarse y despues no funcione mas la corrutina
             {
                 cookTimeCounter += Time.deltaTime;
@@ -282,7 +283,7 @@ public class Food : MonoBehaviour, IInteractable
                     cookingBar.gameObject.SetActive(false);
                 }
 
-                if (cookTimeCounter >= foodData.TimeToBeenBurned && !smoke.gameObject.activeSelf)
+                if (cookTimeCounter >= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned && !smoke.gameObject.activeSelf)
                 {
                     smoke.gameObject.SetActive(true);
                 }
@@ -293,9 +294,19 @@ public class Food : MonoBehaviour, IInteractable
                     yield break;
                 }
 
-                // Lerp del color original a un color oscuro
-                Color targetColor = Color.Lerp(originalColor, Color.black, cookTimeCounter / (foodData.TimeToBeenCooked + foodData.TimeToBeenBurned));
-                meshRenderer.material.color = targetColor;                
+                if (cookTimeCounter < foodData.TimeToBeenCooked)
+                {
+                    meshRenderer.material = foodData.RawMaterial;
+                }
+                else if (cookTimeCounter >= foodData.TimeToBeenCooked && cookTimeCounter < foodData.TimeToBeenCooked + foodData.TimeToBeenBurned)
+                {
+                    meshRenderer.material = foodData.FoodMaterial;
+                }
+                else if (cookTimeCounter >= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned)
+                {
+                    meshRenderer.material = foodData.BurnedMaterial;
+                }
+
 
                 yield return null;
             }
@@ -341,7 +352,7 @@ public class Food : MonoBehaviour, IInteractable
 
     private void RestartValues()
     {
-        meshRenderer.material.color = originalColor;
+        meshRenderer.material = foodData.RawMaterial;
 
         transform.localScale = nativeScaleSize;
 
@@ -427,7 +438,7 @@ public class Food : MonoBehaviour, IInteractable
                 isInPlayerDishPosition = false;
                 isServedInTable = true;
 
-                currentTable.CurrentFoods.Add(this); 
+                currentTable.CurrentFoods.Add(this);
 
                 ClearTable();
             }
@@ -438,7 +449,7 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (currentFood != null && isInPlayerDishPosition)
         {
-            Vector3 biggerSize = nativeScaleSize * 1.5f; 
+            Vector3 biggerSize = nativeScaleSize * 1.5f;
             SetGlobalScale(transform, biggerSize);
             cookingManager.ReleaseDishPosition(playerDishPosition);
             isInPlayerDishPosition = false;

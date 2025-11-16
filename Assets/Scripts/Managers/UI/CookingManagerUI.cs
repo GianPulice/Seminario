@@ -65,7 +65,6 @@ public class CookingManagerUI : MonoBehaviour
     void UpdateCookingManagerUI()
     {
         CheckLastSelectedButtonIfCookingPanelIsOpen();
-        CheckJoystickInputsToChangeSelection();
     }
 
     void OnDestroy()
@@ -219,7 +218,7 @@ public class CookingManagerUI : MonoBehaviour
 
         // --- Lógica de fallo ---
         Debug.Log("No hay receta con esos ingredientes o no alcanza el stock.");
-        AudioManager.Instance.PlayOneShotSFX("ButtonCancel");
+        AudioManager.Instance.PlayOneShotSFX("ButtonWrong");
         DeselectAllIngredients();
     }
 
@@ -356,6 +355,7 @@ public class CookingManagerUI : MonoBehaviour
     /// </summary>
     private void HandleExitCookMode()
     {
+        DeviceManager.Instance.IsUIModeActive = false;
         UpdateAllIngredientStocks();
         // Inicia la animación de salida
         if (cookingAnim != null)
@@ -393,7 +393,6 @@ public class CookingManagerUI : MonoBehaviour
 
         // Limpia el estado
         ignoreFirstButtonSelected = true;
-        DeviceManager.Instance.IsUIModeActive = false;
         onClearSelectedCurrentGameObject?.Invoke();
         DeselectAllIngredients();
     }
@@ -413,27 +412,6 @@ public class CookingManagerUI : MonoBehaviour
         if (EventSystem.current != null && PauseManager.Instance != null && !PauseManager.Instance.IsGamePaused && rootGameObject != null && rootGameObject.activeSelf)
         {
             lastSelectedButtonFromCookingPanel = EventSystem.current.currentSelectedGameObject;
-        }
-    }
-
-    private void CheckJoystickInputsToChangeSelection()
-    {
-        if (EventSystem.current == null || EventSystem.current.currentSelectedGameObject == null) return;
-        GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
-        if (PlayerInputs.Instance.L1() || PlayerInputs.Instance.R1())
-        {
-            if (buttonsInformationReciepes.Any(b => b.gameObject == currentSelected))
-            {
-                if (buttonsIngredients.Count > 0)
-                    onSetSelectedCurrentGameObject?.Invoke(buttonsIngredients[0].gameObject);
-            }
-
-            else if (buttonsIngredients.Any(b => b.gameObject == currentSelected))
-            {
-                if (buttonsInformationReciepes.Count > 0)
-                    onSetSelectedCurrentGameObject?.Invoke(buttonsInformationReciepes[0].gameObject);
-            }
-
         }
     }
 }

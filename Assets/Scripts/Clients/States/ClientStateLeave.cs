@@ -8,7 +8,7 @@ public class ClientStateLeave<T> : State<T>
     private ClientController clientController;
     private Transform newTransform;
 
-    private float waitingTimeToFreeTable = 6f;
+    private float waitingTimeToFreeTable = 1f;
 
     private bool canLeave = false;
 
@@ -99,16 +99,18 @@ public class ClientStateLeave<T> : State<T>
         {
             if (clientModel.CurrentTable.CurrentFoods != null && clientModel.CurrentTable.CurrentFoods.Count > 0)
             {
-                if (clientModel.CurrentTable.CurrentFoods[0].CurrentCookingState != CookingStates.Cooked)
+                // Si la comida no esta en estado correcta y es la que pidio sumar el minimo
+                if (clientModel.CurrentTable.CurrentFoods[0].CurrentCookingState != CookingStates.Cooked && clientModel.CurrentTable.CurrentFoods[0].FoodType == clientView.CurrentSelectedFood)
                 {
                     clientView.SetSpriteTypeName("SpriteHungry");
-                    MoneyManager.Instance.AddMoney(GratuityManager.Instance.GratuityManagerData.MinimumPyament);
+                    MoneyManager.Instance.AddMoney(ClientManager.Instance.ClientManagerData.MinimumPaymentAmount);
                 }
 
+                // Si la comida esta en el estado correcta y es la que pidio sumar el pago
                 else if (clientModel.CurrentTable.CurrentFoods[0].FoodType == clientView.CurrentSelectedFood)
                 {
                     clientView.SetSpriteTypeName("SpriteHappy");
-                    int paymentAmout = GratuityManager.Instance.GetPayment(clientModel.ClientType, clientView.CurrentSelectedFood);
+                    int paymentAmout = ClientManager.Instance.ClientManagerData.GetPayment(clientModel.CurrentTable.CurrentFoods[0].FoodType);
                     MoneyManager.Instance.AddMoney(paymentAmout);
 
                     // Solamente dar propina si la mesa estaba sucia cuando se sento
@@ -126,14 +128,14 @@ public class ClientStateLeave<T> : State<T>
             else
             {
                 clientView.SetSpriteTypeName("SpriteHungry");
-                MoneyManager.Instance.SubMoney(GratuityManager.Instance.GratuityManagerData.MissedClientCost);
+                //MoneyManager.Instance.SubMoney(GratuityManager.Instance.GratuityManagerData.MissedClientCost);
             }
         }
 
         // Si la mesa es null ejecuta este bloque, quiere decir que todas las mesas estaban ocupadas y se quedo esperando afuera
-        else
+        /*else
         {
             MoneyManager.Instance.SubMoney(GratuityManager.Instance.GratuityManagerData.MissedClientCost);
-        }
+        }*/
     }
 }

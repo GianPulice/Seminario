@@ -23,6 +23,7 @@ public class AdminUIAppear : MonoBehaviour
     public UnityEvent OnAnimateInComplete = new UnityEvent();
     [Tooltip("Se dispara cuando la animación de salida (desaparecer) ha terminado.")]
     public UnityEvent OnAnimateOutComplete = new UnityEvent();
+    public UnityEvent OnAnimateOutStart;
 
     [Header("Referencias (Opcional)")]
     [Tooltip("El CanvasGroup a animar. Si es nulo, lo buscará en este GameObject.")]
@@ -67,6 +68,7 @@ public class AdminUIAppear : MonoBehaviour
     }
     public void AnimateOut()
     {
+        OnAnimateOutStart?.Invoke();
         InitializeIfNeeded();
         if (isAnimating) return;
         isAnimating = true;

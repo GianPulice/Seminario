@@ -12,6 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf5dd3e6f66060946bc43fa7d46cf6ef, type: 3}
   m_Name: ClientManagerData
   m_EditorClassIdentifier: 
+  clientSpawnChances:
+  - clientType: 2
+    probability: 100
+  - clientType: 1
+    probability: 70
+  - clientType: 0
+    probability: 70
+  foodPayments:
+  - FoodType: 0
+    PaymentAmount: 20
+  - FoodType: 1
+    PaymentAmount: 30
+  - FoodType: 2
+    PaymentAmount: 10
+  - FoodType: 3
+    PaymentAmount: 40
+  - FoodType: 3
+    PaymentAmount: 50
+  minimumPaymentAmount: 20
   minimumOrdersServedToCloseTabern: 5
-  timeToWaitForSpawnNewClient: 2
+  timeToWaitForSpawnNewClient: 1
   delayToOpenTabernAgainAfterClose: 5
