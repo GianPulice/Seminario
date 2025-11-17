@@ -28,11 +28,13 @@ public class InteractionManager : Singleton<InteractionManager>
 
     private void SuscribeToPlayerViewEvents()
     {
+        PlayerView.OnEnterTutorial += HandlePlayerEnterUI;
         PlayerView.OnEnterInAdministrationMode += HandlePlayerEnterUI;
         PlayerView.OnEnterInCookMode += HandlePlayerEnterUI;
 
         PlayerView.OnExitInAdministrationMode += HandlePlayerExitUI;
         PlayerView.OnExitInCookMode += HandlePlayerExitUI;
+        PlayerView.OnExitTutorial += HandlePlayerExitUI;
 
         Trash.OnShowPanelTrash += HandlePlayerEnterUI;
         Trash.OnHidePanelTrash += HandlePlayerExitUI;
