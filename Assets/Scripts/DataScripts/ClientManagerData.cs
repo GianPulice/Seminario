@@ -11,7 +11,8 @@ public class ClientManagerData : ScriptableObject
     [SerializeField] private int minimumPaymentAmount;
     [SerializeField] private int minimumOrdersServedToCloseTabern;
 
-    [SerializeField] private float timeToWaitForSpawnNewClient;
+    [SerializeField] private float minSpawnTime;
+    [SerializeField] private float maxSpawnTime;
     [SerializeField] private float delayToOpenTabernAgainAfterClose;
 
     [Serializable]
@@ -30,7 +31,9 @@ public class ClientManagerData : ScriptableObject
 
     public int MinimumPaymentAmount { get => minimumPaymentAmount; }
     public int MinimumOrdersServedToCloseTabern { get => minimumOrdersServedToCloseTabern; }
-    public float TimeToWaitForSpawnNewClient { get => timeToWaitForSpawnNewClient; set => timeToWaitForSpawnNewClient = value; }
+
+    public float MinSpawnTime { get => minSpawnTime; }
+    public float MaxSpawnTime { get => maxSpawnTime; }
     public float DelayToOpenTabernAgainAfterClose { get => delayToOpenTabernAgainAfterClose; }
 
 

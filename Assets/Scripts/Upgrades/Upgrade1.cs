@@ -34,7 +34,6 @@ public class Upgrade1 : MonoBehaviour, IUpgradable
             }
         }
 
-        ClientManager.Instance.ClientManagerData.TimeToWaitForSpawnNewClient = 3; // Aumentar el tiempo
         ClientManager.Instance.AvailableClientTypes.Add(ClientType.Ogre); // Agregar nuevo cliente
 
         foreach (var recipeData in recipesToUnlock) // Desbloquear nueva receta

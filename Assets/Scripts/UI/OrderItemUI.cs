@@ -51,7 +51,7 @@ public class OrderItemUI : MonoBehaviour
             currentOrderDataUI.RemainingTime -= Time.deltaTime;
             UpdateTimerUI();
 
-            if (currentOrderDataUI.RemainingTime <= initialTime * 0.5f && alertCoroutine == null)
+            if (currentOrderDataUI.RemainingTime <= initialTime * 0.3f && alertCoroutine == null)
             {
                 alertCoroutine = StartCoroutine(AlertCoroutine());
             }

@@ -16,8 +16,6 @@ public class Upgrade4 : MonoBehaviour, IUpgradable
 
     public void Unlock()
     {
-        ClientManager.Instance.ClientManagerData.TimeToWaitForSpawnNewClient = 1; // Aumentar el tiempo
-
         foreach (var recipeData in recipesToUnlock) // Desbloquear nueva receta
         {
             RecipeProgressManager.Instance.UnlockRecipe(recipeData.FoodType);

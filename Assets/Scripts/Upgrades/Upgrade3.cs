@@ -30,8 +30,6 @@ public class Upgrades3 : MonoBehaviour, IUpgradable
             }
         }
 
-        ClientManager.Instance.ClientManagerData.TimeToWaitForSpawnNewClient = 1; // Aumentar el tiempo
-
         isUnlocked = true;
     }
 }
