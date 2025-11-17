@@ -28,6 +28,8 @@ public class ClientView : MonoBehaviour
 
     private FoodType currentSelectedFood;
 
+    private float currentFoodCookingTime;
+
     private bool canTakeOrder = false; // Se pone en true cuando nos acercamos a la mesa y no pidio nada todavia
 
     public Animator Anim { get => anim; }
@@ -35,6 +37,8 @@ public class ClientView : MonoBehaviour
     public List<string> OrderFoodNames { get => orderFoodNames; }
 
     public FoodType CurrentSelectedFood { get => currentSelectedFood; }
+
+    public float CurrentFoodCookingTime { get => currentFoodCookingTime; }
 
     public bool CanTakeOrder { get => canTakeOrder; set => canTakeOrder = value; }
 
@@ -115,7 +119,10 @@ public class ClientView : MonoBehaviour
 
             Sprite spriteSelectedFood = clientManager.GetSpriteForRandomFood(selectedFood.Value);
 
-            clientModel.CurrentOrderDataUI = new OrderDataUI(spriteSelectedFood, clientModel.ClientData.ClientImage, clientModel.ClientData.MaxTimeWaitingFood);
+            FoodData data = FoodTimesManager.Instance.GetFoodData(selectedFood.Value);
+            currentFoodCookingTime = data.TimeToBeenCooked;
+
+            clientModel.CurrentOrderDataUI = new OrderDataUI(spriteSelectedFood, clientModel.ClientData.ClientImage, clientModel.ClientData.MaxTimeWaitingFood + currentFoodCookingTime);
             OrdersManagerUI.Instance.AddOrder(clientModel.CurrentOrderDataUI);
 
             if (spriteSelectedFood != null)

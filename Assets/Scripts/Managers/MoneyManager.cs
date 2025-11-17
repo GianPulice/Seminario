@@ -26,8 +26,18 @@ public class MoneyManager : Singleton<MoneyManager>
     }
 
 
-    public void AddMoney(float amount)
+    public void AddMoney(float amount, bool isFromGratuity = false)
     {
+        if (isFromGratuity)
+        {
+            AudioManager.Instance.PlayOneShotSFX("Gratuity");
+        }
+
+        else
+        {
+            AudioManager.Instance.PlayOneShotSFX("AddMoney");
+        }
+
         currentMoney += amount;
         UpdateMoneyText();
         SaveMoney();

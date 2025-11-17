@@ -11,6 +11,8 @@ public enum TutorialType
 
 public class TutorialScreensManager : Singleton<TutorialScreensManager>
 {
+    [SerializeField] private TutorialData tutorialData;
+    [SerializeField] private GameObject rootContent;
     [SerializeField] private Image imageToChange;
     [Header("Datos de Tutorial")]
     [SerializeField] private List<TutorialImageData> tutorialImages;
@@ -27,12 +29,20 @@ public class TutorialScreensManager : Singleton<TutorialScreensManager>
     }
     public void SetTutorialType(TutorialType tutorialType)
     {
+        if (tutorialData.ActivateTutorial == false) return;
+        DeviceManager.instance.IsUIModeActive = true;
         currentTutorialType = tutorialType;
         UpdateTutorialImage();
+    }
+    public void Close()
+    {
+        DeviceManager.instance.IsUIModeActive = false;
+        rootContent.SetActive(false);
     }
 
     public void SetTutorialType(int tutorialTypeIndex)
     {
+        if (tutorialData.ActivateTutorial == false) return;
         if (System.Enum.IsDefined(typeof(TutorialType), tutorialTypeIndex))
             SetTutorialType((TutorialType)tutorialTypeIndex);
         else
@@ -41,6 +51,7 @@ public class TutorialScreensManager : Singleton<TutorialScreensManager>
 
     private void UpdateTutorialImage()
     {
+        if (tutorialData.ActivateTutorial == false) return;
         if (imageToChange == null)
         {
             Debug.LogError("No hay una 'Image' asignada para cambiar.", this);
@@ -54,8 +65,8 @@ public class TutorialScreensManager : Singleton<TutorialScreensManager>
             Debug.LogWarning($"No se encontró un Sprite para el tipo '{currentTutorialType}'.", this);
             imageToChange.sprite = null;
         }
+        rootContent.SetActive(true);
     }
-
     private void BuildDictionary()
     {
         tutorialImageDictionary = tutorialImages

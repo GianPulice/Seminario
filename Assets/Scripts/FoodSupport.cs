@@ -31,6 +31,7 @@ public class FoodSupport : MonoBehaviour, IInteractable
             currentFood.transform.position = transform.position + new Vector3(0, 0.375f, 0);
             currentFood.transform.SetParent(transform);
             currentFood = null;
+            AudioManager.Instance.PlayOneShotSFX("FoodSupport");
         }
     }
 
@@ -68,6 +69,7 @@ public class FoodSupport : MonoBehaviour, IInteractable
         message = null;
         return false;
     }
+
     private void GetComponents()
     {
         playerController = FindFirstObjectByType<PlayerController>();

@@ -106,6 +106,8 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (gameObject.activeSelf && !isServedInTable && !isInPlayerDishPosition && cookingManager.AvailableDishPositions.Count > 0)
         {
+            AudioManager.Instance.PlayOneShotSFX("GrabFood");
+
             transform.localScale = nativeScaleSize;
 
             if (cookingBar.gameObject.activeSelf)
@@ -413,6 +415,8 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (isInPlayerDishPosition && currentTable != null && currentTable.IsOccupied)
         {
+            AudioManager.Instance.PlayOneShotSFX("DeliverOrder");
+
             Vector3 biggerSize = nativeScaleSize * 2f;
             SetGlobalScale(transform, biggerSize);
             cookingManager.ReleaseDishPosition(playerDishPosition);

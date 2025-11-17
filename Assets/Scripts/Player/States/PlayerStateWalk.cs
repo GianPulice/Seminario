@@ -27,6 +27,8 @@ public class PlayerStateWalk<T> : State<T>
         //Debug.Log("Walk");
 
         playerModel.Speed = playerModel.PlayerTabernData.WalkSpeed;
+
+        AudioManager.Instance.PlayLoopSFX("PlayerFootSteps");
     }
 
     public override void Execute()
@@ -57,5 +59,12 @@ public class PlayerStateWalk<T> : State<T>
         {
             Fsm.TransitionTo(inputToAdmin);
         }
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+
+        AudioManager.Instance.StopLoopSFX("PlayerFootSteps");
     }
 }

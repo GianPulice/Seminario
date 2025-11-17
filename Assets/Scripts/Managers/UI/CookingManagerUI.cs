@@ -28,7 +28,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
     [Header("RecipeUI")]
     [SerializeField] private List<RecipeInformationUI> recipesInformationUI;
 
-    private List<GenericTweenButton> buttonsInformationReciepes = new List<GenericTweenButton>();
+    private List<RecipeButton> buttonsInformationReciepes = new List<RecipeButton>();
     private List<IngredientButtonUI> buttonsIngredients = new List<IngredientButtonUI>();
 
     // --- Variables de Estado ---
@@ -39,12 +39,12 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
     private bool ignoreFirstButtonSelected = true;
 
     // --- Eventos Estáticos ---
-    private static event Action<string> onButtonGetFood;
+    private static event Action<string, bool> onButtonGetFood;
     private static event Action onEnterCook, onExitCookRequest;
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
 
-    public static Action<string> OnButtonSetFood { get => onButtonGetFood; set => onButtonGetFood = value; }
+    public static Action<string, bool> OnButtonSetFood { get => onButtonGetFood; set => onButtonGetFood = value; }
     public static Action OnExitCook { get => onExitCookRequest; set => onExitCookRequest = value; }
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
@@ -56,6 +56,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
         SuscribeToUpdateManagerEvent();
         SuscribeToPlayerViewEvents();
         SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
+        SuscribeToRecipeProgressEvents();
         GetComponents();
 
         InitializeAnimatorBindings();
@@ -63,7 +64,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
 
     void Start()
     {
-        ShowInformationRecipe(FoodType.BeastStew.ToString());
+        ShowInformationRecipe(FoodType.DarkWoodBerries.ToString());
     }
 
     // Simulacion de Update
@@ -77,8 +78,8 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
         //ClearLambas();
         UnscribeToUpdateManagerEvent();
         UnSuscribeToPlayerViewEvents();
-        UnscribeToPauseManagerRestoreSelectedGameObjectEvent();
-
+        UnsuscribeToPauseManagerRestoreSelectedGameObjectEvent();
+        UnsuscribeToRecipeProgressEvents();
         if (cookingAnim != null)
         {
             cookingAnim.OnAnimateInComplete.RemoveListener(SetupAfterAnimationIn);
@@ -178,8 +179,6 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
             // --- Intentar Seleccionar ---
             if (selectedIngredients.Count >= 3)
             {
-                // Límite alcanzado
-                AudioManager.Instance.PlayOneShotSFX("ButtonCancel"); // Sonido de error
                 tweenButton.SetSelected(false); // Asegura que no quede visualmente seleccionado
                 return;
             }
@@ -193,7 +192,6 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
 
     public void ButtonExit()
     {
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         onExitCookRequest?.Invoke();
     }
 
@@ -217,8 +215,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
 
                 if (canCraft)
                 {
-                    AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
-                    onButtonGetFood?.Invoke(recipe.FoodType.ToString());
+                    onButtonGetFood?.Invoke(recipe.FoodType.ToString(), true);
                     Debug.Log($"Cocinaste {recipe.FoodType}!");
                     UpdateStocksForSelectedIngredients();
                     UpdateStocksForSelectedIngredients();
@@ -230,7 +227,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
 
         // --- Lógica de fallo ---
         Debug.Log("No hay receta con esos ingredientes o no alcanza el stock.");
-        AudioManager.Instance.PlayOneShotSFX("ButtonWrong");
+        onButtonGetFood?.Invoke(string.Empty, false);
         DeselectAllIngredients();
     }
 
@@ -327,7 +324,23 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
             }
         }
     }
+    private void UpdateIngredientButtonsVisibility()
+    {
+        foreach (var btn in buttonsIngredients)
+        {
+            bool isUnlocked = RecipeProgressManager.Instance.IsIngredientUnlocked(btn.IngredientType);
+            btn.gameObject.SetActive(isUnlocked);
+        }
+    }
 
+    private void UpdateRecipeButtonsVisibility()
+    {
+        foreach (var btn in buttonsInformationReciepes)
+        {
+            bool isUnlocked = RecipeProgressManager.Instance.IsRecipeUnlocked(btn.RecipeType);
+            btn.gameObject.SetActive(isUnlocked);
+        }
+    }
     private void SuscribeToUpdateManagerEvent()
     {
         UpdateManager.OnUpdate += UpdateCookingManagerUI;
@@ -360,13 +373,22 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
         PlayerView.OnEnterInCookMode -= HandleEnterCookMode;
         PlayerView.OnExitInCookMode -= HandleExitCookMode;
     }
-
+    private void SuscribeToRecipeProgressEvents()
+    {
+        RecipeProgressManager.Instance.OnIngredientUnlocked += OnIngredientUnlocked;
+        RecipeProgressManager.Instance.OnRecipeUnlocked += OnRecipeUnlocked;
+    }
+    private void UnsuscribeToRecipeProgressEvents()
+    {
+        RecipeProgressManager.Instance.OnIngredientUnlocked -= OnIngredientUnlocked;
+        RecipeProgressManager.Instance.OnRecipeUnlocked -= OnRecipeUnlocked;
+    }
     private void SuscribeToPauseManagerRestoreSelectedGameObjectEvent()
     {
         PauseManager.OnRestoreSelectedGameObject += RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
     }
 
-    private void UnscribeToPauseManagerRestoreSelectedGameObjectEvent()
+    private void UnsuscribeToPauseManagerRestoreSelectedGameObjectEvent()
     {
         PauseManager.OnRestoreSelectedGameObject -= RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
     }
@@ -375,7 +397,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
     {
         if (recipeButtonsContainer != null)
         {
-            buttonsInformationReciepes = recipeButtonsContainer.GetComponentsInChildren<GenericTweenButton>(true).ToList();
+            buttonsInformationReciepes = recipeButtonsContainer.GetComponentsInChildren<RecipeButton>(true).ToList();
         }
         else
         {
@@ -396,12 +418,23 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
             Debug.LogError("'Ingredient Buttons Container' no está asignado en el Inspector.", this);
         }
     }
+    private void OnIngredientUnlocked(IngredientType ingredient)
+    {
+        UpdateIngredientButtonsVisibility();
+    }
 
+    private void OnRecipeUnlocked(FoodType recipeType)
+    {
+        UpdateRecipeButtonsVisibility();
+    }
     private void HandleEnterCookMode()
     {
+        AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
         panelInformation.SetActive(true);
 
         UpdateAllIngredientStocks();
+        UpdateIngredientButtonsVisibility();
+        UpdateRecipeButtonsVisibility();
         // Inicia la animación de los 3 paneles
         if (cookingAnim != null)
             cookingAnim.AnimateIn();
@@ -413,6 +446,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
     /// </summary>
     private void HandleExitCookMode()
     {
+        AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
         DeviceManager.Instance.IsUIModeActive = false;
         UpdateAllIngredientStocks();
         // Inicia la animación de salida

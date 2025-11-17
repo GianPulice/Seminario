@@ -47,6 +47,8 @@ public class GenericTweenButton : MonoBehaviour,
     protected Color normalColor;
     #endregion
 
+    [SerializeField] private Color disabledColor = new Color(0.2f, 0.2f, 0.2f, 1f);
+
     // --- UnityEvents ---
     [Header("Eventos del Botón")]
     public UnityEvent OnClick = new UnityEvent();
@@ -59,6 +61,9 @@ public class GenericTweenButton : MonoBehaviour,
     protected bool isPointerOver = false;
     protected bool isPointerDown = false;
     protected int currentTweenId = -1;
+    protected bool isInteractable = true;
+
+    private Image ownerImage;
 
     private static GenericTweenButton currentHoverOnlyButton;
     protected virtual void Awake()
@@ -67,7 +72,10 @@ public class GenericTweenButton : MonoBehaviour,
         {
             targetTransform = GetComponent<RectTransform>();
         }
-
+        if (ownerImage == null)
+        {
+            ownerImage = GetComponent<Image>();
+        }
         if (targetImage == null)
         {
             targetImage = targetTransform.GetComponentInChildren<Image>();
@@ -105,8 +113,13 @@ public class GenericTweenButton : MonoBehaviour,
         isPointerOver = false;
         isPointerDown = false;
     }
+    public void ForceRefreshSelectedState()
+    {
+        UpdateVisuals();
+    }
     public virtual void OnPointerEnter(PointerEventData eventData)
     {
+        if (!isInteractable) return;
         isPointerOver = true;
 
         if (behavior == ButtonBehavior.HoverOnly)
@@ -120,12 +133,9 @@ public class GenericTweenButton : MonoBehaviour,
         UpdateVisuals();
         OnPointerEnterEvent.Invoke();
     }
-    public void ForceRefreshSelectedState()
-    {
-        UpdateVisuals();
-    }
     public virtual void OnPointerExit(PointerEventData eventData)
     {
+        if (!isInteractable) return;
         isPointerOver = false;
         UpdateVisuals();
         OnPointerExitEvent.Invoke();
@@ -133,6 +143,7 @@ public class GenericTweenButton : MonoBehaviour,
 
     public virtual void OnPointerDown(PointerEventData eventData)
     {
+        if (!isInteractable) return;
         if (behavior == ButtonBehavior.HoverOnly) return;
         isPointerDown = true;
         UpdateVisuals();
@@ -140,6 +151,7 @@ public class GenericTweenButton : MonoBehaviour,
 
     public virtual void OnPointerUp(PointerEventData eventData)
     {
+        if (!isInteractable) return;
         if (behavior == ButtonBehavior.HoverOnly) return;
         isPointerDown = false;
         UpdateVisuals();
@@ -147,6 +159,7 @@ public class GenericTweenButton : MonoBehaviour,
 
     public virtual void OnPointerClick(PointerEventData eventData)
     {
+        if (!isInteractable) return;
         if (behavior == ButtonBehavior.HoverOnly) return;
         if (behavior == ButtonBehavior.ToggleSelect)
         {
@@ -155,7 +168,27 @@ public class GenericTweenButton : MonoBehaviour,
         }
         OnClick?.Invoke();
     }
+    public virtual void SetInteractable(bool state)
+    {
+        isInteractable = state;
 
+        if (targetTransform != null)
+            LeanTween.cancel(targetTransform.gameObject);
+
+        if (ownerImage != null)
+        {
+            LeanTween.cancel(ownerImage.gameObject);
+
+            ownerImage.raycastTarget = state;
+
+            Color targetColor = state ? normalColor : disabledColor;
+
+            LeanTween.color(ownerImage.rectTransform, targetColor, animTime)
+                .setEase(easeType)
+                .setIgnoreTimeScale(true);
+        }
+
+    }
     protected virtual void UpdateVisuals()
     {
         if (targetTransform == null) return;

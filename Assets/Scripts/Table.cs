@@ -26,6 +26,7 @@ public class Table : MonoBehaviour, IInteractable
 
     private bool isOccupied = false;
     private bool isDirty = false;
+    private bool isCleaningSoundPlaying = false;
 
     public Transform ChairPosition { get => chair.transform; }
     public Transform DishPosition { get => dish.transform; } // Solamente para que mire hacia adelante que es esta posicion
@@ -79,19 +80,38 @@ public class Table : MonoBehaviour, IInteractable
         {
             if (isPressed)
             {
+                if (!isCleaningSoundPlaying)
+                {
+                    AudioManager.Instance.PlayLoopSFX("CleanDirtyTable");
+                    isCleaningSoundPlaying = true;
+                }
+
                 PlayerController.OnCleanDirtyTableIncreaseSlider?.Invoke(this);
             }
 
             else
             {
+                if (isCleaningSoundPlaying)
+                {
+                    AudioManager.Instance.StopLoopSFX("CleanDirtyTable");
+                    isCleaningSoundPlaying = false;
+                }
+
                 PlayerController.OnCleanDirtyTableDecreaseSlider?.Invoke(this);
             }
 
             return;
         }
 
+        if (isCleaningSoundPlaying)
+        {
+            AudioManager.Instance.StopLoopSFX("CleanDirtyTable");
+            isCleaningSoundPlaying = false;
+        }
+
         if (auxiliarClientView != null && auxiliarClientView.CanTakeOrder)
         {
+            AudioManager.Instance.PlayOneShotSFX("TakeOrder");
             PlayerController.OnTakeOrder?.Invoke();
             return;
         }
@@ -193,6 +213,12 @@ public class Table : MonoBehaviour, IInteractable
         dirty.gameObject.SetActive(current);
         var main = dirty.main;
         main.loop = current;
+
+        if (!current && isCleaningSoundPlaying)
+        {
+            AudioManager.Instance.StopLoopSFX("CleanDirtyTable");
+            isCleaningSoundPlaying = false;
+        }
     }
 
     /// <summary>
