@@ -11,7 +11,7 @@ public class TutorialTrigger : MonoBehaviour
     public static event Func<TutorialType, bool> OnTryTriggerTutorial;
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.gameObject.layer == 7)
         {
             bool canTrigger = OnTryTriggerTutorial?.Invoke(tutorialType) ?? true;
             if (canTrigger)
