@@ -17,7 +17,6 @@ public class AppearTutorialScreen : MonoBehaviour
         originalScale = transform.localScale;
         canvasGroup.alpha = 0f;
         transform.localScale = initialScale;
-        gameObject.SetActive(false);
     }
     public void ShowPannel()
     {
