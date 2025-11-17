@@ -147,7 +147,6 @@ GameObject:
   - component: {fileID: 5295608378660587265}
   - component: {fileID: 7587640602587062821}
   - component: {fileID: 7755036055659213925}
-  - component: {fileID: 4144194267931889901}
   m_Layer: 5
   m_Name: Frame
   m_TagString: Untagged
@@ -212,21 +211,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4144194267931889901
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2711416698177068555}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfa00be9dc2dabd47b17519886ded2c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animationTime: 1
-  startValue: -0.5
-  endValue: 1.5
 --- !u!1 &3963186507187367575
 GameObject:
   m_ObjectHideFlags: 0
@@ -327,6 +311,7 @@ MonoBehaviour:
   easeType: 2
   hoverColor: {r: 1, g: 1, b: 1, a: 0.6862745}
   selectedColor: {r: 1, g: 0.9, b: 0.5, a: 1}
+  disabledColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   OnClick:
     m_PersistentCalls:
       m_Calls: []

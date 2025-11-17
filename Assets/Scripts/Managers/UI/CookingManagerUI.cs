@@ -28,7 +28,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
     [Header("RecipeUI")]
     [SerializeField] private List<RecipeInformationUI> recipesInformationUI;
 
-    private List<GenericTweenButton> buttonsInformationReciepes = new List<GenericTweenButton>();
+    private List<RecipeButton> buttonsInformationReciepes = new List<RecipeButton>();
     private List<IngredientButtonUI> buttonsIngredients = new List<IngredientButtonUI>();
 
     // --- Variables de Estado ---
@@ -56,6 +56,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
         SuscribeToUpdateManagerEvent();
         SuscribeToPlayerViewEvents();
         SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
+        SuscribeToRecipeProgressEvents();
         GetComponents();
 
         InitializeAnimatorBindings();
@@ -77,8 +78,8 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
         //ClearLambas();
         UnscribeToUpdateManagerEvent();
         UnSuscribeToPlayerViewEvents();
-        UnscribeToPauseManagerRestoreSelectedGameObjectEvent();
-
+        UnsuscribeToPauseManagerRestoreSelectedGameObjectEvent();
+        UnsuscribeToRecipeProgressEvents();
         if (cookingAnim != null)
         {
             cookingAnim.OnAnimateInComplete.RemoveListener(SetupAfterAnimationIn);
@@ -323,7 +324,23 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
             }
         }
     }
+    private void UpdateIngredientButtonsVisibility()
+    {
+        foreach (var btn in buttonsIngredients)
+        {
+            bool isUnlocked = RecipeProgressManager.Instance.IsIngredientUnlocked(btn.IngredientType);
+            btn.gameObject.SetActive(isUnlocked);
+        }
+    }
 
+    private void UpdateRecipeButtonsVisibility()
+    {
+        foreach (var btn in buttonsInformationReciepes)
+        {
+            bool isUnlocked = RecipeProgressManager.Instance.IsRecipeUnlocked(btn.RecipeType);
+            btn.gameObject.SetActive(isUnlocked);
+        }
+    }
     private void SuscribeToUpdateManagerEvent()
     {
         UpdateManager.OnUpdate += UpdateCookingManagerUI;
@@ -356,13 +373,22 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
         PlayerView.OnEnterInCookMode -= HandleEnterCookMode;
         PlayerView.OnExitInCookMode -= HandleExitCookMode;
     }
-
+    private void SuscribeToRecipeProgressEvents()
+    {
+        RecipeProgressManager.Instance.OnIngredientUnlocked += OnIngredientUnlocked;
+        RecipeProgressManager.Instance.OnRecipeUnlocked += OnRecipeUnlocked;
+    }
+    private void UnsuscribeToRecipeProgressEvents()
+    {
+        RecipeProgressManager.Instance.OnIngredientUnlocked -= OnIngredientUnlocked;
+        RecipeProgressManager.Instance.OnRecipeUnlocked -= OnRecipeUnlocked;
+    }
     private void SuscribeToPauseManagerRestoreSelectedGameObjectEvent()
     {
         PauseManager.OnRestoreSelectedGameObject += RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
     }
 
-    private void UnscribeToPauseManagerRestoreSelectedGameObjectEvent()
+    private void UnsuscribeToPauseManagerRestoreSelectedGameObjectEvent()
     {
         PauseManager.OnRestoreSelectedGameObject -= RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
     }
@@ -371,7 +397,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
     {
         if (recipeButtonsContainer != null)
         {
-            buttonsInformationReciepes = recipeButtonsContainer.GetComponentsInChildren<GenericTweenButton>(true).ToList();
+            buttonsInformationReciepes = recipeButtonsContainer.GetComponentsInChildren<RecipeButton>(true).ToList();
         }
         else
         {
@@ -392,13 +418,23 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
             Debug.LogError("'Ingredient Buttons Container' no está asignado en el Inspector.", this);
         }
     }
+    private void OnIngredientUnlocked(IngredientType ingredient)
+    {
+        UpdateIngredientButtonsVisibility();
+    }
 
+    private void OnRecipeUnlocked(FoodType recipeType)
+    {
+        UpdateRecipeButtonsVisibility();
+    }
     private void HandleEnterCookMode()
     {
         AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
         panelInformation.SetActive(true);
 
         UpdateAllIngredientStocks();
+        UpdateIngredientButtonsVisibility();
+        UpdateRecipeButtonsVisibility();
         // Inicia la animación de los 3 paneles
         if (cookingAnim != null)
             cookingAnim.AnimateIn();
