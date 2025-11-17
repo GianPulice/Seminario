@@ -101,8 +101,25 @@ public class CookingManager : Singleton<CookingManager>
         CookingManagerUI.OnButtonSetFood -= GetFood;
     }
 
-    private void GetFood(string prefabFoodName)
+    private void GetFood(string prefabFoodName, bool ClickWellOrClickWrong)
     {
+        if (ClickWellOrClickWrong)
+        {
+            if (currentDesk.AvailableStoves.Count == 0)
+            {
+                AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
+                return;
+            }
+
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        }
+
+        else
+        {
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
+            return;
+        }
+
         if (Enum.TryParse(prefabFoodName, out FoodType foodType))
         {
             if (IngredientInventoryManager.Instance.TryCraftFood(foodType))

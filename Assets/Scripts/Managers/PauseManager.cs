@@ -75,7 +75,7 @@ public class PauseManager : Singleton<PauseManager>
     // Funciones asignadas a botones de la UI
     public void ButtonResume()
     {
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
         HidePause();
     }
 
@@ -188,7 +188,7 @@ public class PauseManager : Singleton<PauseManager>
     {
         if (PlayerInputs.Instance.Pause())
         {
-            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+            AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
             (isGamePaused ? (Action)HidePause : ShowPause)();
         }
     }

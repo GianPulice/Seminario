@@ -56,7 +56,7 @@ public class ClientManager : Singleton<ClientManager>
 
     void Start()
     {
-        StartCoroutine(PlayTabernMusic());
+        StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
     }
 
     // Simulacion de Update
@@ -167,6 +167,7 @@ public class ClientManager : Singleton<ClientManager>
     {
         if (canOpenTabern)
         {
+            StartCoroutine(PlayCurrentTabernMusic("TabernOpen"));
             canOpenTabern = false;
             isTabernOpen = true;
         }
@@ -176,6 +177,7 @@ public class ClientManager : Singleton<ClientManager>
     {
         if (OrdersManagerUI.Instance.TotalOrdersBeforeTabernOpen >= clientManagerData.MinimumOrdersServedToCloseTabern)
         {
+            StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
             isTabernOpen = false;
             OrdersManagerUI.Instance.RemoveTotalOrdersWhenCloseTabern();
             StartCoroutine(DelayForOpenTabernAgain());
@@ -196,6 +198,7 @@ public class ClientManager : Singleton<ClientManager>
                 {
                     string prefabName = pool.Prefab.name;
                     clientAbstractFactory.CreateObject(prefabName);
+                    StartCoroutine(PlaySoundWhenEnterTabern());
                 }
             }
 
@@ -245,7 +248,7 @@ public class ClientManager : Singleton<ClientManager>
         }
     }
 
-    // Devuelve true si hay sillas que no estan ocupadas, sino devuelve false
+    // Devuelve true si hay sillas de espera que no estan ocupadas, sino devuelve false
     private bool GetIfAllWaitingChairPositionsAreOccupied()
     {
         foreach (var chair in waitingChairsPositions)
@@ -297,11 +300,18 @@ public class ClientManager : Singleton<ClientManager>
         canOpenTabern = true;
     }
 
-    private IEnumerator PlayTabernMusic()
+    private IEnumerator PlayCurrentTabernMusic(string musicClipName)
     {
         yield return new WaitUntil(() => AudioManager.Instance != null);
 
-        StartCoroutine(AudioManager.Instance.PlayMusic("TabernBGM"));
+        StartCoroutine(AudioManager.Instance.PlayMusic(musicClipName));
+    }
+
+    private IEnumerator PlaySoundWhenEnterTabern()
+    {
+        yield return new WaitForSeconds(4);
+
+        AudioManager.Instance.PlayOneShotSFX("ClientEnterTabern");
     }
 }
 

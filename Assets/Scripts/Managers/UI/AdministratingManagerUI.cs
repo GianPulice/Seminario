@@ -5,7 +5,6 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 using System.Linq;
-using System.Collections;
 
 public class AdministratingManagerUI : MonoBehaviour
 {
@@ -162,7 +161,6 @@ public class AdministratingManagerUI : MonoBehaviour
     }
     public void ButtonExit()
     {
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         onExitAdmin?.Invoke();
     }
 
@@ -274,12 +272,14 @@ public class AdministratingManagerUI : MonoBehaviour
 
     private void HandlePlayerEnterAdmin()
     {
+        AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
         PrepareInitialUIState();
         if (panelAnimator != null) panelAnimator.AnimateIn();
     }
 
     private void HandlePlayerExitAdmin()
     {
+        AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
         DeviceManager.Instance.IsUIModeActive = false;
         onClearSelectedCurrentGameObject?.Invoke();
 

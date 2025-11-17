@@ -117,12 +117,14 @@ public class IngredientInventoryManagerUI : MonoBehaviour
 
         if (PlayerInputs.Instance.Inventory() && !inventoryPanel.enabled)
         {
+            AudioManager.Instance.PlayOneShotSFX("OpenOrCloseInventory");
             OpenInventory();
             return;
         }
 
         else if (PlayerInputs.Instance.Inventory() && inventoryPanel.enabled)
         {
+            AudioManager.Instance.PlayOneShotSFX("OpenOrCloseInventory");
             CloseInventory();
             return;
         }

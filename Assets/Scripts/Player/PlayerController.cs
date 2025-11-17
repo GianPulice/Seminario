@@ -181,11 +181,13 @@ public class PlayerController : MonoBehaviour
 
             if (playerView.Dish.activeSelf)
             {
+                AudioManager.Instance.PlayOneShotSFX("ShowOrHideDish");
                 playerView.ShowOrHideDish(false);
             }
 
             else
             {
+                AudioManager.Instance.PlayOneShotSFX("ShowOrHideDish");
                 playerView.ShowOrHideDish(true);
             }
         }

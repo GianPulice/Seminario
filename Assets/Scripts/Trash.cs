@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using TMPro;
 using System;
 
 public class Trash : MonoBehaviour, IInteractable

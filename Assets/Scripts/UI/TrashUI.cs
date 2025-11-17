@@ -25,6 +25,7 @@ public class TrashUI : MonoBehaviour
     {
         if (isAnimating) return;
 
+        AudioManager.Instance.PlayOneShotSFX("Trash");
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         PlayerController.OnThrowFoodToTrash?.Invoke();
         Trash.OnHidePanelTrash?.Invoke();
