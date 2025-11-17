@@ -20,6 +20,7 @@ public class ClientManager : Singleton<ClientManager>
     private Dictionary<FoodType, Sprite> foodSpriteDict = new();
 
     private float spawnTime = 0f;
+    private float nextSpawnTime;
 
     private bool isTabernOpen = false;
     private bool canOpenTabern = true;
@@ -170,6 +171,7 @@ public class ClientManager : Singleton<ClientManager>
             StartCoroutine(PlayCurrentTabernMusic("TabernOpen"));
             canOpenTabern = false;
             isTabernOpen = true;
+            SetRandomSpawnTime();
         }
     }
 
@@ -184,11 +186,16 @@ public class ClientManager : Singleton<ClientManager>
         }
     }
 
+    private void SetRandomSpawnTime()
+    {
+        nextSpawnTime = UnityEngine.Random.Range(clientManagerData.MinSpawnTime, clientManagerData.MaxSpawnTime);
+    }
+
     private void GetClientRandomFromPool()
     {
         spawnTime += Time.deltaTime;
 
-        if (spawnTime >= clientManagerData.TimeToWaitForSpawnNewClient)
+        if (spawnTime >= nextSpawnTime)
         {
             ClientType? selectedType = clientManagerData.GetRandomClient(availableClientTypes);
 
@@ -203,14 +210,16 @@ public class ClientManager : Singleton<ClientManager>
             }
 
             spawnTime = 0f;
+            SetRandomSpawnTime();
         }
     }
 
+    // Testeo solo para Devs
     private void GetTheSameClientFromPool()
     {
         spawnTime += Time.deltaTime;
 
-        if (spawnTime > clientManagerData.TimeToWaitForSpawnNewClient)
+        if (spawnTime > 5)
         {
             clientAbstractFactory.CreateObject("ClientGoblin");
 

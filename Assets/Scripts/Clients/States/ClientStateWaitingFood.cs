@@ -101,7 +101,7 @@ public class ClientStateWaitingFood<T> : State<T>
                 {
                     waitingFoodTime += Time.deltaTime;
 
-                    if (waitingFoodTime >= clientModel.ClientData.MaxTimeWaitingFood)
+                    if (waitingFoodTime >= clientModel.ClientData.MaxTimeWaitingFood + clientView.CurrentFoodCookingTime)
                     {
                         clientStateLeave.CanLeave = true;
                         waitingFoodTime = 0f;

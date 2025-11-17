@@ -727,6 +727,7 @@ Transform:
   - {fileID: 2048203450}
   - {fileID: 184873586}
   - {fileID: 1961110289}
+  - {fileID: 958715109}
   - {fileID: 1423096586}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1692,6 +1693,56 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5fc38b66adf70642a8b1afb1c85bebf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &958715108
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 958715109}
+  - component: {fileID: 958715110}
+  m_Layer: 0
+  m_Name: FoodTimesManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &958715109
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 958715108}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2062.852, y: 502.0645, z: 1465.1123}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 267385402}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &958715110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 958715108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccca746fe890dc54896fd8bac512f977, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  foodsData:
+  - {fileID: 11400000, guid: 71e1f7d8d848dce4e8fc50f704c35d27, type: 2}
+  - {fileID: 11400000, guid: b254dc82c389ffa4d845f054d462eafc, type: 2}
+  - {fileID: 11400000, guid: 23f0befa46748c646b278c0c510fc1fa, type: 2}
+  - {fileID: 11400000, guid: 944dcb1978895b44ead695db26ef3457, type: 2}
+  - {fileID: 11400000, guid: 9109b0ca099f6284c8c0bff1bf354376, type: 2}
 --- !u!1 &1062425381
 GameObject:
   m_ObjectHideFlags: 0
