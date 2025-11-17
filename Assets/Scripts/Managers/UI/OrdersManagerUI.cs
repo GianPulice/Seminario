@@ -174,8 +174,4 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
                    .setEase(easeType)
                    .setIgnoreTimeScale(true);
     }
-    private void SlideInAnim()
-    {
-      
-    }
 }

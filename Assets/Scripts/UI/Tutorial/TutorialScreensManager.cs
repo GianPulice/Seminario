@@ -12,7 +12,7 @@ public enum TutorialType
 public class TutorialScreensManager : Singleton<TutorialScreensManager>
 {
     [SerializeField] private TutorialData tutorialData;
-    [SerializeField] private GameObject rootContent;
+    [SerializeField] private AppearTutorialScreen appearAnim;
     [SerializeField] private Image imageToChange;
     [Header("Datos de Tutorial")]
     [SerializeField] private List<TutorialImageData> tutorialImages;
@@ -37,7 +37,7 @@ public class TutorialScreensManager : Singleton<TutorialScreensManager>
     public void Close()
     {
         DeviceManager.instance.IsUIModeActive = false;
-        rootContent.SetActive(false);
+        appearAnim?.HidePanel();
     }
 
     public void SetTutorialType(int tutorialTypeIndex)
@@ -65,7 +65,7 @@ public class TutorialScreensManager : Singleton<TutorialScreensManager>
             Debug.LogWarning($"No se encontró un Sprite para el tipo '{currentTutorialType}'.", this);
             imageToChange.sprite = null;
         }
-        rootContent.SetActive(true);
+        appearAnim?.ShowPannel();
     }
     private void BuildDictionary()
     {
