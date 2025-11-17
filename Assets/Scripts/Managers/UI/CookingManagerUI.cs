@@ -64,7 +64,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
 
     void Start()
     {
-        ShowInformationRecipe(FoodType.BeastStew.ToString());
+        ShowInformationRecipe(FoodType.DarkWoodBerries.ToString());
     }
 
     // Simulacion de Update
