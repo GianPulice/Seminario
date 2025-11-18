@@ -2042,7 +2042,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6048724343949430683, guid: 2357541fab3cea14aaa53dff071b498b, type: 3}
       propertyPath: tablesToActive.Array.size
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 6048724343949430683, guid: 2357541fab3cea14aaa53dff071b498b, type: 3}
       propertyPath: recipesToUnlock.Array.size
@@ -2072,6 +2072,10 @@ PrefabInstance:
       propertyPath: 'tablesToActive.Array.data[4]'
       value: 
       objectReference: {fileID: 160961015}
+    - target: {fileID: 6048724343949430683, guid: 2357541fab3cea14aaa53dff071b498b, type: 3}
+      propertyPath: 'tablesToActive.Array.data[5]'
+      value: 
+      objectReference: {fileID: 1703319927}
     - target: {fileID: 6048724343949430683, guid: 2357541fab3cea14aaa53dff071b498b, type: 3}
       propertyPath: 'recipesToUnlock.Array.data[0]'
       value: 
@@ -2947,6 +2951,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4501250456709689228, guid: cc0c65b684310094ab0506efcad3f572, type: 3}
   m_PrefabInstance: {fileID: 1703319925}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1703319927 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6286149109331318883, guid: cc0c65b684310094ab0506efcad3f572, type: 3}
+  m_PrefabInstance: {fileID: 1703319925}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5fc38b66adf70642a8b1afb1c85bebf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1714983292
 PrefabInstance:
   m_ObjectHideFlags: 0
