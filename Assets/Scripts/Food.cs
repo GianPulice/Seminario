@@ -20,7 +20,6 @@ public class Food : MonoBehaviour, IInteractable
 
     [SerializeField] private FoodData foodData;
 
-
     private FoodMesh defaultMesh;
     private FoodMesh foodMesh;
 
@@ -28,13 +27,19 @@ public class Food : MonoBehaviour, IInteractable
     private CookingManager cookingManager;
     private Table currentTable; // Esta Table hace referencia a la mesa en la cual podemos entregar el pedido
     private Slider cookingBar;
+    private Image sliderFill;
     private MeshRenderer meshRenderer;
     private ParticleSystem smoke;
 
     private Transform stovePosition;
     private Transform playerDishPosition;
 
-    private Vector3 nativeScaleSize;
+    private Vector3 nativeParentScaleSize;
+    //private Vector3 nativeSliderRotation;
+    //private RectTransform nativeSliderPosition;
+
+    // Naranja                             // Lima   
+    private Color[] colorsSlider = new Color[] { Color.red, new Color(1f, 0.5f, 0f), Color.yellow, new Color(0.5f, 1f, 0f), Color.green } ;
 
     [SerializeField] private FoodType foodType;
     private CookingStates currentCookingState;
@@ -79,7 +84,7 @@ public class Food : MonoBehaviour, IInteractable
     // Simulacion de Update
     void UpdateFood()
     {
-        RotateSliderUIToLookAtPlayer();
+        //RotateSliderUIToLookAtPlayer();
     }
 
     void OnEnable()
@@ -108,7 +113,7 @@ public class Food : MonoBehaviour, IInteractable
         {
             AudioManager.Instance.PlayOneShotSFX("GrabFood");
 
-            transform.localScale = nativeScaleSize;
+            transform.localScale = nativeParentScaleSize;
 
             if (cookingBar.gameObject.activeSelf)
             {
@@ -224,6 +229,8 @@ public class Food : MonoBehaviour, IInteractable
         cookingManager = FindFirstObjectByType<CookingManager>();
         cookingBar = GetComponentInChildren<Slider>();
         smoke = GetComponentInChildren<ParticleSystem>(true); // Inidica que busca componentes dentro de gameObjects que estan desactivados
+        sliderFill = cookingBar.fillRect.GetComponent<Image>();
+        //nativeSliderPosition = cookingBar.GetComponent<RectTransform>();
     }
 
     private IEnumerator RegisterOutline()
@@ -245,7 +252,8 @@ public class Food : MonoBehaviour, IInteractable
         meshRenderer = defaultMesh.ms;
         currentCookingState = CookingStates.Raw;
         defaultMesh.ms.material = foodData.RawMaterial;
-        nativeScaleSize = transform.localScale;
+        nativeParentScaleSize = transform.localScale;
+        //nativeSliderRotation = cookingBar.transform.rotation.eulerAngles;
     }
 
     private void SetupFoodMesh(ref FoodMesh foodMesh, string gameObjectHierarchyName)
@@ -278,6 +286,7 @@ public class Food : MonoBehaviour, IInteractable
                 if (cookTimeCounter <= foodData.TimeToBeenCooked)
                 {
                     cookingBar.value = cookTimeCounter;
+                    sliderFill.color = EvaluateColor(cookingBar.value / cookingBar.maxValue);
                 }
 
                 if (cookTimeCounter >= foodData.TimeToBeenCooked && cookingBar.gameObject.activeSelf)
@@ -300,15 +309,16 @@ public class Food : MonoBehaviour, IInteractable
                 {
                     meshRenderer.material = foodData.RawMaterial;
                 }
+
                 else if (cookTimeCounter >= foodData.TimeToBeenCooked && cookTimeCounter < foodData.TimeToBeenCooked + foodData.TimeToBeenBurned)
                 {
                     meshRenderer.material = foodData.FoodMaterial;
                 }
+
                 else if (cookTimeCounter >= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned)
                 {
                     meshRenderer.material = foodData.BurnedMaterial;
                 }
-
 
                 yield return null;
             }
@@ -356,7 +366,10 @@ public class Food : MonoBehaviour, IInteractable
     {
         meshRenderer.material = foodData.RawMaterial;
 
-        transform.localScale = nativeScaleSize;
+        transform.localScale = nativeParentScaleSize;
+        transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        //cookingBar.transform.rotation = Quaternion.Euler(nativeSliderRotation);
+        //nativeSliderPosition.localPosition = new Vector3(0.16f, 1.367f, 2.36f);
 
         cookingBar.gameObject.SetActive(true);
         smoke.gameObject.SetActive(false);
@@ -417,7 +430,7 @@ public class Food : MonoBehaviour, IInteractable
         {
             AudioManager.Instance.PlayOneShotSFX("DeliverOrder");
 
-            Vector3 biggerSize = nativeScaleSize * 2f;
+            Vector3 biggerSize = nativeParentScaleSize * 2f;
             SetGlobalScale(transform, biggerSize);
             cookingManager.ReleaseDishPosition(playerDishPosition);
 
@@ -453,7 +466,7 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (currentFood != null && isInPlayerDishPosition)
         {
-            Vector3 biggerSize = nativeScaleSize * 1.5f;
+            Vector3 biggerSize = nativeParentScaleSize * 1.5f;
             SetGlobalScale(transform, biggerSize);
             cookingManager.ReleaseDishPosition(playerDishPosition);
             isInPlayerDishPosition = false;
@@ -478,5 +491,17 @@ public class Food : MonoBehaviour, IInteractable
             globalScale.y / transform.lossyScale.y * transform.localScale.y,
             globalScale.z / transform.lossyScale.z * transform.localScale.z
         );
+    }
+
+    private Color EvaluateColor(float t)
+    {
+        if (t <= 0f) return colorsSlider[0];
+        if (t >= 1f) return colorsSlider[colorsSlider.Length - 1];
+
+        float scaled = t * (colorsSlider.Length - 1);
+        int index = Mathf.FloorToInt(scaled);
+        float lerp = scaled - index;
+
+        return Color.Lerp(colorsSlider[index], colorsSlider[index + 1], lerp);
     }
 }
