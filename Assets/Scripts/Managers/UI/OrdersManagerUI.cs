@@ -13,6 +13,8 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
     [SerializeField] private float animTime = 0.4f;
     [SerializeField] private LeanTweenType easeType = LeanTweenType.easeOutQuad;
 
+    [SerializeField] private float orderPrefabWidth = 177f;
+
     private List<OrderItemUI> activeOrders = new List<OrderItemUI>();
     private int totalOrdersBeforeTabernOpen = 0;
     private Vector3 originalPosition;
@@ -53,6 +55,12 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
         rect.localScale = Vector3.one;
         rect.localRotation = Quaternion.identity;
 
+        LayoutElement le = obj.GetComponent<LayoutElement>();
+        if (le == null) le = obj.AddComponent<LayoutElement>();
+
+        CanvasGroup cg = obj.GetComponent<CanvasGroup>();
+        if (cg == null) cg = obj.AddComponent<CanvasGroup>();
+
         uiItem.SetupOrder(newOrderDataUI);
         activeOrders.Add(uiItem);
 
@@ -60,6 +68,18 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
         {
             totalOrdersBeforeTabernOpen++;
         }
+
+        le.preferredWidth = 0f;
+        cg.alpha = 0f;
+
+        LeanTween.value(obj, 0f, orderPrefabWidth, animTime)
+            .setOnUpdate((float val) =>
+            {
+                le.preferredWidth = val;
+            })
+            .setEase(easeType);
+        LeanTween.alphaCanvas(cg, 1f, animTime * 0.8f) 
+            .setEase(easeType);
     }
 
     public void RemoveOrder(OrderDataUI orderDataUI)
@@ -69,7 +89,29 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
         if (itemToRemove != null)
         {
             activeOrders.Remove(itemToRemove);
-            Destroy(itemToRemove.gameObject);
+
+            LayoutElement le = itemToRemove.GetComponent<LayoutElement>();
+            CanvasGroup cg = itemToRemove.GetComponent<CanvasGroup>();
+
+            if (le == null || cg == null)
+            {
+                Destroy(itemToRemove.gameObject);
+                return;
+            }
+
+            LeanTween.value(itemToRemove.gameObject, le.preferredWidth, 0f, animTime)
+                .setOnUpdate((float val) =>
+                {
+                    le.preferredWidth = val;
+                })
+                .setEase(easeType);
+
+            LeanTween.alphaCanvas(cg, 0f, animTime * 0.8f)
+                .setEase(easeType)
+                .setOnComplete(() =>
+                {
+                    Destroy(itemToRemove.gameObject);
+                });
         }
     }
 
