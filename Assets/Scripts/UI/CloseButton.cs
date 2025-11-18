@@ -80,6 +80,7 @@ public class CloseButton : MonoBehaviour,IPointerEnterHandler,IPointerExitHandle
     {
         LeanTween.cancel(gameObject);
         LeanTween.scale(gameObject, targetScale, animationDuration)
-            .setEase(easeType);
+            .setEase(easeType)
+            .setIgnoreTimeScale(true);
     }
 }
