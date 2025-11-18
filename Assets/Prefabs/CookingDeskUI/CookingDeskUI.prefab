@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 315725162345254049}
   - component: {fileID: 401606246998252216}
   - component: {fileID: 8282921086249622252}
-  - component: {fileID: 5464924594917155182}
+  - component: {fileID: 2669300941280535338}
   - component: {fileID: -1046359890391428082}
   m_Layer: 10
   m_Name: CookingDeskUI
@@ -28,13 +28,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1687372764633375774}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.7042441, z: 0, w: 0.70995796}
-  m_LocalPosition: {x: -1191.62, y: 0.33999994, z: 0.43}
-  m_LocalScale: {x: 2.0666335, y: 3.3247, z: 3.3247}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.6395, y: 0.7505952, z: 0.9889}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -89.537, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!33 &401606246998252216
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -42,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1687372764633375774}
-  m_Mesh: {fileID: 4300000, guid: 8e4a2ec0c45087147b6889f9c8778b00, type: 3}
+  m_Mesh: {fileID: 4300000, guid: e38e0674c4dccb84bac8d075e2cebcd9, type: 3}
 --- !u!23 &8282921086249622252
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -65,7 +65,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 42b64fdb315e3054ea757d8d1c4bcfa7, type: 2}
+  - {fileID: 2100000, guid: 2a12d3fc0532ba64e972160db18dfd99, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -87,7 +87,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &5464924594917155182
+--- !u!65 &2669300941280535338
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -106,8 +106,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.65721637, y: 0.22088969, z: 0.4961151}
-  m_Center: {x: 0.006724016, y: -0.110444844, z: 0.0007478298}
+  m_Size: {x: 2.0236118, y: 0.90999997, z: 1.3677416}
+  m_Center: {x: -0.00000005960465, y: 0.45499998, z: -2.7755576e-17}
 --- !u!114 &-1046359890391428082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120,3 +120,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 989f3650dfd46c340a6c9b6b2a7b8b3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cookingCamera: {fileID: 0}
+  stovePositionsThisDesk: []
