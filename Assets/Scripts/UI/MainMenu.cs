@@ -108,7 +108,7 @@ public class MainMenu : MonoBehaviour
 
         for (int i = 0; i < buttonsMainMenu.Count; i++)
         {
-            if (i != 1) 
+            if (i != 1)
             {
                 buttonsMainMenu[i].gameObject.SetActive(true);
             }
