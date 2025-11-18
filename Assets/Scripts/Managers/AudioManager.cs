@@ -112,6 +112,17 @@ public class AudioManager : Singleton<AudioManager>
         }
     }
 
+    public AudioClip GetSFX(string sfxName)
+    {
+        if (SFXDictionary.ContainsKey(sfxName))
+        {
+            return SFXDictionary[sfxName];
+        }
+
+        Debug.LogWarning("SFX no encontrado: " + sfxName);
+        return null;
+    }
+
     // ------------------------------------------ MUSIC ---------------------------------------------------
 
     public IEnumerator PlayMusic(string musicName)

@@ -34,6 +34,7 @@ public class PlayerModel : MonoBehaviour
     private bool isAdministrating = false;
     private bool isInTeleportPanel = false;
     private bool isInTrashPanel = false;
+    private bool isInTutorial = false;
 
     private bool readyToJump = true;
     private bool exitingSlope = false;
@@ -55,19 +56,26 @@ public class PlayerModel : MonoBehaviour
     public bool IsAdministrating { get => isAdministrating; set => isAdministrating = value; }
     public bool IsInTeleportPanel { get => isInTeleportPanel; set => isInTeleportPanel = value; }
     public bool IsInTrashPanel { get => isInTrashPanel; set => isInTrashPanel = value; }
+    public bool IsInTutorial { get => isInTutorial; set => isInTutorial = value; }
     public bool ReadyToJump { get => readyToJump; set => readyToJump = value; }
 
     void Awake()
     {
+        SuscribeToTutorialEvents();
         GetComponents();
         Initialize();
         SpawnPlayerPosition();
     }
 
+    void OnDestroy()
+    {
+        UnsuscribeToTutorialEvents();
+    }
+
     public void HandleMovement()
     {
         if (PlayerInputs.Instance == null) return;
-        if (isCooking || isAdministrating || isInTeleportPanel || isInTrashPanel) return;
+        if (isCooking || isAdministrating || isInTeleportPanel || isInTrashPanel || isInTutorial) return;
 
         Vector2 input = PlayerInputs.Instance.GetMoveAxis();
 
@@ -172,6 +180,18 @@ public class PlayerModel : MonoBehaviour
         return Vector3.ProjectOnPlane(moveDir, slopeHit.normal).normalized;
     }
 
+    private void SuscribeToTutorialEvents()
+    {
+        TutorialScreensManager.OnEnterTutorial += OnEnterInTutorial;
+        TutorialScreensManager.OnExitTutorial += OnExitInTutorial;
+    }
+
+    private void UnsuscribeToTutorialEvents()
+    {
+        TutorialScreensManager.OnEnterTutorial -= OnEnterInTutorial;
+        TutorialScreensManager.OnExitTutorial -= OnExitInTutorial;
+    }
+
     private void GetComponents()
     {
         playerCamera = GetComponentInChildren<PlayerCamera>();
@@ -196,5 +216,15 @@ public class PlayerModel : MonoBehaviour
         {
             transform.position = AdministrationZone.transform.position;
         }
+    }
+
+    private void OnEnterInTutorial()
+    {
+        isInTutorial = true;
+    }
+
+    private void OnExitInTutorial()
+    {
+        isInTutorial = false;
     }
 }

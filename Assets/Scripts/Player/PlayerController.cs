@@ -164,7 +164,7 @@ public class PlayerController : MonoBehaviour
         if (PlayerInputs.Instance == null) return;
         if (PauseManager.Instance == null) return;
         if (PauseManager.Instance.IsGamePaused) return;
-        if (playerModel.IsCooking || playerModel.IsAdministrating || playerModel.IsInTeleportPanel || playerModel.IsInTrashPanel) return;
+        if (playerModel.IsCooking || playerModel.IsAdministrating || playerModel.IsInTeleportPanel || playerModel.IsInTrashPanel || playerModel.IsInTutorial) return;
 
         ShowOrHideDish();
     }

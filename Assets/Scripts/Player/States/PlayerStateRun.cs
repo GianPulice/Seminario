@@ -45,7 +45,7 @@ public class PlayerStateRun<T> : State<T>
             Fsm.TransitionTo(inputToWalk);
         }
 
-        if (PlayerInputs.Instance.Jump() && playerModel.IsGrounded && playerModel.ReadyToJump && !playerModel.IsInTeleportPanel && !playerModel.IsInTrashPanel)
+        if (PlayerInputs.Instance.Jump() && playerModel.IsGrounded && playerModel.ReadyToJump && !playerModel.IsInTeleportPanel && !playerModel.IsInTrashPanel && !playerModel.IsInTutorial)
         {
             Fsm.TransitionTo(inputToJump);
         }
