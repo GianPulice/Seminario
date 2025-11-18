@@ -113,7 +113,7 @@ public class IngredientInventoryManagerUI : MonoBehaviour
         if (PlayerInputs.Instance == null) return;
         if (PauseManager.Instance == null) return;
         if (PauseManager.Instance.IsGamePaused) return;
-        if (playerModel.IsAdministrating || playerModel.IsCooking) return;
+        if (playerModel.IsAdministrating || playerModel.IsCooking || playerModel.IsInTutorial) return;
 
         if (PlayerInputs.Instance.Inventory() && !inventoryPanel.enabled)
         {

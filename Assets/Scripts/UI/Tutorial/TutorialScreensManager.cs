@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,15 +13,22 @@ public enum TutorialType
 public class TutorialScreensManager : Singleton<TutorialScreensManager>
 {
     [SerializeField] private TutorialData tutorialData;
-    [SerializeField] private GameObject rootContent;
+    [SerializeField] private AppearTutorialScreen appearAnim;
     [SerializeField] private Image imageToChange;
     [Header("Datos de Tutorial")]
     [SerializeField] private List<TutorialImageData> tutorialImages;
 
+    private Dictionary<TutorialType, Sprite> tutorialImageDictionary;
+
+    private static event Action onEnterTutorial;
+    private static event Action onExitTutorial;
+
     private TutorialType currentTutorialType;
     public TutorialType CurrentTutorialType => currentTutorialType;
 
-    private Dictionary<TutorialType, Sprite> tutorialImageDictionary;
+    public static Action OnEnterTutorial { get => onEnterTutorial; set => onEnterTutorial = value; }
+    public static Action OnExitTutorial { get => onExitTutorial; set => onExitTutorial = value; }
+
     private void Awake()
     {
         CreateSingleton(false);
@@ -33,11 +41,13 @@ public class TutorialScreensManager : Singleton<TutorialScreensManager>
         DeviceManager.instance.IsUIModeActive = true;
         currentTutorialType = tutorialType;
         UpdateTutorialImage();
+        onEnterTutorial?.Invoke();
     }
     public void Close()
     {
         DeviceManager.instance.IsUIModeActive = false;
-        rootContent.SetActive(false);
+        appearAnim?.HidePanel();
+        onExitTutorial?.Invoke();
     }
 
     public void SetTutorialType(int tutorialTypeIndex)
@@ -65,7 +75,7 @@ public class TutorialScreensManager : Singleton<TutorialScreensManager>
             Debug.LogWarning($"No se encontró un Sprite para el tipo '{currentTutorialType}'.", this);
             imageToChange.sprite = null;
         }
-        rootContent.SetActive(true);
+        appearAnim?.ShowPannel();
     }
     private void BuildDictionary()
     {
