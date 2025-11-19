@@ -10,7 +10,6 @@ public class PlayerStateWalk<T> : State<T>
     private T inputToCook;
     private T inputToAdmin;
 
-
     public PlayerStateWalk(T inputToIdle, T inputToRun, T inputToJump, T inputToCook, T inputToAdmin, PlayerModel playerModel)
     {
         this.inputToIdle = inputToIdle;
@@ -28,14 +27,32 @@ public class PlayerStateWalk<T> : State<T>
 
         playerModel.Speed = playerModel.PlayerTabernData.WalkSpeed;
 
-        AudioManager.Instance.PlayLoopSFX("PlayerFootSteps");
+        if (playerModel.IsGrounded)
+        {
+            AudioManager.Instance.PlayLoopSFX("PlayerFootSteps");
+        }
     }
 
     public override void Execute()
     {
         base.Execute();
 
-        if (PlayerInputs.Instance.GetMoveAxis() == Vector2.zero)
+        if (!playerModel.IsGrounded)
+        {
+            AudioManager.Instance.StopLoopSFX("PlayerFootSteps");
+        }
+
+        else
+        {
+            AudioSource playerFootSteps = AudioManager.Instance.GetActiveSFX("PlayerFootSteps");
+
+            if (playerFootSteps == null || !playerFootSteps.isPlaying)
+            {
+                AudioManager.Instance.PlayLoopSFX("PlayerFootSteps");
+            }
+        }
+
+        if (PlayerInputs.Instance.GetMoveAxis() == Vector2.zero || playerModel.IsInTutorial)
         {
             Fsm.TransitionTo(inputToIdle);
         }
