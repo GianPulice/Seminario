@@ -5,7 +5,6 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 using System.Linq;
-using System.Collections;
 
 public class AdministratingManagerUI : MonoBehaviour
 {
@@ -25,6 +24,7 @@ public class AdministratingManagerUI : MonoBehaviour
 
     [Header("Referencias (Panel Ingredients)")]
     [SerializeField] private GameObject ingredientButtonContainer;
+    [SerializeField] private GameObject upgradeButtonContainer;
 
     [Header("Referencias (Panel Upgrades)")]
     [SerializeField] private ConfirmationPanel confirmationPanel;
@@ -33,7 +33,9 @@ public class AdministratingManagerUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textPriceCurrentUpgradeUnlock;
     [SerializeField] private TextMeshProUGUI textInformationCurrentUpgrade;
 
+    //--- Listas de botones ---
     private List<IngredientButtonUI> ingredientButtons = new List<IngredientButtonUI>();
+    private List<GenericTweenButton> upgradeButtons = new List<GenericTweenButton>();
 
     private static event Action onEnterAdmin, onExitAdmin;
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
@@ -62,13 +64,15 @@ public class AdministratingManagerUI : MonoBehaviour
         SuscribeToPlayerViewEvents();
         SuscribeToUpdateManagerEvent();
         SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
+        SuscribeToRecipeProgressEvents();
     }
 
     void OnDestroy()
     {
         UnsuscribeToPlayerViewEvents();
         UnsuscribeToUpdateManagerEvent();
-        UnscribeToPauseManagerRestoreSelectedGameObjectEvent();
+        UnsuscribeToPauseManagerRestoreSelectedGameObjectEvent();
+        UnSuscribeToRecipeProgressEvents();
 
         if (panelAnimator != null)
         {
@@ -99,7 +103,7 @@ public class AdministratingManagerUI : MonoBehaviour
         PauseManager.OnRestoreSelectedGameObject += RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
     }
 
-    private void UnscribeToPauseManagerRestoreSelectedGameObjectEvent()
+    private void UnsuscribeToPauseManagerRestoreSelectedGameObjectEvent()
     {
         if (PauseManager.Instance != null)
             PauseManager.OnRestoreSelectedGameObject -= RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
@@ -162,7 +166,6 @@ public class AdministratingManagerUI : MonoBehaviour
     }
     public void ButtonExit()
     {
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         onExitAdmin?.Invoke();
     }
 
@@ -187,17 +190,19 @@ public class AdministratingManagerUI : MonoBehaviour
     }
     private void UpdateAllIngredientButtons()
     {
-        if (ingredientButtons == null || IngredientInventoryManager.Instance == null)
-            return;
+        if (ingredientButtons == null) return;
 
         foreach (var btnUI in ingredientButtons)
         {
             IngredientType type = btnUI.IngredientType;
 
             int price = IngredientInventoryManager.Instance.GetPriceOfIngredient(type);
-            int stock = IngredientInventoryManager.Instance.GetStock(type); 
+            int stock = IngredientInventoryManager.Instance.GetStock(type);
 
             btnUI.UpdateUI(price, stock);
+
+            bool isUnlocked = RecipeProgressManager.Instance.IsIngredientUnlocked(type);
+            btnUI.gameObject.SetActive(isUnlocked);
         }
     }
 
@@ -257,7 +262,55 @@ public class AdministratingManagerUI : MonoBehaviour
         textPriceCurrentUpgradeUnlock.text = $"Price: {data.Cost}";
         textInformationCurrentUpgrade.text = data.InformationCurrentZone;
     }
+    private void UpdateIngredientButtonsFromUpgrades()
+    {
+        foreach(var btn in ingredientButtons)
+        {
+            bool isUnlocked = RecipeProgressManager.Instance.IsIngredientUnlocked(btn.IngredientType);
+            btn.gameObject.SetActive(isUnlocked);
+        }
+    }
+    private void UpdateUpgradeButtonsInteractable()
+    {
+        for (int i = 0; i < upgradeButtons.Count; i++)
+        {
+            var upgrade = UpgradesManager.Instance.GetUpgrade(i);
 
+            if (upgrade == null)
+            {
+                upgradeButtons[i].SetInteractable(false);
+                continue;
+            }
+
+            // Si se puede comprar --> interactuable
+            // Si NO se puede comprar --> desactivado visual + raycast apagado
+            upgradeButtons[i].SetInteractable(upgrade.CanUpgrade);
+        }
+    }
+    private void OnIngredientUnlocked(IngredientType ingredient)
+    {
+        UpdateIngredientButtonsFromUpgrades();
+    }
+    private void PreRefreshUI()
+    {
+        UpdateAllIngredientButtons();
+        UpdateUpgradeButtonsInteractable();
+
+        // Si estás entrando a la UI y la última tab era "Upgrades"
+        if (tabGroup != null)
+        {
+            int indexToSelect =
+                (lastTabIndex >= 0 && lastTabIndex < tabGroup.GetTabCount())
+                ? lastTabIndex
+                : 0;
+
+            // si la tab es la de upgrades, refrescá la info
+            if (indexToSelect == 2)
+            {
+                ShowCurrentZoneInformation(0);
+            }
+        }
+    }
     #endregion
 
     #region === Animaciones de Entrada / Salida ===
@@ -274,23 +327,22 @@ public class AdministratingManagerUI : MonoBehaviour
 
     private void HandlePlayerEnterAdmin()
     {
+        AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
         PrepareInitialUIState();
-        if (panelAnimator != null) panelAnimator.AnimateIn();
+        PreRefreshUI();
+        panelAnimator?.AnimateIn();
     }
 
     private void HandlePlayerExitAdmin()
     {
+        AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
         DeviceManager.Instance.IsUIModeActive = false;
         onClearSelectedCurrentGameObject?.Invoke();
 
         if (tabGroup != null)
-        {
             lastTabIndex = tabGroup.GetCurrentTabIndex();
-        }
-     
-        if (panelAnimator != null)
-            panelAnimator.AnimateOut();
 
+        panelAnimator?.AnimateOut();
         confirmationPanel.Hide();
     }
 
@@ -299,13 +351,15 @@ public class AdministratingManagerUI : MonoBehaviour
         ignoreFirstButtonSelected = true;
 
         UpdateAllIngredientButtons();
+        UpdateUpgradeButtonsInteractable();
 
         if (tabGroup == null) return;
 
         //Determino la tab a mostrar
-        int indexToSelect = (lastTabIndex >= 0 && lastTabIndex < tabGroup.GetTabCount())
-        ? lastTabIndex
-        : 0;
+        int indexToSelect =
+          (lastTabIndex >= 0 && lastTabIndex < tabGroup.GetTabCount())
+          ? lastTabIndex
+          : 0;
 
         tabGroup.SelectTabByIndex(indexToSelect);
         tabGroup.ForceShowCurrentTab();
@@ -358,6 +412,18 @@ public class AdministratingManagerUI : MonoBehaviour
         PlayerView.OnExitInAdministrationMode -= OnExitAdminMode;
     }
 
+    private void SuscribeToRecipeProgressEvents()
+    {
+        RecipeProgressManager.Instance.OnIngredientUnlocked += OnIngredientUnlocked;
+    }
+
+    private void UnSuscribeToRecipeProgressEvents()
+    {
+        if (RecipeProgressManager.Instance == null) return;
+
+        RecipeProgressManager.Instance.OnIngredientUnlocked -= OnIngredientUnlocked;
+    }
+
     private void GetComponents()
     {
         if (panelAnimator == null)
@@ -367,9 +433,9 @@ public class AdministratingManagerUI : MonoBehaviour
         
         if (ingredientButtonContainer != null)
         {
-            // Busca recursivamente en todos los hijos del contenedor
-            // El 'true' incluye los objetos inactivos, lo cual es bueno
-            ingredientButtons = ingredientButtonContainer.GetComponentsInChildren<IngredientButtonUI>(true).ToList();
+           
+            ingredientButtons = ingredientButtonContainer
+              .GetComponentsInChildren<IngredientButtonUI>(true).ToList();
 
             if (ingredientButtons.Count == 0)
             {
@@ -379,6 +445,21 @@ public class AdministratingManagerUI : MonoBehaviour
         else
         {
             Debug.LogError("'Ingredient Button Container' no está asignado en el Inspector de AdministratingManagerUI.", this);
+        }
+
+        if (upgradeButtonContainer != null)
+        {
+            upgradeButtons = upgradeButtonContainer
+             .GetComponentsInChildren<GenericTweenButton>(true).ToList();
+
+            if (upgradeButtons.Count == 0)
+            {
+                Debug.LogWarning($"No se encontró ningún 'GenericTweenButton' en los hijos de {upgradeButtonContainer.name}", this);
+            }
+        }
+        else
+        {
+            Debug.LogError("'Upgrade Button Container' no está asignado en el Inspector de AdministratingManagerUI.", this);
         }
         startTavernSwitch.OnTryEnableCondition = () => ClientManager.Instance.CanCloseTabern;
     }

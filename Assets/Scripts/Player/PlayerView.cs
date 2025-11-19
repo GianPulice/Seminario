@@ -7,6 +7,9 @@ public class PlayerView : MonoBehaviour
 
     private static event Action<bool> onEnabledDishForced;
 
+    private static Action onEnterTutorial;
+    private static Action onExitTutorial;
+
     private static Action onEnterInCookMode; // Entrar en el modo cocinar para mostrar la UI de cocina
     private static Action onExitInCookMode; // Salir del modo cocinar para ocultar la UI de cocina
 
@@ -19,6 +22,9 @@ public class PlayerView : MonoBehaviour
     public GameObject Dish { get => dish; }
 
     public static Action<bool> OnEnabledDishForced { get => onEnabledDishForced; set => onEnabledDishForced = value; }  
+
+    public static Action OnEnterTutorial { get => onEnterTutorial; set => onEnterTutorial = value; }
+    public static Action OnExitTutorial { get => onExitTutorial; set => onExitTutorial = value; }
 
     public static Action OnEnterInCookMode { get => onEnterInCookMode; set => onEnterInCookMode = value; }
     public static Action OnExitInCookMode { get => onExitInCookMode; set => onExitInCookMode = value; }

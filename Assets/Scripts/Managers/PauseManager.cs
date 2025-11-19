@@ -26,6 +26,9 @@ public class PauseManager : Singleton<PauseManager>
     private static event Action onButtonSettingsClickToShowCorrectPanel;
     private static event Action onRestoreSelectedGameObject;
 
+    private static event Action onGamePaused;
+    private static event Action onGameUnPaused;
+
     private bool isGamePaused = false;
     private bool ignoreFirstSelectedSound = false;
     private bool wasUiActiveOnPause = false;
@@ -34,7 +37,12 @@ public class PauseManager : Singleton<PauseManager>
     public static Action OnButtonSettingsClickToShowCorrectPanel { get => onButtonSettingsClickToShowCorrectPanel; set => onButtonSettingsClickToShowCorrectPanel = value; }
     public static Action OnRestoreSelectedGameObject { get => onRestoreSelectedGameObject; set => onRestoreSelectedGameObject = value; }
 
+    public static Action OnGamePaused { get => onGamePaused; set => onGamePaused = value; }
+    public static Action OnGameUnPaused { get => onGameUnPaused; set => onGameUnPaused = value; }
+
     public bool IsGamePaused { get => isGamePaused; }
+    
+    
     void Awake()
     {
         CreateSingleton(false);
@@ -75,7 +83,7 @@ public class PauseManager : Singleton<PauseManager>
     // Funciones asignadas a botones de la UI
     public void ButtonResume()
     {
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
         HidePause();
     }
 
@@ -134,6 +142,7 @@ public class PauseManager : Singleton<PauseManager>
 
     private void ShowPause()
     {
+        onGamePaused?.Invoke();
         wasUiActiveOnPause = DeviceManager.Instance.IsUIModeActive;
 
         AudioManager.Instance.PauseCurrentMusic();
@@ -149,6 +158,7 @@ public class PauseManager : Singleton<PauseManager>
 
     private void HidePause()
     {
+        onGameUnPaused?.Invoke();
         Time.timeScale = 1f;
         isGamePaused = false;
 
@@ -188,7 +198,7 @@ public class PauseManager : Singleton<PauseManager>
     {
         if (PlayerInputs.Instance.Pause())
         {
-            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+            AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
             (isGamePaused ? (Action)HidePause : ShowPause)();
         }
     }

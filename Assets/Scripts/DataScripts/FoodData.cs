@@ -12,6 +12,7 @@ public class FoodData : ScriptableObject
 
     public float TimeToBeenCooked { get =>  timeToBeenCooked; }
     public float TimeToBeenBurned { get => timeToBeenBurned; }
+
     public Material FoodMaterial { get => foodMaterial; }
     public Material BurnedMaterial { get => burnedMaterial; }
     public Material RawMaterial { get => rawMaterial; }

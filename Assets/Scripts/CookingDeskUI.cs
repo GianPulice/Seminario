@@ -14,6 +14,8 @@ public class CookingDeskUI : MonoBehaviour, IInteractable
 
     public Camera CookingCamera => cookingCamera;
 
+    public Queue<Transform> AvailableStoves { get => availableStoves; }
+
     public InteractionMode InteractionMode { get => InteractionMode.Press; }
 
 

@@ -3235,41 +3235,59 @@ MonoBehaviour:
   - {fileID: 1689004789}
   - {fileID: 1576958858}
   musicClips:
-  - name: TabernBGM
+  - name: TabernOpen
     clip: {fileID: 8300000, guid: dd04a887f1a3a2348ba9301dc4ed8c93, type: 3}
-  - name: DungeonBGM
-    clip: {fileID: 8300000, guid: d927eafb4e4c7d541bace11af48725b4, type: 3}
+  - name: TabernClose
+    clip: {fileID: 8300000, guid: a154f4765dc5eeb45b1610e4caf134a7, type: 3}
   - name: MainMenu
     clip: {fileID: 8300000, guid: ea25bed8b21d82e4f937ce38da6a7cd3, type: 3}
   - name: Pause
-    clip: {fileID: 8300000, guid: 7c26bfd16eb603347aef7d051767dd73, type: 3}
+    clip: {fileID: 8300000, guid: 20c0c6f9e91780d46972b0aa3275e9ec, type: 3}
   SFXClips:
   - name: ButtonClickWell
-    clip: {fileID: 8300000, guid: 395503d72622bfa46a18a8dd2cab278c, type: 3}
+    clip: {fileID: 8300000, guid: 4002be5f90293584ca3f730856b5b762, type: 3}
   - name: ButtonClickWrong
-    clip: {fileID: 8300000, guid: 07d67fffcd366a44098f184fbb73baed, type: 3}
+    clip: {fileID: 8300000, guid: 9fc421b553856594692436b618e8637a, type: 3}
   - name: ButtonSelected
-    clip: {fileID: 8300000, guid: 1da0bb0aa31e9e247957602827743ada, type: 3}
-  - name: BarrelHit
-    clip: {fileID: 8300000, guid: 786270ceb07642248bbb2fe0872b2f07, type: 3}
-  - name: BarrelDestroy
-    clip: {fileID: 8300000, guid: e520ad0dc20c6ba458ce8ad1fc010eb0, type: 3}
-  - name: ChestOpen
-    clip: {fileID: 8300000, guid: 51ca3c5c5dc8af74f9e7ac2456aa0bc9, type: 3}
-  - name: Axe_Attack1
-    clip: {fileID: 8300000, guid: af8e69a686ade214d9e2f69488c8a60e, type: 3}
-  - name: Axe_Attack2
-    clip: {fileID: 8300000, guid: f72c79298600b4049add578afef4685b, type: 3}
+    clip: {fileID: 8300000, guid: 95e1f06d73dfa2942875c8fca200fd31, type: 3}
+  - name: Trash
+    clip: {fileID: 8300000, guid: 9e6a6c4c6f841394d82bc7294944be90, type: 3}
+  - name: FoodSupport
+    clip: {fileID: 8300000, guid: 1e9af36d510def8478e7c122a61aab98, type: 3}
+  - name: GrabFood
+    clip: {fileID: 8300000, guid: 78fa89a42e52f0e4dafa863cdab1a11d, type: 3}
+  - name: TakeOrder
+    clip: {fileID: 8300000, guid: 61983d4b8fa98ac4c80d707a5a9326cf, type: 3}
+  - name: DeliverOrder
+    clip: {fileID: 8300000, guid: 35fe7944d3c45c74083c0aa034a43112, type: 3}
+  - name: Admin/Cook/Pause
+    clip: {fileID: 8300000, guid: 642c48a4f4bb93b439b6c0c5574e97f5, type: 3}
+  - name: ShowOrHideDish
+    clip: {fileID: 8300000, guid: 9851b62c3f7fc9c49b71a46a611f9bb7, type: 3}
+  - name: OpenOrCloseInventory
+    clip: {fileID: 8300000, guid: bee3e90e304b64b4d8ada33fac01f75e, type: 3}
+  - name: ClientHungry
+    clip: {fileID: 8300000, guid: a378e73b757982140977a319b5653ff4, type: 3}
+  - name: ClientHappy
+    clip: {fileID: 8300000, guid: 13803f68523d43e45b235d115780fe9f, type: 3}
+  - name: Gratuity
+    clip: {fileID: 8300000, guid: 8f0ac049871e0cf4c8ae92aca2524ffd, type: 3}
+  - name: AddMoney
+    clip: {fileID: 8300000, guid: 53ddffea1f9c7d944b870b18715819c5, type: 3}
+  - name: ClientEnterTabern
+    clip: {fileID: 8300000, guid: 557710dd3806eba44ace8de837e4e630, type: 3}
+  - name: CleanDirtyTable
+    clip: {fileID: 8300000, guid: 18f4bda403807374d804beb55da33e17, type: 3}
+  - name: PlayerFootSteps
+    clip: {fileID: 8300000, guid: 60eba0829821ca44cbff7891b4c530af, type: 3}
+  - name: ClientWasWaitingOutsideTooMuchTime
+    clip: {fileID: 8300000, guid: 439bda53d72d5b247b464e9ab496e673, type: 3}
+  - name: FoodIsAlredyCooked
+    clip: {fileID: 8300000, guid: 8fb30cd1768d52848b7a4f035e4442c2, type: 3}
+  - name: Burning
+    clip: {fileID: 8300000, guid: 5c6f529c72e25534ea992bbc6ea37a37, type: 3}
   - name: Cooking
-    clip: {fileID: 8300000, guid: 810f997e67b0a1142915cc151be06765, type: 3}
-  - name: Correct Delivery
-    clip: {fileID: 8300000, guid: 7a3c30246c2f8c24daa21d97fab0d1f9, type: 3}
-  - name: Campana
-    clip: {fileID: 8300000, guid: 7f78beda3f6bb1746a559f2eca2c6ef0, type: 3}
-  - name: Metallic Click
-    clip: {fileID: 8300000, guid: 8e746bda97a9f634f9c225c03bd4bfcb, type: 3}
-  - name: Metallic Select
-    clip: {fileID: 8300000, guid: 5aa948679296f2649802b2f562804537, type: 3}
+    clip: {fileID: 8300000, guid: 3c1e41542cf914749b753c305542819b, type: 3}
 --- !u!1 &1722558582
 GameObject:
   m_ObjectHideFlags: 0
