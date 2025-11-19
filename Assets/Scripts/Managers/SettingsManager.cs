@@ -51,6 +51,15 @@ public class SettingsManager : Singleton<SettingsManager>
 
     void Start()
     {
+        /*LoadAudioValuesFromPlayerPrefs();
+        LoadVideoValuesFromPlayerPrefs();
+        LoadControlValuesFromPlayerPrefs();
+        ApplyAudioSettings();
+        ApplyVideoSettings();*/
+    }
+
+    public void ApplyAll()
+    {
         LoadAudioValuesFromPlayerPrefs();
         LoadVideoValuesFromPlayerPrefs();
         LoadControlValuesFromPlayerPrefs();
@@ -110,6 +119,7 @@ public class SettingsManager : Singleton<SettingsManager>
         qualityLevel = index;
         QualitySettings.SetQualityLevel(index);
         PlayerPrefs.SetInt("QualityLevel", index);
+
     }
 
     public void SetVSync(bool value)
@@ -179,7 +189,7 @@ public class SettingsManager : Singleton<SettingsManager>
 
     private void LoadVideoValuesFromPlayerPrefs()
     {
-        showFPS = PlayerPrefs.GetInt("ShowFPS", 0) == 1;
+        /*showFPS = PlayerPrefs.GetInt("ShowFPS", 0) == 1;
         targetFPS = PlayerPrefs.GetInt("TargetFPS", 60);
         Application.targetFrameRate = TargetFPS;
 
@@ -194,7 +204,17 @@ public class SettingsManager : Singleton<SettingsManager>
         QualitySettings.SetQualityLevel(qualityLevel);
 
         vSync = PlayerPrefs.GetInt("VSync", 1) == 1;
-        QualitySettings.vSyncCount = vSync ? 1 : 0;
+        QualitySettings.vSyncCount = vSync ? 1 : 0;*/
+
+        showFPS = PlayerPrefs.GetInt("ShowFPS", 0) == 1;
+        targetFPS = PlayerPrefs.GetInt("TargetFPS", 60);
+
+        currentResolution.width = PlayerPrefs.GetInt("ResolutionWidth", Screen.currentResolution.width);
+        currentResolution.height = PlayerPrefs.GetInt("ResolutionHeight", Screen.currentResolution.height);
+        fullscreenMode = (FullScreenMode)PlayerPrefs.GetInt("FullscreenMode", (int)FullScreenMode.FullScreenWindow);
+
+        qualityLevel = PlayerPrefs.GetInt("QualityLevel", 2);
+        vSync = PlayerPrefs.GetInt("VSync", 1) == 1;
     }
 
     private void ApplyVideoSettings()

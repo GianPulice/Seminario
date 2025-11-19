@@ -51,6 +51,7 @@ public class SettingsManagerUI : MonoBehaviour
 
     void Start()
     {
+        SettingsManager.Instance.ApplyAll();
         InitializeAudioOptions();
         InitializeVideoOptions();
         InitializeControlOptions();
@@ -153,61 +154,63 @@ public class SettingsManagerUI : MonoBehaviour
     private void InitializeVideoOptions()
     {
         dropdownResolution.ClearOptions();
-        List<string> resOptions = new List<string>();
-        Resolution[] resolutions = Screen.resolutions;
-        HashSet<string> addedRes = new HashSet<string>(); // Para evitar duplicados
 
-        foreach (var res in resolutions)
+        Resolution[] allRes = Screen.resolutions;
+        List<Resolution> filteredRes = new List<Resolution>();
+        HashSet<string> seen = new HashSet<string>();
+        List<string> options = new List<string>();
+
+        foreach (var r in allRes)
         {
-            string resText = res.width + " x " + res.height;
-            if (!addedRes.Contains(resText))
+            string key = r.width + "x" + r.height;
+            if (!seen.Contains(key))
             {
-                resOptions.Add(resText);
-                addedRes.Add(resText);
+                seen.Add(key);
+                filteredRes.Add(r);
+                options.Add($"{r.width} x {r.height}");
             }
         }
 
-        dropdownResolution.AddOptions(resOptions);
+        dropdownResolution.AddOptions(options);
 
-        // ---- Calidad ----
+        // Buscar índice según PlayerPrefs (SettingsManager)
+        int index = filteredRes.FindIndex(r =>
+            r.width == SettingsManager.Instance.CurrentResolution.width &&
+            r.height == SettingsManager.Instance.CurrentResolution.height
+        );
+
+        if (index < 0) index = filteredRes.Count - 1;
+
+        dropdownResolution.value = index;
+        dropdownResolution.RefreshShownValue();
+
+        // Listener actualizado
+        dropdownResolution.onValueChanged.AddListener(i =>
+        {
+            Resolution selected = filteredRes[i];
+            FullScreenMode mode = toggleFullscreen.isOn ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
+            SettingsManager.Instance.SetResolution(selected.width, selected.height, mode);
+        });
+
+
+        // ------------------------
+        // CALIDAD
+        // ------------------------
         dropdownQuality.ClearOptions();
         dropdownQuality.AddOptions(new List<string>(QualitySettings.names));
 
-        // ---- FPS ----
-        dropdownFPS.ClearOptions();
-        dropdownFPS.AddOptions(new List<string> { "30", "60", "120", "144", "Unlimited" });
-
-        // ---- Toggles ----
-        toggleFullscreen.isOn = SettingsManager.Instance.FullscreenMode != FullScreenMode.Windowed;
-        toggleVSync.isOn = SettingsManager.Instance.VSync;
-        toggleShowFPS.isOn = SettingsManager.Instance.ShowFPS;
-
-        // ---- Listeners ----
-        dropdownResolution.onValueChanged.AddListener(OnResolutionChanged);
-        dropdownQuality.onValueChanged.AddListener(SettingsManager.Instance.SetQualityLevel);
-        dropdownFPS.onValueChanged.AddListener(OnFPSChanged);
-        toggleFullscreen.onValueChanged.AddListener(OnFullscreenChanged);
-        toggleVSync.onValueChanged.AddListener(SettingsManager.Instance.SetVSync);
-        toggleShowFPS.onValueChanged.AddListener(SettingsManager.Instance.SetShowFPS);
-
-        int currentResIndex = 0;
-        for (int i = 0; i < resolutions.Length; i++)
-        {
-            if (resolutions[i].width == SettingsManager.Instance.CurrentResolution.width &&
-                resolutions[i].height == SettingsManager.Instance.CurrentResolution.height)
-            {
-                currentResIndex = i;
-                break;
-            }
-        }
-        dropdownResolution.value = currentResIndex;
-        dropdownResolution.RefreshShownValue();
-
-        // Calidad actual
         dropdownQuality.value = SettingsManager.Instance.QualityLevel;
         dropdownQuality.RefreshShownValue();
 
-        // FPS actual
+        dropdownQuality.onValueChanged.AddListener(SettingsManager.Instance.SetQualityLevel);
+
+
+        // ------------------------
+        // FPS
+        // ------------------------
+        dropdownFPS.ClearOptions();
+        dropdownFPS.AddOptions(new List<string> { "30", "60", "120", "144", "Unlimited" });
+
         int fps = SettingsManager.Instance.TargetFPS;
         dropdownFPS.value = fps switch
         {
@@ -219,13 +222,37 @@ public class SettingsManagerUI : MonoBehaviour
             _ => 1
         };
         dropdownFPS.RefreshShownValue();
+
+        dropdownFPS.onValueChanged.AddListener(OnFPSChanged);
+
+
+        // ------------------------
+        // TOGGLES
+        // ------------------------
+        toggleFullscreen.isOn = SettingsManager.Instance.FullscreenMode != FullScreenMode.Windowed;
+        toggleVSync.isOn = SettingsManager.Instance.VSync;
+        toggleShowFPS.isOn = SettingsManager.Instance.ShowFPS;
+
+        toggleFullscreen.onValueChanged.AddListener(OnFullscreenChanged);
+        toggleVSync.onValueChanged.AddListener(SettingsManager.Instance.SetVSync);
+        toggleShowFPS.onValueChanged.AddListener(SettingsManager.Instance.SetShowFPS);
     }
 
     private void OnResolutionChanged(int index)
     {
-        Resolution res = Screen.resolutions[index];
+        string[] parts = dropdownResolution.options[index].text.Split('x');
+        int width = int.Parse(parts[0]);
+        int height = int.Parse(parts[1]);
+
+        FullScreenMode mode = toggleFullscreen.isOn ?
+                FullScreenMode.FullScreenWindow :
+                FullScreenMode.Windowed;
+
+        SettingsManager.Instance.SetResolution(width, height, mode);
+
+        /*Resolution res = Screen.resolutions[index];
         FullScreenMode mode = toggleFullscreen.isOn ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
-        SettingsManager.Instance.SetResolution(res.width, res.height, mode);
+        SettingsManager.Instance.SetResolution(res.width, res.height, mode);*/
     }
 
     private void OnFPSChanged(int index)
@@ -365,3 +392,71 @@ public class SettingsManagerUI : MonoBehaviour
         }
     }
 }
+
+/*dropdownResolution.ClearOptions();
+List<string> resOptions = new List<string>();
+Resolution[] resolutions = Screen.resolutions;
+HashSet<string> addedRes = new HashSet<string>(); // Para evitar duplicados
+
+foreach (var res in resolutions)
+{
+    string resText = res.width + " x " + res.height;
+    if (!addedRes.Contains(resText))
+    {
+        resOptions.Add(resText);
+        addedRes.Add(resText);
+    }
+}
+
+dropdownResolution.AddOptions(resOptions);
+
+// ---- Calidad ----
+dropdownQuality.ClearOptions();
+dropdownQuality.AddOptions(new List<string>(QualitySettings.names));
+
+// ---- FPS ----
+dropdownFPS.ClearOptions();
+dropdownFPS.AddOptions(new List<string> { "30", "60", "120", "144", "Unlimited" });
+
+// ---- Toggles ----
+toggleFullscreen.isOn = SettingsManager.Instance.FullscreenMode != FullScreenMode.Windowed;
+toggleVSync.isOn = SettingsManager.Instance.VSync;
+toggleShowFPS.isOn = SettingsManager.Instance.ShowFPS;
+
+// ---- Listeners ----
+dropdownResolution.onValueChanged.AddListener(OnResolutionChanged);
+dropdownQuality.onValueChanged.AddListener(SettingsManager.Instance.SetQualityLevel);
+dropdownFPS.onValueChanged.AddListener(OnFPSChanged);
+toggleFullscreen.onValueChanged.AddListener(OnFullscreenChanged);
+toggleVSync.onValueChanged.AddListener(SettingsManager.Instance.SetVSync);
+toggleShowFPS.onValueChanged.AddListener(SettingsManager.Instance.SetShowFPS);
+
+int currentResIndex = 0;
+for (int i = 0; i < resolutions.Length; i++)
+{
+    if (resolutions[i].width == SettingsManager.Instance.CurrentResolution.width &&
+        resolutions[i].height == SettingsManager.Instance.CurrentResolution.height)
+    {
+        currentResIndex = i;
+        break;
+    }
+}
+dropdownResolution.value = currentResIndex;
+dropdownResolution.RefreshShownValue();
+
+// Calidad actual
+dropdownQuality.value = SettingsManager.Instance.QualityLevel;
+dropdownQuality.RefreshShownValue();
+
+// FPS actual
+int fps = SettingsManager.Instance.TargetFPS;
+dropdownFPS.value = fps switch
+{
+    30 => 0,
+    60 => 1,
+    120 => 2,
+    144 => 3,
+    -1 => 4,
+    _ => 1
+};
+dropdownFPS.RefreshShownValue();*/

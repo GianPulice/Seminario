@@ -59,9 +59,8 @@ public class PlayerController : MonoBehaviour
     // Simulacion de Update
     void UpdatePlayerController()
     {
-        fsm.OnExecute();
+        fsm.OnExecute();   
         CheckInputs();
-        Debug.Log($"player Ready to Jump? {playerModel.ReadyToJump}");
     }
 
     // Simulacion de FixedUpdate

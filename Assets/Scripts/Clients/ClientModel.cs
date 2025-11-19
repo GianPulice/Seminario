@@ -35,7 +35,7 @@ public class ClientModel : MonoBehaviour
     public ClientManager ClientManager { get => clientManager; }
     public OrderDataUI CurrentOrderDataUI { get => currentOrderDataUI; set => currentOrderDataUI = value; }
 
-    public NavMeshAgent NavMeshAgent { get => navMeshAgent; }
+    public NavMeshAgent NavMeshAgent { get => navMeshAgent; set => navMeshAgent = value; }
     public Table CurrentTable { get => currentTable; set => currentTable = value; }
 
     public ClientType ClientType { get => clientType; }
@@ -71,6 +71,8 @@ public class ClientModel : MonoBehaviour
     public void MoveToTarget(Vector3 target)
     {
         navMeshAgent.isStopped = false;
+        navMeshAgent.updatePosition = true;
+        navMeshAgent.updateRotation = true;
         navMeshAgent.SetDestination(target);
     }
 
@@ -90,6 +92,8 @@ public class ClientModel : MonoBehaviour
     public void StopVelocity()
     {
         navMeshAgent.isStopped = true;
+        //navMeshAgent.updatePosition = false;
+        //navMeshAgent.updateRotation = false;
         navMeshAgent.velocity = Vector3.zero;
     }
 

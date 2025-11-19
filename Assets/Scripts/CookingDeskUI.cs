@@ -93,6 +93,12 @@ public class CookingDeskUI : MonoBehaviour, IInteractable
         }
     }
 
+    public int StoveIndexOf(Transform stove)
+    {
+        return stovePositionsThisDesk.IndexOf(stove);
+    }
+
+
     private void GetComponents()
     {
         playerController = FindFirstObjectByType<PlayerController>();

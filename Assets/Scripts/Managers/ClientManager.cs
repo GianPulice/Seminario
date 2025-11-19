@@ -221,7 +221,7 @@ public class ClientManager : Singleton<ClientManager>
 
         if (spawnTime > 5)
         {
-            clientAbstractFactory.CreateObject("ClientGoblin");
+            clientAbstractFactory.CreateObject("ClientOrc");
 
             spawnTime = 0f;
         }
