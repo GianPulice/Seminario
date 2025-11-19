@@ -1102,6 +1102,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 66e0ac7c499c290468b7dd8a324536b7, type: 3}
+--- !u!1 &451445665 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3793583718065346427, guid: 4aa110873357f7e49931710f35a0a388, type: 3}
+  m_PrefabInstance: {fileID: 5194881065575350967}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &462181109 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5779018448953093866, guid: 24709164769e8ee4e99ed86b1b0adc09, type: 3}
@@ -1694,6 +1699,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4501250456709689228, guid: cc0c65b684310094ab0506efcad3f572, type: 3}
   m_PrefabInstance: {fileID: 937972952}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &937972954 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6286149109331318883, guid: cc0c65b684310094ab0506efcad3f572, type: 3}
+  m_PrefabInstance: {fileID: 937972952}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5fc38b66adf70642a8b1afb1c85bebf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &958715108
 GameObject:
   m_ObjectHideFlags: 0
@@ -2022,12 +2038,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: bb43934c7f638c342ada9d9608c5b939, type: 2}
     - target: {fileID: 6048724343949430683, guid: 2357541fab3cea14aaa53dff071b498b, type: 3}
+      propertyPath: debris.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6048724343949430683, guid: 2357541fab3cea14aaa53dff071b498b, type: 3}
+      propertyPath: 'debris.Array.data[0]'
+      value: 
+      objectReference: {fileID: 451445665}
+    - target: {fileID: 6048724343949430683, guid: 2357541fab3cea14aaa53dff071b498b, type: 3}
       propertyPath: recipesToUnloc.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6048724343949430683, guid: 2357541fab3cea14aaa53dff071b498b, type: 3}
       propertyPath: tablesToActive.Array.size
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6048724343949430683, guid: 2357541fab3cea14aaa53dff071b498b, type: 3}
       propertyPath: recipesToUnlock.Array.size
@@ -2052,11 +2076,11 @@ PrefabInstance:
     - target: {fileID: 6048724343949430683, guid: 2357541fab3cea14aaa53dff071b498b, type: 3}
       propertyPath: 'tablesToActive.Array.data[3]'
       value: 
-      objectReference: {fileID: 160961015}
+      objectReference: {fileID: 1822557531}
     - target: {fileID: 6048724343949430683, guid: 2357541fab3cea14aaa53dff071b498b, type: 3}
       propertyPath: 'tablesToActive.Array.data[4]'
       value: 
-      objectReference: {fileID: 160961015}
+      objectReference: {fileID: 937972954}
     - target: {fileID: 6048724343949430683, guid: 2357541fab3cea14aaa53dff071b498b, type: 3}
       propertyPath: 'recipesToUnlock.Array.data[0]'
       value: 
@@ -3024,6 +3048,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 786266333}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1822557531 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6286149109331318883, guid: cc0c65b684310094ab0506efcad3f572, type: 3}
+  m_PrefabInstance: {fileID: 1703319925}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5fc38b66adf70642a8b1afb1c85bebf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1850353628
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3245,6 +3280,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 786266333}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1956048103 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6569034797212400139, guid: 4aa110873357f7e49931710f35a0a388, type: 3}
+  m_PrefabInstance: {fileID: 5194881065575350967}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1961110288
 GameObject:
   m_ObjectHideFlags: 0
@@ -3469,11 +3509,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   upgradesData: {fileID: 11400000, guid: 73fe7b6a539fd6047aad81dcf24419ff, type: 2}
-  debris: []
+  debris:
+  - {fileID: 1956048103}
   tablesToActive:
   - {fileID: 2133962971}
   - {fileID: 774752602}
   - {fileID: 1994645406}
+  - {fileID: 2117526868}
   recipesToUnlock:
   - {fileID: 11400000, guid: 618812309e201cf4289bb0864741d975, type: 2}
 --- !u!1 &2024253389
@@ -3652,6 +3694,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4501250456709689228, guid: cc0c65b684310094ab0506efcad3f572, type: 3}
   m_PrefabInstance: {fileID: 2117526866}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2117526868 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6286149109331318883, guid: cc0c65b684310094ab0506efcad3f572, type: 3}
+  m_PrefabInstance: {fileID: 2117526866}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5fc38b66adf70642a8b1afb1c85bebf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2133962969
 PrefabInstance:
   m_ObjectHideFlags: 0
