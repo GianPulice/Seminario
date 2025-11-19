@@ -78,6 +78,7 @@ public class TabGroup : MonoBehaviour
                 pagesToSwap[i].SetActive(i == selectedIndex);
             }
         }
+        AudioManager.Instance.PlayOneShotSFX("TabChange");
     }
     private void DeselectAllTabsAndHidePages()
     {

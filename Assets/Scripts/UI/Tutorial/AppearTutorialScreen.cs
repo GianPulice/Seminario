@@ -21,6 +21,7 @@ public class AppearTutorialScreen : MonoBehaviour
     public void ShowPannel()
     {
         gameObject.SetActive(true);
+   //     AudioManager.Instance.PlayOneShotSFX("TutorialAppear");
         canvasGroup.interactable = false;
 
         LeanTween.alphaCanvas(canvasGroup, 1f, animTime)
