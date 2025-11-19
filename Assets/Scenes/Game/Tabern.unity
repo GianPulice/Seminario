@@ -223,8 +223,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2.605957, y: 1.8894496, z: 3.2260056}
-  m_Center: {x: 0.8029785, y: 0.4447248, z: -0.19529438}
+  m_Size: {x: 4.130005, y: 1.8894496, z: 3.2260056}
+  m_Center: {x: 0.04095459, y: 0.4447248, z: -0.19529438}
 --- !u!114 &23566601
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -985,6 +985,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1850353629}
     - target: {fileID: 315725162345254049, guid: a520ed4c585dffc4bad56bd37e4f38d9, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 315725162345254049, guid: a520ed4c585dffc4bad56bd37e4f38d9, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1185.29
       objectReference: {fileID: 0}
@@ -1240,7 +1244,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 315725162345254049, guid: a520ed4c585dffc4bad56bd37e4f38d9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.129
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 315725162345254049, guid: a520ed4c585dffc4bad56bd37e4f38d9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2804,8 +2808,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 5.7921143, y: 2.2125864, z: 1.8054695}
-  m_Center: {x: 0.93292236, y: 0.6062932, z: 0.31095886}
+  m_Size: {x: 5.7921143, y: 2.2125864, z: 5.794158}
+  m_Center: {x: 0.93292236, y: 0.6062932, z: -1.6833863}
 --- !u!114 &1642275377
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3977,7 +3981,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 7687702442455711833, guid: 4aa110873357f7e49931710f35a0a388, type: 3}
+    - {fileID: 5791974994241142458, guid: 4aa110873357f7e49931710f35a0a388, type: 3}
+    - {fileID: 1289483006151451700, guid: 4aa110873357f7e49931710f35a0a388, type: 3}
+    - {fileID: 7942399333987696756, guid: 4aa110873357f7e49931710f35a0a388, type: 3}
+    - {fileID: 7749901697398550463, guid: 4aa110873357f7e49931710f35a0a388, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4aa110873357f7e49931710f35a0a388, type: 3}
