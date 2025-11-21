@@ -10,6 +10,8 @@ public class CookingManager : Singleton<CookingManager>
     private CookingDeskUI currentDesk;
     private Transform currentStove;
 
+    private event Action<int> onAvailableStoveIndex;
+
     // Para las posiciones en la bandeja del player
     [SerializeField] private List<Transform> dishPositions;
     private Queue<Transform> availableDishPositions = new Queue<Transform>();
@@ -20,6 +22,7 @@ public class CookingManager : Singleton<CookingManager>
     public Transform CurrentStove { get => currentStove; }
     public Queue<Transform> AvailableDishPositions { get => availableDishPositions; }
 
+    public Action<int> OnAvailableStoveIndex { get => onAvailableStoveIndex; set => onAvailableStoveIndex = value; }
 
     void Awake()
     {
@@ -129,6 +132,8 @@ public class CookingManager : Singleton<CookingManager>
                 if (currentStove != null)
                 {
                     foodAbstractFactory.CreateObject(prefabFoodName, currentStove, new Vector3(0, 0.2f, 0));
+                    int index = currentDesk.StoveIndexOf(currentStove);
+                    onAvailableStoveIndex?.Invoke(index);
                 }
             }
         }

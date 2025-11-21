@@ -54,26 +54,65 @@ public class ClientStateWaitingFood<T> : State<T>
         // Solamente mover la posicion hacia abajo cuando sale del estado si paso al estado leave, sino nada
         if (!clientStateEating.IsEating)
         {
-            clientView.Anim.transform.position += Vector3.down * 0.38f;
+            float scaleY = clientView.Anim.transform.lossyScale.y;
+            clientView.Anim.transform.position += Vector3.down * (0.38f * scaleY);
+            //clientView.Anim.transform.position += Vector3.down * 0.38f;
         }
 
+        canExecuteTimers = false;
         waitingToBeAttendedTime = 0f;
         waitingFoodTime = 0f;
         clientModel.ClientManager.SetParentToHisPoolGameObject(clientModel.ClientType, clientModel);
-        canExecuteTimers = false;
         OrdersManagerUI.Instance.RemoveOrder(clientModel.CurrentOrderDataUI);
     }
 
 
     private IEnumerator DuringSitAnimationAfterExitTime()
     {
-        yield return new WaitForSeconds(4.12f); // Tiempo que tarda en sentarse por completo
+        yield return new WaitForSeconds(2.06f);
+
+        Vector3 directionToDish = clientModel.CurrentTable.DishPosition.position - clientModel.transform.position;
+        directionToDish.y = 0f;
+        directionToDish = directionToDish.normalized;
+        float baseOffset = 1f;
+        float scaleFactor = clientModel.transform.lossyScale.y;
+        float forwardOffset = baseOffset * scaleFactor;
+        clientModel.StartCoroutine(MoveForwardSmooth(directionToDish, forwardOffset, 1f));
+
+        yield return new WaitForSeconds(2.06f); // Tiempo que tarda en sentarse por completo
 
         // Chequear el tema de transition duration en las settings de la transicion de "Sit" a "DuringSit"
         clientView.ExecuteAnimParameterName("DuringSit");
-        clientView.Anim.transform.position += Vector3.up * 0.38f;
+        float scaleY = clientView.Anim.transform.lossyScale.y;
+        clientView.Anim.transform.position += Vector3.up * (0.38f * scaleY);
+        //clientView.Anim.transform.position += Vector3.up * 0.38f;
         clientView.SetSpriteTypeName("SpriteWaitingToBeAttended");
         canExecuteTimers = true;
+    }
+
+    private IEnumerator MoveForwardSmooth(Vector3 direction, float distance, float duration)
+    {
+        Vector3 startPos = clientModel.transform.position;
+        Vector3 endPos = startPos + (direction * distance);
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            // Suavizado (opcional): acelera y desacelera
+            t = Mathf.SmoothStep(0, 1, t);
+
+            clientModel.transform.position = Vector3.Lerp(startPos, endPos, t);
+
+            yield return null;
+        }
+
+        clientModel.transform.position = endPos; // asegurar posición final
+
+        clientModel.StopVelocity();
     }
 
     private void ExecuteTimers()

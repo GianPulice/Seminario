@@ -78,12 +78,13 @@ public class AudioManager : Singleton<AudioManager>
             {
                 src.Stop();
                 src.clip = null;
+                src.pitch = 1;
                 activeSFX.Remove(sfxName);
             }
         }
     }
 
-    public void PlayLoopSFX(string sfxName)
+    public void PlayLoopSFX(string sfxName, float pitch = 1f)
     {
         if (!SFXDictionary.ContainsKey(sfxName))
         {
@@ -94,6 +95,7 @@ public class AudioManager : Singleton<AudioManager>
         AudioSource loopSource = GetAvailableAudioSource();
         loopSource.clip = SFXDictionary[sfxName];
         loopSource.loop = true;
+        loopSource.pitch = pitch;
         loopSource.Play();
 
         activeSFX[sfxName] = loopSource;
@@ -106,6 +108,7 @@ public class AudioManager : Singleton<AudioManager>
             AudioSource source = activeSFX[sfxName];
             source.Stop();
             source.loop = false;
+            source.pitch = 0f;
             source.clip = null;
 
             activeSFX.Remove(sfxName);
@@ -122,6 +125,17 @@ public class AudioManager : Singleton<AudioManager>
         Debug.LogWarning("SFX no encontrado: " + sfxName);
         return null;
     }
+
+    public AudioSource GetActiveSFX(string sfxName)
+    {
+        if (activeSFX.ContainsKey(sfxName))
+        {
+            return activeSFX[sfxName];
+        }
+
+        return null;
+    }
+
 
     // ------------------------------------------ MUSIC ---------------------------------------------------
 
@@ -191,6 +205,7 @@ public class AudioManager : Singleton<AudioManager>
             {
                 src.Stop();
                 src.loop = false;
+                src.pitch = 1;
                 src.clip = null;
             }
         }
