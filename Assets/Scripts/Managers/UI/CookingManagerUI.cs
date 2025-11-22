@@ -137,6 +137,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
 
         for (int i = 0; i < recipesInformationUI.Count; i++)
         {
+            recipesInformationUI[i].IngredientImage.color = new Color(255,255,255,255);
             if (i < recipe.Ingridients.Count)
             {
                 var ing = recipe.Ingridients[i];
@@ -145,13 +146,14 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
                 if (IngredientInventoryManager.Instance.IngredientDataDict.TryGetValue(ing.IngredientType, out var data))
                 {
                     recipesInformationUI[i].IngredientImage.sprite = data.Sprite;
-                }
+                }    
             }
 
             else
             {
                 recipesInformationUI[i].IngredientAmountText.text = "";
                 recipesInformationUI[i].IngredientImage.sprite = null;
+                recipesInformationUI[i].IngredientImage.color = new Color(255, 255, 255, 0);
             }
         }
     }
