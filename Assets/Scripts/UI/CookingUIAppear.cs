@@ -18,8 +18,7 @@ public class CookingUIAppear : MonoBehaviour
     [SerializeField] private CanvasGroup cauldronContentGroup;
 
     [Header("Timers")]
-    [SerializeField][Range(0, 2f)] private float showDuration = 0.25f;
-    [SerializeField][Range(0, 2f)] private float hideDuration = 0.3f;
+    [SerializeField][Range(0, 2f)] private float animTime = 0.25f;
     [SerializeField][Range(0, 1f)] private float contentFadeTime = 0.15f;
 
     [Header("Easing (Animación)")]
@@ -91,7 +90,7 @@ public class CookingUIAppear : MonoBehaviour
 
         if(recipesContentGroup) LeanTween.cancel(recipesContentGroup.gameObject);
         if(ingredientsContentGroup) LeanTween.cancel(ingredientsContentGroup.gameObject);
-        if (cauldronContentGroup) LeanTween.cancel(cauldronContentGroup.gameObject);
+        if(cauldronContentGroup) LeanTween.cancel(cauldronContentGroup.gameObject);
 
         LeanTween.cancel(gameObject);
     }
@@ -118,13 +117,13 @@ public class CookingUIAppear : MonoBehaviour
         LeanTween.alphaCanvas(ingredientsContentGroup, 1f, contentFadeTime).setIgnoreTimeScale(true);
         LeanTween.alphaCanvas(cauldronContentGroup, 1f, contentFadeTime).setIgnoreTimeScale(true);
 
-        LeanTween.move(recipesRect, shownRecipesPosition, showDuration)
+        LeanTween.move(recipesRect, shownRecipesPosition, animTime)
             .setEase(showEase)
             .setIgnoreTimeScale(true);
-        LeanTween.move(ingredientsRect, shownIngredientsPosition, showDuration)
+        LeanTween.move(ingredientsRect, shownIngredientsPosition, animTime)
             .setEase(showEase)
             .setIgnoreTimeScale(true);
-        LeanTween.move(cauldronRect, shownCauldronPosition, showDuration)
+        LeanTween.move(cauldronRect, shownCauldronPosition, animTime)
                 .setEase(showEase)
                 .setIgnoreTimeScale(true)
                 .setOnComplete(OnInComplete);
@@ -144,9 +143,9 @@ public class CookingUIAppear : MonoBehaviour
         LeanTween.alphaCanvas(ingredientsContentGroup, 0f, contentFadeTime).setIgnoreTimeScale(true);
         LeanTween.alphaCanvas(cauldronContentGroup, 0f, contentFadeTime).setIgnoreTimeScale(true);
 
-        LeanTween.move(recipesRect, recipesHiddenPos, hideDuration).setEase(hideEase).setIgnoreTimeScale(true);
-        LeanTween.move(ingredientsRect, ingredientsHiddenPos, hideDuration).setEase(hideEase).setIgnoreTimeScale(true);
-        LeanTween.move(cauldronRect, cauldronHiddenPos, hideDuration)
+        LeanTween.move(recipesRect, recipesHiddenPos, animTime).setEase(hideEase).setIgnoreTimeScale(true);
+        LeanTween.move(ingredientsRect, ingredientsHiddenPos, animTime).setEase(hideEase).setIgnoreTimeScale(true);
+        LeanTween.move(cauldronRect, cauldronHiddenPos, animTime)
             .setEase(hideEase)
             .setIgnoreTimeScale(true)
             .setOnComplete(OnOutComplete);
