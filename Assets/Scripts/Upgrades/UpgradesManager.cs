@@ -14,7 +14,8 @@ public class UpgradesManager : Singleton<UpgradesManager>
     }
 
 
-    public IUpgradable GetUpgrade(int index) => upgrades[index];
+    public IUpgradable GetUpgrade(int index) =>
+        (index >= 0 && index < upgrades.Count) ? upgrades[index] : null;
 
     public void UnlockUpgrade(int index)
     {
