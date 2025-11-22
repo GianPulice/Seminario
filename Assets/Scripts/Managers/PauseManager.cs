@@ -56,10 +56,6 @@ public class PauseManager : Singleton<PauseManager>
             Debug.LogWarning("PausePanel no está asignado en el PauseManager.");
             return;
         }
-        if (pausePanel.IsAnimating)
-        {
-            return;
-        }
         EnabledOrDisabledPausePanel();
     }
 

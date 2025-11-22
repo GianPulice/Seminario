@@ -9,9 +9,7 @@ public class AdminUIAppear : MonoBehaviour
     [SerializeField] private float hideTime = 0.3f;
 
     [Header("Animación - Posiciones")]
-    [Tooltip("Posición del panel cuando está visible (normalmente 0,0)")]
     [SerializeField] private Vector2 shownPosition = Vector2.zero;
-    [Tooltip("Posición del panel cuando está oculto (ej: 0, -1200)")]
     [SerializeField] private Vector2 hiddenPosition = new Vector2(0, -1200);
 
     [Header("Animación - Easing")]
@@ -19,21 +17,16 @@ public class AdminUIAppear : MonoBehaviour
     [SerializeField] private LeanTweenType hideEase = LeanTweenType.easeInQuad;
 
     [Header("Eventos")]
-    [Tooltip("Se dispara cuando la animación de entrada (aparecer) ha terminado.")]
     public UnityEvent OnAnimateInComplete = new UnityEvent();
-    [Tooltip("Se dispara cuando la animación de salida (desaparecer) ha terminado.")]
     public UnityEvent OnAnimateOutComplete = new UnityEvent();
+    public UnityEvent OnAnimateInStart;
     public UnityEvent OnAnimateOutStart;
 
     [Header("Referencias (Opcional)")]
-    [Tooltip("El CanvasGroup a animar. Si es nulo, lo buscará en este GameObject.")]
     [SerializeField] private CanvasGroup canvasGroup;
-    [Tooltip("El RectTransform a mover. Si es nulo, lo buscará en este GameObject.")]
     [SerializeField] private RectTransform rectTransform;
 
-    private bool isAnimating = false;
-    private bool hasInitialized = false;
-    public bool IsAnimating => isAnimating;
+    public bool IsVisible => gameObject.activeSelf && canvasGroup.alpha > 0.01f;
 
     private void Awake()
     {
@@ -43,55 +36,53 @@ public class AdminUIAppear : MonoBehaviour
     public void AnimateIn()
     {
         InitializeIfNeeded();
-        if (isAnimating) return;
-        isAnimating = true;
 
         LeanTween.cancel(gameObject);
 
-        rectTransform.anchoredPosition = hiddenPosition;
-        canvasGroup.alpha = 0f;
+        OnAnimateInStart?.Invoke();
+
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
+            rectTransform.anchoredPosition = hiddenPosition;
+            canvasGroup.alpha = 0f;
+        }
+
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
 
-        gameObject.SetActive(true);
+        LeanTween.alphaCanvas(canvasGroup, 1f, showTime)
+            .setEase(showEase)
+            .setIgnoreTimeScale(true);
 
-      
         LeanTween.move(rectTransform, shownPosition, showTime)
             .setEase(showEase)
             .setIgnoreTimeScale(true)
             .setOnComplete(OnInComplete);
-
- 
-        LeanTween.alphaCanvas(canvasGroup, 1f, showTime)
-            .setEase(showEase) 
-            .setIgnoreTimeScale(true);
     }
     public void AnimateOut()
     {
-        OnAnimateOutStart?.Invoke();
         InitializeIfNeeded();
-        if (isAnimating) return;
-        isAnimating = true;
 
         LeanTween.cancel(gameObject);
+
+        OnAnimateOutStart?.Invoke();
 
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
 
-  
+        LeanTween.alphaCanvas(canvasGroup, 0f, hideTime)
+            .setEase(hideEase)
+            .setIgnoreTimeScale(true);
+
         LeanTween.move(rectTransform, hiddenPosition, hideTime)
             .setEase(hideEase)
             .setIgnoreTimeScale(true)
             .setOnComplete(OnOutComplete);
-
-        LeanTween.alphaCanvas(canvasGroup, 0f, hideTime)
-            .setEase(hideEase)
-            .setIgnoreTimeScale(true);
     }
 
     private void OnInComplete()
     {
-        isAnimating = false;
         canvasGroup.interactable = true;
         canvasGroup.blocksRaycasts = true;
         OnAnimateInComplete.Invoke();
@@ -99,7 +90,6 @@ public class AdminUIAppear : MonoBehaviour
 
     private void OnOutComplete()
     {
-        isAnimating = false;
         gameObject.SetActive(false);
         rectTransform.anchoredPosition = hiddenPosition;
         canvasGroup.alpha = 0f;
@@ -107,36 +97,19 @@ public class AdminUIAppear : MonoBehaviour
     }
     private void InitializeIfNeeded()
     {
-        if(hasInitialized) return;
-        if (rectTransform == null) 
-        {
-            rectTransform = GetComponent<RectTransform>();
-        }
+        if (rectTransform != null && canvasGroup != null) return;
 
-        if (canvasGroup == null) 
-        {
-            canvasGroup = GetComponentInParent<CanvasGroup>();
-        }
+        rectTransform = GetComponent<RectTransform>();
+        canvasGroup = GetComponent<CanvasGroup>();
 
-        if (canvasGroup == null)
-        {
-            canvasGroup = gameObject.AddComponent<CanvasGroup>();
-        }
+        if (canvasGroup == null) canvasGroup = gameObject.AddComponent<CanvasGroup>();
 
-        if (rectTransform == null)
-        {
-            Debug.LogError("AdminUIAppear no pudo encontrar un RectTransform.", this);
-            return; 
-        }
-
-        // Poner el estado inicial
+        // Estado inicial forzado
         rectTransform.anchoredPosition = hiddenPosition;
         canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
         gameObject.SetActive(false);
-
-        hasInitialized = true;
     }
 
 }

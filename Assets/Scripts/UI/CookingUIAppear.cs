@@ -39,13 +39,15 @@ public class CookingUIAppear : MonoBehaviour
     public UnityEvent OnAnimateInComplete = new UnityEvent();
     [Tooltip("Se dispara cuando la animación de salida (desaparecer) ha terminado.")]
     public UnityEvent OnAnimateOutComplete = new UnityEvent();
+    public UnityEvent OnAnimateInStart;
+    public UnityEvent OnAnimateOutStart;
 
     // Referencias a RectTransforms
     private RectTransform recipesRect;
     private RectTransform ingredientsRect;
     private RectTransform cauldronRect;
 
-    private bool isAnimating = false;
+    public bool IsAnimating => LeanTween.isTweening(gameObject) || LeanTween.isTweening(recipesRect.gameObject);
     private bool hasInitialized = false;
 
     private void Awake()
@@ -60,13 +62,7 @@ public class CookingUIAppear : MonoBehaviour
         if (panelIngredients != null) ingredientsRect = panelIngredients.GetComponent<RectTransform>();
         if (panelCauldron != null) cauldronRect = panelCauldron.GetComponent<RectTransform>();
 
-        if (recipesRect != null) recipesRect.anchoredPosition = recipesHiddenPos;
-        if (ingredientsRect != null) ingredientsRect.anchoredPosition = ingredientsHiddenPos;
-        if (cauldronRect != null) cauldronRect.anchoredPosition = cauldronHiddenPos;
-
-        if (recipesContentGroup != null) recipesContentGroup.alpha = 0f;
-        if (ingredientsContentGroup != null) ingredientsContentGroup.alpha = 0f;
-        if (cauldronContentGroup != null) cauldronContentGroup.alpha = 0f;
+        SetInitialPositions();
 
         if (panelRecipes != null) panelRecipes.SetActive(false);
         if (panelIngredients != null) panelIngredients.SetActive(false);
@@ -77,28 +73,50 @@ public class CookingUIAppear : MonoBehaviour
         hasInitialized = true;
     }
 
+    private void SetInitialPositions()
+    {
+        if (recipesRect != null) recipesRect.anchoredPosition = recipesHiddenPos;
+        if (ingredientsRect != null) ingredientsRect.anchoredPosition = ingredientsHiddenPos;
+        if (cauldronRect != null) cauldronRect.anchoredPosition = cauldronHiddenPos;
+
+        if (recipesContentGroup != null) recipesContentGroup.alpha = 0f;
+        if (ingredientsContentGroup != null) ingredientsContentGroup.alpha = 0f;
+        if (cauldronContentGroup != null) cauldronContentGroup.alpha = 0f;
+    }
+    private void CancelAllTweens()
+    {
+        if (recipesRect) LeanTween.cancel(recipesRect.gameObject);
+        if (ingredientsRect) LeanTween.cancel(ingredientsRect.gameObject);
+        if (cauldronRect) LeanTween.cancel(cauldronRect.gameObject);
+
+        if(recipesContentGroup) LeanTween.cancel(recipesContentGroup.gameObject);
+        if(ingredientsContentGroup) LeanTween.cancel(ingredientsContentGroup.gameObject);
+        if (cauldronContentGroup) LeanTween.cancel(cauldronContentGroup.gameObject);
+
+        LeanTween.cancel(gameObject);
+    }
     public void AnimateIn()
     {
         InitializeIfNeeded();
-        if (isAnimating) return;
-        isAnimating = true;
+        
+        CancelAllTweens();
+
+        OnAnimateInStart?.Invoke();
 
         gameObject.SetActive(true);
-
         panelRecipes.SetActive(true);
         panelIngredients.SetActive(true);
         panelCauldron.SetActive(true);
 
-        recipesRect.anchoredPosition = recipesHiddenPos;
-        ingredientsRect.anchoredPosition = ingredientsHiddenPos;
-        cauldronRect.anchoredPosition = cauldronHiddenPos;
+        SetInteractable(false);
 
         recipesContentGroup.alpha = 0f;
         ingredientsContentGroup.alpha = 0f;
         cauldronContentGroup.alpha = 0f;
 
-        AnimateIn_Contents();
-
+        LeanTween.alphaCanvas(recipesContentGroup, 1f, contentFadeTime).setIgnoreTimeScale(true);
+        LeanTween.alphaCanvas(ingredientsContentGroup, 1f, contentFadeTime).setIgnoreTimeScale(true);
+        LeanTween.alphaCanvas(cauldronContentGroup, 1f, contentFadeTime).setIgnoreTimeScale(true);
 
         LeanTween.move(recipesRect, shownRecipesPosition, showDuration)
             .setEase(showEase)
@@ -107,68 +125,65 @@ public class CookingUIAppear : MonoBehaviour
             .setEase(showEase)
             .setIgnoreTimeScale(true);
         LeanTween.move(cauldronRect, shownCauldronPosition, showDuration)
-            .setEase(showEase)
-            .setIgnoreTimeScale(true);
-    }
-
-    private void AnimateIn_Contents()
-    {
-        LeanTween.alphaCanvas(recipesContentGroup, 1f, contentFadeTime).setIgnoreTimeScale(true);
-        LeanTween.alphaCanvas(ingredientsContentGroup, 1f, contentFadeTime).setIgnoreTimeScale(true);
-        LeanTween.alphaCanvas(cauldronContentGroup, 1f, contentFadeTime)
-            .setIgnoreTimeScale(true)
-            .setOnComplete(OnInComplete);
+                .setEase(showEase)
+                .setIgnoreTimeScale(true)
+                .setOnComplete(OnInComplete);
     }
 
     public void AnimateOut()
     {
         InitializeIfNeeded();
-        if (isAnimating) return;
-        isAnimating = true;
+        CancelAllTweens();
 
-        AnimateOut_Panels();
-        
+       
+        OnAnimateOutStart?.Invoke();
+
+        SetInteractable(false);
+
         LeanTween.alphaCanvas(recipesContentGroup, 0f, contentFadeTime).setIgnoreTimeScale(true);
         LeanTween.alphaCanvas(ingredientsContentGroup, 0f, contentFadeTime).setIgnoreTimeScale(true);
-        LeanTween.alphaCanvas(cauldronContentGroup, 0f, contentFadeTime)
-            .setIgnoreTimeScale(true)
-            .setOnComplete(()=>gameObject.SetActive(false));
-        
-    }
+        LeanTween.alphaCanvas(cauldronContentGroup, 0f, contentFadeTime).setIgnoreTimeScale(true);
 
-    private void AnimateOut_Panels()
-    {
-        LeanTween.move(recipesRect, recipesHiddenPos, hideDuration)
-            .setEase(hideEase)
-            .setIgnoreTimeScale(true);
-        LeanTween.move(ingredientsRect, ingredientsHiddenPos, hideDuration)
-            .setEase(hideEase)
-            .setIgnoreTimeScale(true);
+        LeanTween.move(recipesRect, recipesHiddenPos, hideDuration).setEase(hideEase).setIgnoreTimeScale(true);
+        LeanTween.move(ingredientsRect, ingredientsHiddenPos, hideDuration).setEase(hideEase).setIgnoreTimeScale(true);
         LeanTween.move(cauldronRect, cauldronHiddenPos, hideDuration)
             .setEase(hideEase)
             .setIgnoreTimeScale(true)
             .setOnComplete(OnOutComplete);
     }
-
+    private void SetInteractable(bool canInteract)
+    {
+        if (recipesContentGroup)
+        {
+            recipesContentGroup.interactable = canInteract;
+            recipesContentGroup.blocksRaycasts = canInteract;
+        }
+        if (ingredientsContentGroup)
+        {
+            ingredientsContentGroup.interactable = canInteract;
+            ingredientsContentGroup.blocksRaycasts = canInteract;
+        }
+        if (cauldronContentGroup)
+        {
+            cauldronContentGroup.interactable = canInteract;
+            cauldronContentGroup.blocksRaycasts = canInteract;
+        }
+    }
     private void OnInComplete()
     {
-        isAnimating = false;
-
-        recipesContentGroup.interactable = true;
-        ingredientsContentGroup.interactable = true;
-        cauldronContentGroup.interactable = true;
-
-        OnAnimateInComplete.Invoke(); // Dispara el evento
+        SetInteractable(true);
+        OnAnimateInComplete.Invoke();
     }
 
     private void OnOutComplete()
     {
-        isAnimating = false;
-
         panelRecipes.SetActive(false);
         panelIngredients.SetActive(false);
         panelCauldron.SetActive(false);
 
+        SetInitialPositions();
+
+        gameObject.SetActive(false); 
         OnAnimateOutComplete.Invoke();
     }
 }

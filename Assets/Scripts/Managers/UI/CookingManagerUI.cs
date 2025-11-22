@@ -40,7 +40,7 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
 
     // --- Eventos Estáticos ---
     private static event Action<string, bool> onButtonGetFood;
-    private static event Action onEnterCook, onExitCookRequest;
+    private static event Action onExitCookRequest;
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
 
