@@ -45,6 +45,7 @@ public class GenericTweenButton : MonoBehaviour,
     [Tooltip("Color del botón cuando está en modo 'Toggle' y seleccionado.")]
     [SerializeField] private Color selectedColor = new Color(1f, 0.9f, 0.5f);
     protected Color normalColor;
+    protected Color ownerColor;
     #endregion
 
     [SerializeField] private Color disabledColor = new Color(0.2f, 0.2f, 0.2f, 1f);
@@ -66,6 +67,7 @@ public class GenericTweenButton : MonoBehaviour,
     private Image ownerImage;
 
     private static GenericTweenButton currentHoverOnlyButton;
+
     protected virtual void Awake()
     {
         if (targetTransform == null)
@@ -75,6 +77,7 @@ public class GenericTweenButton : MonoBehaviour,
         if (ownerImage == null)
         {
             ownerImage = GetComponent<Image>();
+            ownerColor = ownerImage.color;
         }
         if (targetImage == null)
         {
@@ -172,22 +175,19 @@ public class GenericTweenButton : MonoBehaviour,
     {
         isInteractable = state;
 
-        if (targetTransform != null)
-            LeanTween.cancel(targetTransform.gameObject);
-
-        if (ownerImage != null)
+        CanvasGroup cg = GetComponent<CanvasGroup>();
+        if (cg != null)
         {
-            LeanTween.cancel(ownerImage.gameObject);
-
-            ownerImage.raycastTarget = state;
-
-            Color targetColor = state ? normalColor : disabledColor;
-
-            LeanTween.color(ownerImage.rectTransform, targetColor, animTime)
-                .setEase(easeType)
-                .setIgnoreTimeScale(true);
+            cg.interactable = state;
+            cg.blocksRaycasts = state;
         }
-
+        if (targetImage != null)
+        {
+            Color targetStateColor = state ? ownerColor : disabledColor;
+            LeanTween.color(targetImage.rectTransform, targetStateColor, animTime)
+                   .setEase(easeType)
+                   .setIgnoreTimeScale(true);
+        }
     }
     protected virtual void UpdateVisuals()
     {
@@ -258,5 +258,20 @@ public class GenericTweenButton : MonoBehaviour,
     public bool GetSelectedState()
     {
         return isSelected;
+    }
+    public void ChangeColor(Color _color)
+    {
+        normalColor = _color;
+        ownerColor = _color;
+        if (!isPointerOver && !isSelected && isInteractable)
+        {
+            if (targetImage != null)
+            {
+                // Usamos LeanTween para cambio suave, o directo si prefieres
+                LeanTween.color(targetImage.rectTransform, _color, animTime)
+                    .setEase(easeType)
+                    .setIgnoreTimeScale(true);
+            }
+        }
     }
 }
