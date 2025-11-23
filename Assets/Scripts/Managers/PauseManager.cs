@@ -19,6 +19,7 @@ public class PauseManager : Singleton<PauseManager>
     [Tooltip("El botón que debe seleccionarse al volver de Settings (Ej: el botón 'Settings')")]
     [SerializeField] private GameObject settingsSelectedButton;
 
+    private PlayerModel playerModel;
 
     // --- Eventos (sin cambios) ---
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
@@ -32,6 +33,8 @@ public class PauseManager : Singleton<PauseManager>
     private bool isGamePaused = false;
     private bool ignoreFirstSelectedSound = false;
     private bool wasUiActiveOnPause = false;
+    private bool ignorePauseThisFrame = false;
+
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
     public static Action OnButtonSettingsClickToShowCorrectPanel { get => onButtonSettingsClickToShowCorrectPanel; set => onButtonSettingsClickToShowCorrectPanel = value; }
@@ -47,21 +50,19 @@ public class PauseManager : Singleton<PauseManager>
     {
         CreateSingleton(false);
         SuscribeToUpdateManagerEvent();
+        SuscribeToPlayerViewEvents();
+        GetComponents();
     }
 
     void UpdatePauseManager()
     {
-        if (pausePanel == null)
-        {
-            Debug.LogWarning("PausePanel no está asignado en el PauseManager.");
-            return;
-        }
         EnabledOrDisabledPausePanel();
     }
 
     void OnDestroy()
     {
         UnsuscribeToUpdateManagerEvent();
+        UnsuscribeToPlayerViewEvents();
     }
 
     // Funcion asignada a botones en la UI para reproducir el sonido selected
@@ -136,6 +137,62 @@ public class PauseManager : Singleton<PauseManager>
         UpdateManager.OnUpdate -= UpdatePauseManager;
     }
 
+    private void SuscribeToPlayerViewEvents()
+    {
+        PlayerView.OnEnterInAdministrationMode += OnEnterInUIMode;
+        PlayerView.OnExitInAdministrationMode += OnExitInUIMode;
+
+        PlayerView.OnEnterInCookMode += OnEnterInUIMode;
+        PlayerView.OnExitInCookMode += OnExitInUIMode;
+
+        PlayerView.OnEnterTutorial += OnEnterInUIMode;
+        PlayerView.OnExitTutorial += OnExitInUIMode;
+
+        Trash.OnShowPanelTrash += OnEnterInUIMode;
+        Trash.OnHidePanelTrash += OnExitInUIMode;
+    }
+
+    private void UnsuscribeToPlayerViewEvents()
+    {
+        PlayerView.OnEnterInAdministrationMode -= OnEnterInUIMode;
+        PlayerView.OnExitInAdministrationMode -= OnExitInUIMode;
+
+        PlayerView.OnEnterInCookMode -= OnEnterInUIMode;
+        PlayerView.OnExitInCookMode -= OnExitInUIMode;
+
+        PlayerView.OnEnterTutorial -= OnEnterInUIMode;
+        PlayerView.OnExitTutorial -= OnExitInUIMode;
+
+        Trash.OnShowPanelTrash -= OnEnterInUIMode;
+        Trash.OnHidePanelTrash -= OnExitInUIMode;
+    }
+
+    private void OnEnterInUIMode()
+    {
+        ignorePauseThisFrame = true;
+    }
+
+    private void OnExitInUIMode()
+    {
+        //if (!isGamePaused) return;
+        
+        if (playerModel.IsAdministrating || playerModel.IsCooking || playerModel.IsInTrashPanel || playerModel.IsInTutorial) return;
+
+        StartCoroutine(ExitUIMode());
+    }
+
+    private IEnumerator ExitUIMode()
+    {
+        yield return null;
+
+        ignorePauseThisFrame = false;
+    }
+
+    private void GetComponents()
+    {
+        playerModel = FindFirstObjectByType<PlayerModel>();
+    }
+
     private void ShowPause()
     {
         onGamePaused?.Invoke();
@@ -192,7 +249,26 @@ public class PauseManager : Singleton<PauseManager>
 
     private void EnabledOrDisabledPausePanel()
     {
-        if (PlayerInputs.Instance.Pause())
+        if (isGamePaused)
+        {
+            if (PlayerInputs.Instance.Pause())
+            {
+                AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
+                HidePause();
+                return;
+            }
+        }
+
+        if (PlayerInputs.Instance.PauseWithKeyP())
+        {
+            AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
+            (isGamePaused ? (Action)HidePause : ShowPause)();
+            return;
+        }
+
+        if (ignorePauseThisFrame) return;
+
+        if (PlayerInputs.Instance.Pause() && !playerModel.IsAdministrating && !playerModel.IsCooking && !playerModel.IsInTrashPanel && !playerModel.IsInTutorial)
         {
             AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
             (isGamePaused ? (Action)HidePause : ShowPause)();

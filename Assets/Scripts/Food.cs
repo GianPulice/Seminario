@@ -434,6 +434,7 @@ public class Food : MonoBehaviour, IInteractable
     private void OnEnterInCookMode()
     {
         if (cookTimeCounter >= foodData.TimeToBeenCooked) return;
+        if (isInPlayerDishPosition) return;
 
         cookingBarUI.gameObject.SetActive(true);
         cookingBarOutside.gameObject.SetActive(false);
@@ -442,6 +443,7 @@ public class Food : MonoBehaviour, IInteractable
     private void OnExitInCookMode()
     {
         if (cookTimeCounter >= foodData.TimeToBeenCooked) return;
+        if (isInPlayerDishPosition) return;
 
         cookingBarUI.gameObject.SetActive(false);
         cookingBarOutside.gameObject.SetActive(true);

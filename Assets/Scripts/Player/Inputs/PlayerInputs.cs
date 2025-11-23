@@ -58,20 +58,19 @@ public class PlayerInputs : Singleton<PlayerInputs>
 
     /* -------------------------------------------BOTH----------------------------------------- */
 
-    public bool Run() => Input.GetKeyDown(keyboardInputs.Run) || Input.GetKeyDown(joystickInputs.Run);
-    public bool StopRun() => Input.GetKeyDown(keyboardInputs.Run) || Input.GetKeyDown(joystickInputs.Run);
+    public bool Run() => Input.GetKey(keyboardInputs.Run) || Input.GetKey(joystickInputs.Run);
+    public bool StopRun() => Input.GetKeyUp(keyboardInputs.Run) || Input.GetKeyUp(joystickInputs.Run);
     public bool InteractPress() => Input.GetKeyDown(keyboardInputs.Interact) || Input.GetKeyDown(joystickInputs.Interact);
     public bool InteractHold() => Input.GetKey(keyboardInputs.Interact) || Input.GetKey(joystickInputs.Interact);
     public bool Jump() => Input.GetKeyDown(keyboardInputs.Jump) || Input.GetKeyDown(joystickInputs.Jump);
     public bool Inventory() => Input.GetKeyDown(keyboardInputs.Inventory) || Input.GetKeyDown(joystickInputs.Inventory);
     public bool Pause() => Input.GetKeyDown(keyboardInputs.Pause) || Input.GetKeyDown(joystickInputs.Pause);
+    public bool PauseWithKeyP() => Input.GetKeyDown(KeyCode.P);
 
     /* -------------------------------------------UI----------------------------------------- */
-    
-    public KeyCode GetInteractInput() => DeviceManager.Instance.CurrentDevice == Device.Joystick ? instance.joystickInputs.Interact : instance.keyboardInputs.Interact;
-    public bool R1() => Input.GetKeyDown(KeyCode.Joystick1Button5);
-    public bool L1() => Input.GetKeyDown(KeyCode.Joystick1Button4);
 
+    public KeyCode GetInteractInput() => DeviceManager.Instance.CurrentDevice == Device.Joystick ? instance.joystickInputs.Interact : instance.keyboardInputs.Interact;
+    public bool BackPanelsUI() => Input.GetKeyDown(KeyCode.Escape);
 
     // No es necesario desuscribirse porque es singleton
     private void SuscribeToUpdateManagerEvent()

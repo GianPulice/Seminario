@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class SettingsManagerUI : MonoBehaviour
 {
     /// <summary>
-    /// Analizar el tema de que las resoluciones que pone sean unicamente las compatibles con tu monitor y agregar mas alternativas de FPS
+    /// Analizar el tema de porque no se guardan las settings correctamente hasta que se presiona el boton settings de las settings
     /// </summary>
 
     [Header("General:")]
@@ -51,7 +51,7 @@ public class SettingsManagerUI : MonoBehaviour
 
     void Start()
     {
-        SettingsManager.Instance.ApplyAll();
+        SettingsManager.Instance.ApplyAllSettingsValues();
         InitializeAudioOptions();
         InitializeVideoOptions();
         InitializeControlOptions();
@@ -64,7 +64,6 @@ public class SettingsManagerUI : MonoBehaviour
     // Simulacion de Update
     void UpdateSettingsManagerUI()
     {
-        CheckJoystickInputsToInteractWithPanels();
     }
 
     void OnDestroy()
@@ -342,67 +341,6 @@ public class SettingsManagerUI : MonoBehaviour
     private void UpdateTextControls(TMP_Text currentText, float value)
     {
         currentText.text = Mathf.RoundToInt(value).ToString();
-    }
-
-    private void CheckJoystickInputsToInteractWithPanels()
-    {
-        if (panelAudio.activeSelf || panelVideo.activeSelf || panelControls.activeSelf)
-        {
-            if (PlayerInputs.Instance != null)
-            {
-                if (PlayerInputs.Instance.R1())
-                {
-                    SetNexPanelUsingJoystickR1();
-                }
-
-                if (PlayerInputs.Instance.L1())
-                {
-                    SetNexPanelUsingJoystickL1();
-                }
-            }
-        }
-    }
-
-    private void SetNexPanelUsingJoystickR1()
-    {
-        if (panelAudio.activeSelf)
-        {
-            SetPanelVideo();
-            return;
-        }
-
-        if (panelVideo.activeSelf)
-        {
-            SetPanelControls();
-            return;
-        }
-
-        if (panelControls.activeSelf)
-        {
-            SetPanelAudio();
-            return;
-        }
-    }
-
-    private void SetNexPanelUsingJoystickL1()
-    {
-        if (panelAudio.activeSelf)
-        {
-            SetPanelControls();
-            return;
-        }
-
-        if (panelVideo.activeSelf)
-        {
-            SetPanelAudio();
-            return;
-        }
-
-        if (panelControls.activeSelf)
-        {
-            SetPanelVideo();
-            return;
-        }
     }
 }
 

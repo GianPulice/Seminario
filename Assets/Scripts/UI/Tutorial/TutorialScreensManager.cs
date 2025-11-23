@@ -26,28 +26,43 @@ public class TutorialScreensManager : Singleton<TutorialScreensManager>
     private TutorialType currentTutorialType;
     public TutorialType CurrentTutorialType => currentTutorialType;
 
+    private bool isInTutorial = false;
+
     public static Action OnEnterTutorial { get => onEnterTutorial; set => onEnterTutorial = value; }
     public static Action OnExitTutorial { get => onExitTutorial; set => onExitTutorial = value; }
 
-    private void Awake()
+    void Awake()
     {
         CreateSingleton(false);
         BuildDictionary();
 
     }
+
+    void Update()
+    {
+        if (PlayerInputs.Instance.BackPanelsUI() && isInTutorial)
+        {
+            Close();
+        }
+    }
+
     public void SetTutorialType(TutorialType tutorialType)
     {
+        isInTutorial = true;
         if (tutorialData.ActivateTutorial == false) return;
         DeviceManager.instance.IsUIModeActive = true;
         currentTutorialType = tutorialType;
         UpdateTutorialImage();
         onEnterTutorial?.Invoke();
+        PlayerView.OnEnterTutorial?.Invoke();
     }
     public void Close()
     {
         DeviceManager.instance.IsUIModeActive = false;
         appearAnim?.HidePanel();
         onExitTutorial?.Invoke();
+        PlayerView.OnExitTutorial?.Invoke();
+        isInTutorial = false;
     }
 
     public void SetTutorialType(int tutorialTypeIndex)
