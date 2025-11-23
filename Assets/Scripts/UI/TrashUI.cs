@@ -20,6 +20,14 @@ public class TrashUI : MonoBehaviour
         GetComponents();
     }
 
+    void Update()
+    {
+        if (PlayerInputs.Instance.BackPanelsUI())
+        {
+            No();
+        }
+    }
+
 
     public void Yes()
     {

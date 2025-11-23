@@ -8,8 +8,6 @@ public class ClientStateLeave<T> : State<T>
     private ClientController clientController;
     private Transform newTransform;
 
-    private float waitingTimeToFreeTable = 1f;
-
     private bool canLeave = false;
 
     public bool CanLeave { get => canLeave; set => canLeave = value; }
@@ -45,7 +43,7 @@ public class ClientStateLeave<T> : State<T>
             clientView.StartCoroutine(WalkAnimationAfterExitTime());
         }
 
-        CheckIfFoodIsCorrect(); // Metodo Provisorio
+        CheckIfFoodIsCorrect();
 
         clientModel.StartCoroutine(FreeCurrentTableAfterSeconds());
     }
@@ -85,7 +83,7 @@ public class ClientStateLeave<T> : State<T>
 
     private IEnumerator FreeCurrentTableAfterSeconds()
     {
-        yield return new WaitForSeconds(waitingTimeToFreeTable);
+        yield return new WaitForSeconds(ClientManager.Instance.ClientManagerData.DelayToFreeTableWhenClientLeaveTable);
 
         if (clientModel.CurrentTable == null) yield break; // Cortar el metodo si la mesa es null, quiere decir que se fue porque se quedo esperando
 

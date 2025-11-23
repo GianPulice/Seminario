@@ -49,16 +49,8 @@ public class SettingsManager : Singleton<SettingsManager>
         //PlayerPrefs.DeleteAll();
     }
 
-    void Start()
-    {
-        /*LoadAudioValuesFromPlayerPrefs();
-        LoadVideoValuesFromPlayerPrefs();
-        LoadControlValuesFromPlayerPrefs();
-        ApplyAudioSettings();
-        ApplyVideoSettings();*/
-    }
 
-    public void ApplyAll()
+    public void ApplyAllSettingsValues()
     {
         LoadAudioValuesFromPlayerPrefs();
         LoadVideoValuesFromPlayerPrefs();
@@ -66,7 +58,6 @@ public class SettingsManager : Singleton<SettingsManager>
         ApplyAudioSettings();
         ApplyVideoSettings();
     }
-
 
     public void SetGeneralVolume(float value)
     {
