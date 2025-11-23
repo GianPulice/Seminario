@@ -79,9 +79,22 @@ public class SettingsManagerUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void SetPanelAudio() => tabGroup.SelectTabByIndex(0);
-    public void SetPanelVideo() => tabGroup.SelectTabByIndex(1);
-    public void SetPanelControls() => tabGroup.SelectTabByIndex(2);
+    public void SetPanelAudio()
+    {
+        tabGroup.SelectTabByIndex(0);
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+    } 
+    
+    public void SetPanelVideo()
+    {
+        tabGroup.SelectTabByIndex(1);
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+    }
+    public void SetPanelControls()
+    {
+        tabGroup.SelectTabByIndex(2);
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+    }
 
     private void SuscribeToMainMenuEvent()
     {

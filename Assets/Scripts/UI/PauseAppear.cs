@@ -11,12 +11,12 @@ public class PauseAppear : MonoBehaviour
     [Header("Eventos")]
     public UnityEvent OnAnimateInComplete = new UnityEvent();
     public UnityEvent OnAnimateOutComplete = new UnityEvent();
+    public UnityEvent OnAnimateInStart;
+    public UnityEvent OnAnimateOutStart;
 
     [SerializeField] private CanvasGroup canvasGroup;
-    private RectTransform rectTransform;
-    private bool isAnimating = false;
-    private bool hasInitialized = false;
-    public bool IsAnimating => isAnimating;
+    [SerializeField] private RectTransform rectTransform;
+    public bool IsVisible => gameObject.activeSelf && canvasGroup.alpha > 0.01f;
     private void Awake()
     {
         InitializeIfNeeded();
@@ -25,59 +25,62 @@ public class PauseAppear : MonoBehaviour
     {
         InitializeIfNeeded();
 
-        if (isAnimating) return;
-        isAnimating = true;
+        LeanTween.cancel(gameObject);
 
-        gameObject.SetActive(true);
+        OnAnimateInStart?.Invoke();
 
-        rectTransform.localScale = Vector3.zero;
-        canvasGroup.alpha = 0f;
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
+            rectTransform.localScale = Vector3.zero;
+            canvasGroup.alpha = 0f;
+        }
+
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
 
-
-        LeanTween.cancel(gameObject);
+        LeanTween.alphaCanvas(canvasGroup, 1f, animationDuration)
+               .setEase(easeType)
+               .setIgnoreTimeScale(true);
 
         LeanTween.scale(gameObject, Vector3.one, animationDuration)
                 .setEase(easeType)
                 .setIgnoreTimeScale(true)
                 .setOnComplete(OnInComplete);
-
-        LeanTween.alphaCanvas(canvasGroup, 1f, animationDuration)
-               .setEase(easeType)
-               .setIgnoreTimeScale(true);
     }
     public void AnimateOut()
     {
         InitializeIfNeeded();
 
-        if (isAnimating) return;
-        isAnimating = true;
+        LeanTween.cancel(gameObject);
+
+        if (InteractionManagerUI.Instance != null)
+        {
+            InteractionManagerUI.Instance.ForceResetUI();
+        }
+
+        OnAnimateOutStart?.Invoke();
 
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
 
-        LeanTween.cancel(gameObject);
+        LeanTween.alphaCanvas(canvasGroup, 0f, animationDuration)
+              .setEase(easeType)
+              .setIgnoreTimeScale(true);
 
         LeanTween.scale(gameObject, Vector3.zero, animationDuration)
               .setEase(easeType)
               .setIgnoreTimeScale(true)
               .setOnComplete(OnOutComplete);
-
-        LeanTween.alphaCanvas(canvasGroup, 0f, animationDuration)
-              .setEase(easeType)
-              .setIgnoreTimeScale(true);
     }
     private void OnInComplete()
     {
-        isAnimating = false;
         canvasGroup.interactable = true;
         canvasGroup.blocksRaycasts = true;
         OnAnimateInComplete.Invoke();
     }
     private void OnOutComplete()
     {
-        isAnimating = false;
         gameObject.SetActive(false);
         rectTransform.localScale = Vector3.zero;
         canvasGroup.alpha = 0f;
@@ -85,18 +88,18 @@ public class PauseAppear : MonoBehaviour
     }
     private void InitializeIfNeeded()
     {
-        if (hasInitialized) return;
-
+        if (rectTransform != null && canvasGroup != null) return;
+        
         canvasGroup = GetComponentInParent<CanvasGroup>();
         rectTransform = GetComponent<RectTransform>();
 
+        if (canvasGroup == null) canvasGroup = gameObject.AddComponent<CanvasGroup>();
+        
         // Poner el estado inicial oculto
         rectTransform.localScale = Vector3.zero;
         canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
         gameObject.SetActive(false);
-
-        hasInitialized = true;
     }
 }

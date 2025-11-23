@@ -40,6 +40,8 @@ public class InteractionManagerUI : Singleton<InteractionManagerUI>
 
     public void ModifyCenterPointUI(InteractionType interactionType)
     {
+        if(centerPointUI == null) return;
+
         if (interactionType == InteractionType.Interactive)
         {
             centerPointUI.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
@@ -50,6 +52,14 @@ public class InteractionManagerUI : Singleton<InteractionManagerUI>
         {
             centerPointUI.transform.localScale = new Vector3(0.15f, 0.15f, 0.15f);
             centerPointUI.color = interactionManagerUIData.NormalColor;
+        }
+    }
+    public void ForceResetUI()
+    {
+        if (centerPointUI != null)
+        {
+            centerPointUI.gameObject.SetActive(true);
+            ModifyCenterPointUI(InteractionType.Normal);
         }
     }
 }

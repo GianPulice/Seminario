@@ -24,7 +24,8 @@ public class AdministratingManagerUI : MonoBehaviour
 
     [Header("Referencias (Panel Ingredients)")]
     [SerializeField] private GameObject ingredientButtonContainer;
-    [SerializeField] private GameObject upgradeButtonContainer;
+    [SerializeField] private GameObject firstUpgradeButtonContainer;
+    [SerializeField] private GameObject secondUpgradeButtonContainer;
 
     [Header("Referencias (Panel Upgrades)")]
     [SerializeField] private ConfirmationPanel confirmationPanel;
@@ -33,6 +34,10 @@ public class AdministratingManagerUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textPriceCurrentUpgradeUnlock;
     [SerializeField] private TextMeshProUGUI textInformationCurrentUpgrade;
 
+    [Header("Configuración Visual Upgrades")]
+    [SerializeField] private Color unlockedUpgradeColor = Color.green;
+    [SerializeField] private Color defaultColor = Color.white;
+
     //--- Listas de botones ---
     private List<IngredientButtonUI> ingredientButtons = new List<IngredientButtonUI>();
     private List<GenericTweenButton> upgradeButtons = new List<GenericTweenButton>();
@@ -40,9 +45,9 @@ public class AdministratingManagerUI : MonoBehaviour
     private static event Action onEnterAdmin, onExitAdmin;
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
-    private static event Action onStartTabern,onCloseTabern;
+    private static event Action onStartTabern, onCloseTabern;
 
-    public static Action OnExitAdmin { get => onExitAdmin; set => onExitAdmin = value; } 
+    public static Action OnExitAdmin { get => onExitAdmin; set => onExitAdmin = value; }
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
     public static Action OnStartTabern { get => onStartTabern; set => onStartTabern = value; }
@@ -51,12 +56,11 @@ public class AdministratingManagerUI : MonoBehaviour
     // --- Variables de control ---
     private GameObject lastSelectedButtonFromAdminPanel;
     private bool ignoreFirstButtonSelected = true;
-    private int currentActiveTabIndex = 0;
     private bool localTavernState = false;
 
     //--- Variable estaticas ---
     private static int lastTabIndex = -1;
-    
+
     void Awake()
     {
         GetComponents();
@@ -156,7 +160,7 @@ public class AdministratingManagerUI : MonoBehaviour
             localTavernState = true;
             AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_On"
         }
-        if(!isTavernOn && ClientManager.Instance.CanCloseTabern)
+        if (!isTavernOn && ClientManager.Instance.CanCloseTabern)
         {
             Debug.Log("¡Taberna CERRADA!");
             onCloseTabern?.Invoke();
@@ -179,7 +183,7 @@ public class AdministratingManagerUI : MonoBehaviour
                 AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
                 IngredientInventoryManager.Instance.IncreaseIngredientStock(ingredient);
                 MoneyManager.Instance.SubMoney(price);
-                
+
                 UpdateAllIngredientButtons();
             }
             else
@@ -211,12 +215,8 @@ public class AdministratingManagerUI : MonoBehaviour
         var upgrade = UpgradesManager.Instance.GetUpgrade(index);
         if (upgrade == null) return;
 
-        // Si ya está desbloqueado, no hacemos nada
         if (!upgrade.CanUpgrade)
-        {
-            //AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
             return;
-        }
 
         int price = upgrade.UpgradesData.Cost;
 
@@ -225,6 +225,12 @@ public class AdministratingManagerUI : MonoBehaviour
             AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
             UpgradesManager.Instance.UnlockUpgrade(index);
             MoneyManager.Instance.SubMoney(price);
+
+            UpdateUpgradeButtonsInteractable();
+
+            int next = GetNextAvailableUpgradeIndex();
+            if (next != -1)
+                ShowCurrentZoneInformation(next);
         }
         else
         {
@@ -236,6 +242,10 @@ public class AdministratingManagerUI : MonoBehaviour
     {
         var upgrade = UpgradesManager.Instance.GetUpgrade(index);
         var data = upgrade.UpgradesData;
+
+        if (!upgrade.CanUpgrade)
+            return;
+
         confirmationText.text = $"Are you sure you want to spend <color=yellow>${data.Cost}</color> to buy this upgrade";
 
         // Mostrar panel de confirmación y asignar la acción a realizar si presiona YES
@@ -251,10 +261,7 @@ public class AdministratingManagerUI : MonoBehaviour
         if (upgrade == null) return;
 
         if (!upgrade.CanUpgrade)
-        {
-            /// Agregar un sprite generico que muestre que ya tenes la zona desbloqueada
             return;
-        }
 
         var data = upgrade.UpgradesData;
 
@@ -264,7 +271,7 @@ public class AdministratingManagerUI : MonoBehaviour
     }
     private void UpdateIngredientButtonsFromUpgrades()
     {
-        foreach(var btn in ingredientButtons)
+        foreach (var btn in ingredientButtons)
         {
             bool isUnlocked = RecipeProgressManager.Instance.IsIngredientUnlocked(btn.IngredientType);
             btn.gameObject.SetActive(isUnlocked);
@@ -272,20 +279,44 @@ public class AdministratingManagerUI : MonoBehaviour
     }
     private void UpdateUpgradeButtonsInteractable()
     {
+        int totalButtons = upgradeButtons.Count;
+
         for (int i = 0; i < upgradeButtons.Count; i++)
         {
-            var upgrade = UpgradesManager.Instance.GetUpgrade(i);
-
-            if (upgrade == null)
+            bool shouldBeInteractable = false;
+            if (i == 0)
             {
-                upgradeButtons[i].SetInteractable(false);
-                continue;
+                shouldBeInteractable = true;
             }
+            else
+            {
+                var previousUpgrade = UpgradesManager.Instance.GetUpgrade(i - 1);
 
-            // Si se puede comprar --> interactuable
-            // Si NO se puede comprar --> desactivado visual + raycast apagado
-            upgradeButtons[i].SetInteractable(upgrade.CanUpgrade);
+                if (previousUpgrade != null && !previousUpgrade.CanUpgrade)
+                {
+                    shouldBeInteractable = true;
+                }
+            }
+            if (shouldBeInteractable)
+            {
+                upgradeButtons[i].ChangeColor(unlockedUpgradeColor);
+            }
+            else
+            {
+                upgradeButtons[i].ChangeColor(defaultColor);
+            }
+            upgradeButtons[i].SetInteractable(shouldBeInteractable);
         }
+    }
+    private int GetNextAvailableUpgradeIndex()
+    {
+        for (int i = 0; i < UpgradesManager.Instance.GetUpgradesCount(); i++)
+        {
+            var upgrade = UpgradesManager.Instance.GetUpgrade(i);
+            if (upgrade.CanUpgrade)
+                return i;
+        }
+        return -1;
     }
     private void OnIngredientUnlocked(IngredientType ingredient)
     {
@@ -346,6 +377,8 @@ public class AdministratingManagerUI : MonoBehaviour
         confirmationPanel.Hide();
     }
 
+
+
     private void SetupInitialTab()
     {
         ignoreFirstButtonSelected = true;
@@ -371,12 +404,14 @@ public class AdministratingManagerUI : MonoBehaviour
         }
         if (startTavernSwitch != null)
         {
-            startTavernSwitch.SetSelected(localTavernState); 
+            startTavernSwitch.SetSelected(localTavernState);
         }
-        // Actualizar información si está en el tab de Upgrades
-        if (indexToSelect == 2 && UpgradesManager.Instance != null && UpgradesManager.Instance.GetUpgrade(0) != null)
+
+        if (indexToSelect == 2)
         {
-            ShowCurrentZoneInformation(0);
+            int nextIndex = GetNextAvailableUpgradeIndex();
+            if (nextIndex != -1)
+                ShowCurrentZoneInformation(nextIndex);
         }
     }
 
@@ -430,38 +465,53 @@ public class AdministratingManagerUI : MonoBehaviour
             Debug.LogError("Falta AdminUIAppear", this);
         if (tabGroup == null)
             tabGroup = GetComponent<TabGroup>();
-        
+
         if (ingredientButtonContainer != null)
         {
-           
             ingredientButtons = ingredientButtonContainer
               .GetComponentsInChildren<IngredientButtonUI>(true).ToList();
 
             if (ingredientButtons.Count == 0)
             {
-                Debug.LogWarning($"No se encontró ningún script 'IngredientButtonUI' en los hijos de {ingredientButtonContainer.name}", this);
+                Debug.LogWarning($"No se encontró ningún script 'IngredientButtonUI' en {ingredientButtonContainer.name}", this);
             }
         }
         else
         {
-            Debug.LogError("'Ingredient Button Container' no está asignado en el Inspector de AdministratingManagerUI.", this);
+            Debug.LogError("'Ingredient Button Container' no está asignado.", this);
         }
 
-        if (upgradeButtonContainer != null)
-        {
-            upgradeButtons = upgradeButtonContainer
-             .GetComponentsInChildren<GenericTweenButton>(true).ToList();
+        upgradeButtons = new List<GenericTweenButton>();
 
-            if (upgradeButtons.Count == 0)
-            {
-                Debug.LogWarning($"No se encontró ningún 'GenericTweenButton' en los hijos de {upgradeButtonContainer.name}", this);
-            }
+        if (firstUpgradeButtonContainer != null)
+        {
+            var firstBatch = firstUpgradeButtonContainer.GetComponentsInChildren<GenericTweenButton>(true);
+            upgradeButtons.AddRange(firstBatch);
         }
         else
         {
-            Debug.LogError("'Upgrade Button Container' no está asignado en el Inspector de AdministratingManagerUI.", this);
+            Debug.LogError("'First Upgrade Button Container' no está asignado.", this);
         }
-        startTavernSwitch.OnTryEnableCondition = () => ClientManager.Instance.CanCloseTabern;
+
+        if (secondUpgradeButtonContainer != null)
+        {
+            var secondBatch = secondUpgradeButtonContainer.GetComponentsInChildren<GenericTweenButton>(true);
+            upgradeButtons.AddRange(secondBatch);
+        }
+        else
+        {
+            Debug.LogError("'Second Upgrade Button Container' no está asignado.", this);
+        }
+
+        if (upgradeButtons.Count == 0)
+        {
+            Debug.LogWarning("No se encontraron 'GenericTweenButton' en ninguno de los contenedores de upgrades.", this);
+        }
+
+        if (startTavernSwitch != null)
+        {
+            startTavernSwitch.OnTryEnableCondition = () => ClientManager.Instance.CanCloseTabern;
+        }
     }
 
     #endregion

@@ -92,5 +92,7 @@ public class TrashUI : MonoBehaviour
     {
         Trash.OnShowPanelTrash -= OnShowPanelTrash;
         Trash.OnHidePanelTrash -= OnHidePanelTrash;
+        if(contentTrash != null)
+            LeanTween.cancel(contentTrash);
     }
 }

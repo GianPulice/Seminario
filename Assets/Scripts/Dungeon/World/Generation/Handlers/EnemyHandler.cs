@@ -11,7 +11,7 @@ public class EnemyHandler : MonoBehaviour
     [Tooltip("Cantidad total de rondas en esta sala. Ejemplo: 3 --> (4, 8, 12 enemigos)")]
     [SerializeField] private int totalRounds = 3;
     [Tooltip("N?mero base de enemigos en la primera ronda. Cada ronda multiplica este n?mero por el ?ndice de ronda. Ejemplo: base = 4 --> ronda 1 = 4, ronda 2 = 8, ronda 3 = 12.")]
-    [SerializeField] private int basePerRound = 2;  // 4, 8, 12...
+   // [SerializeField] private int basePerRound = 2;  // 4, 8, 12...
     [SerializeField] private float timeBetweenRounds = 2f;
 
     public event Action OnAllEnemiesDefeated;
