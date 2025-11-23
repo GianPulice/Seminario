@@ -9,6 +9,7 @@ public class OrderItemUI : MonoBehaviour
     [SerializeField] private Image clientImage;
     [SerializeField] private Image orderImage;
     [SerializeField] private TMP_Text timeText;
+    [SerializeField] private TMP_Text tableNumber;
 
     private OrderDataUI currentOrderDataUI;
     private Coroutine timerCoroutine;
@@ -28,6 +29,7 @@ public class OrderItemUI : MonoBehaviour
         clientImage.sprite = order.ClientSprite;
         originalPos = containerRect.anchoredPosition;
         initialTime = order.RemainingTime;
+        tableNumber.text = order.TableNumber.ToString();
 
         UpdateTimerUI();
         timerCoroutine = StartCoroutine(TimerCoroutine());
@@ -82,18 +84,20 @@ public class OrderDataUI
     private Sprite orderSprite;
     private Sprite clientSprite;
 
+    private int tableNumber;
     private float remainingTime;
 
     public Sprite OrderSprite { get => orderSprite; }
     public Sprite ClientSprite { get => clientSprite; }
 
+    public int TableNumber { get => tableNumber; }
     public float RemainingTime { get => remainingTime; set => remainingTime = value; }
 
-
-    public OrderDataUI(Sprite orderSprite, Sprite clientSprite, float maxTime)
+    public OrderDataUI(Sprite orderSprite, Sprite clientSprite, float maxTime, int tableNumber)
     {
         this.orderSprite = orderSprite;
         this.clientSprite = clientSprite;
         remainingTime = maxTime;
+        this.tableNumber = tableNumber;
     }
 }

@@ -122,7 +122,7 @@ public class ClientView : MonoBehaviour
             FoodData data = FoodTimesManager.Instance.GetFoodData(selectedFood.Value);
             currentFoodCookingTime = data.TimeToBeenCooked;
 
-            clientModel.CurrentOrderDataUI = new OrderDataUI(spriteSelectedFood, clientModel.ClientData.ClientImage, clientModel.ClientData.MaxTimeWaitingFood + currentFoodCookingTime);
+            clientModel.CurrentOrderDataUI = new OrderDataUI(spriteSelectedFood, clientModel.ClientData.ClientImage, clientModel.ClientData.MaxTimeWaitingFood + currentFoodCookingTime, tablePlayerCollision.TableNumber);
             OrdersManagerUI.Instance.AddOrder(clientModel.CurrentOrderDataUI);
 
             if (spriteSelectedFood != null)

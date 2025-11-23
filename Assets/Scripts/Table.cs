@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.AI;
 using System.Collections;
+using TMPro;
 
 public class Table : MonoBehaviour, IInteractable
 {
@@ -14,6 +15,7 @@ public class Table : MonoBehaviour, IInteractable
     private GameObject chair;
     private GameObject dish;
     private ParticleSystem dirty;
+    private List<TextMeshPro> tableNumberTexts;
 
     //private NavMeshObstacle[] navMeshObstacles;
     private NavMeshObstacle navMeshObstacleChair;
@@ -21,6 +23,8 @@ public class Table : MonoBehaviour, IInteractable
     private List<Transform> dishPositions = new List<Transform>(); // Representa las posiciones hijas del plato
 
     private List<Food> currentFoods = new List<Food>();
+
+    [SerializeField] private int tableNumber;
 
     private float currentCleanProgress = 0f;
 
@@ -50,6 +54,8 @@ public class Table : MonoBehaviour, IInteractable
             }
         }
     }
+
+    public int TableNumber { get => tableNumber; }
 
     public float CurrentCleanProgress { get => currentCleanProgress; set => currentCleanProgress = value; }
 
@@ -248,6 +254,12 @@ public class Table : MonoBehaviour, IInteractable
         chair = transform.Find("Chair").gameObject;
         dish = transform.Find("Dish").gameObject;
         dirty = GetComponentInChildren<ParticleSystem>(true); // Indica que busca componentes en gameObject desactivados
+        
+        tableNumberTexts = new List<TextMeshPro>(GetComponentsInChildren<TextMeshPro>(true));
+        for (int i = 0; i < tableNumberTexts.Count; i++)
+        {
+            tableNumberTexts[i].text = tableNumber.ToString();
+        }
 
         //navMeshObstacles = GetComponentsInChildren<NavMeshObstacle>();
         navMeshObstacleChair = transform.Find("Chair").GetComponent<NavMeshObstacle>();
