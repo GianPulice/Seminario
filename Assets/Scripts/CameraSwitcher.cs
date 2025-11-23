@@ -1,33 +1,76 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
 public class CameraSwitcher : MonoBehaviour
 {
-public Camera[] cameras; 
-    private int currentCameraIndex = 0;
+    [Header("Refs")]
+    [SerializeField] private Camera[] cameras;
+    [SerializeField] private CanvasGroup fadeOverlay;
+    [Header("TIMERS")]
+    [SerializeField] private float minSwitchTime = 3f;
+    [SerializeField] private float maxSwitchTime = 8f;
+    [SerializeField] private float fadeDuration = 1f;
+    [SerializeField] private LeanTweenType fadeEase = LeanTweenType.easeInOutQuad;
 
+    private int currentCameraIndex = 0;
     void Start()
     {
-        
-        for (int i = 0; i < cameras.Length; i++)
+        if (fadeOverlay != null)
+            fadeOverlay.alpha = 0f;
+
+        ActivateCamera(0);
+        StartCoroutine(AutoSwitchRoutine());
+    }
+
+    private IEnumerator AutoSwitchRoutine()
+    {
+        while (true)
         {
-            cameras[i].gameObject.SetActive(i == currentCameraIndex);
+            float waitTime = Random.Range(minSwitchTime, maxSwitchTime);
+
+            yield return new WaitForSeconds(waitTime);
+
+            yield return StartCoroutine(TransitionSequence());
         }
     }
 
-    void Update()
+    private IEnumerator TransitionSequence()
     {
-        if (Input.GetKeyDown(KeyCode.C)) 
+        if (fadeOverlay != null)
         {
-            // Desactiva la cámara actual
-            cameras[currentCameraIndex].gameObject.SetActive(false);
+            LeanTween.alphaCanvas(fadeOverlay, 1f, fadeDuration).setEase(fadeEase);
+            yield return new WaitForSeconds(fadeDuration);
+        }
 
-            // Incrementa el índice (y vuelve a 0 si llega al final)
-            currentCameraIndex = (currentCameraIndex + 1) % cameras.Length;
+        PickRandomCamera();
 
-            // Activa la nueva cámara
-            cameras[currentCameraIndex].gameObject.SetActive(true);
+        if (fadeOverlay != null)
+        {
+            LeanTween.alphaCanvas(fadeOverlay, 0f, fadeDuration).setEase(fadeEase);
+            yield return new WaitForSeconds(fadeDuration);
+        }
+    }
+
+    private void PickRandomCamera()
+    {
+        if (cameras.Length <= 1) return;
+
+        int newIndex = currentCameraIndex;
+
+        while (newIndex == currentCameraIndex)
+        {
+            newIndex = Random.Range(0, cameras.Length);
+        }
+
+        ActivateCamera(newIndex);
+    }
+
+    private void ActivateCamera(int indexToEnable)
+    {
+        currentCameraIndex = indexToEnable;
+
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            cameras[i].gameObject.SetActive(i == currentCameraIndex);
         }
     }
 }

@@ -1127,6 +1127,8 @@ MonoBehaviour:
   currentImageUpgrade: {fileID: 1945898060514863358}
   textPriceCurrentUpgradeUnlock: {fileID: 1945898060514863357}
   textInformationCurrentUpgrade: {fileID: 1674357813}
+  unlockedUpgradeColor: {r: 0, g: 1, b: 0, a: 1}
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!4 &1463775457
 Transform:
   m_ObjectHideFlags: 0
@@ -2377,6 +2379,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3540443366449892833, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 3540443366449892833, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 90
+      objectReference: {fileID: 0}
     - target: {fileID: 3772031582990044148, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -2635,6 +2645,14 @@ PrefabInstance:
       propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1165425112}
+    - target: {fileID: 565018798711859416, guid: b5a0d12236ac25d459f124aa795fdfd7, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 565018798711859416, guid: b5a0d12236ac25d459f124aa795fdfd7, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 90
+      objectReference: {fileID: 0}
     - target: {fileID: 585866153227923251, guid: b5a0d12236ac25d459f124aa795fdfd7, type: 3}
       propertyPath: m_Pivot.x
       value: 0
