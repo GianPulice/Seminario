@@ -1780,52 +1780,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5328159999085970572, guid: 04abc46b38884bf4badee480eaa5bc13, type: 3}
   m_PrefabInstance: {fileID: 7904610206305094740}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &984179506
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 984179507}
-  - component: {fileID: 984179508}
-  m_Layer: 0
-  m_Name: FloatingMoneyTextPool
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &984179507
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 984179506}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 862.6026, y: 630.3348, z: 1.5244477}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1264300542}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &984179508
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 984179506}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eca38078cd505034f9dfabc69705f8bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prefab: {fileID: 2745537329709784526, guid: a999ff67fa213b54ca6a3d0b001e9331, type: 3}
-  poolSize: 10
 --- !u!1 &1062312283
 GameObject:
   m_ObjectHideFlags: 0
@@ -2423,10 +2377,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moneyManagerData: {fileID: 11400000, guid: a1db7c9a3a06a5f45b725c20ec253879, type: 2}
-  floatingMoneyTextPool: {fileID: 984179508}
-  floatingMoneyText: {fileID: 459090452467391953, guid: a999ff67fa213b54ca6a3d0b001e9331, type: 3}
-  tipColor: {r: 0, g: 1, b: 0, a: 1}
-  deductionColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!4 &1264300542
 Transform:
   m_ObjectHideFlags: 0
@@ -2439,8 +2389,7 @@ Transform:
   m_LocalPosition: {x: 986.3974, y: 397.66522, z: -1.5244477}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 984179507}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1302569138
