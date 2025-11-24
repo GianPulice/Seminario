@@ -54,11 +54,6 @@ public class PauseAppear : MonoBehaviour
 
         LeanTween.cancel(gameObject);
 
-        if (InteractionManagerUI.Instance != null)
-        {
-            InteractionManagerUI.Instance.ForceResetUI();
-        }
-
         OnAnimateOutStart?.Invoke();
 
         canvasGroup.interactable = false;

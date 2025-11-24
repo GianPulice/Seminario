@@ -46,6 +46,7 @@ public class InteractionOnActive : MonoBehaviour
         rectTransform.anchoredPosition = hiddenPosition;
         canvasGroup.alpha = 0f;
         rectTransform.localScale = initialScale;
+
     }
     private void ForceHideState()
     {
@@ -81,7 +82,6 @@ public class InteractionOnActive : MonoBehaviour
 
     public void Hide()
     {
-        if (!isShown) return;
         isShown = false;
 
         LeanTween.cancel(gameObject);
@@ -107,8 +107,8 @@ public class InteractionOnActive : MonoBehaviour
         if (!isShown && !gameObject.activeSelf) return;
 
         LeanTween.cancel(gameObject);
-        ForceHideState();
         messageText.text = string.Empty;
+        ForceHideState();
     }
     private void StartIdleAnimation()
     {

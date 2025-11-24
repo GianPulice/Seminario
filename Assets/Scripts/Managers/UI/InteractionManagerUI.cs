@@ -56,10 +56,15 @@ public class InteractionManagerUI : Singleton<InteractionManagerUI>
     }
     public void ForceResetUI()
     {
+        if (this == null || gameObject == null) return;
         if (centerPointUI != null)
         {
             centerPointUI.gameObject.SetActive(true);
             ModifyCenterPointUI(InteractionType.Normal);
+        }
+        if (interactionMessage != null)
+        {
+            interactionMessage.HideInstantly();
         }
     }
 }

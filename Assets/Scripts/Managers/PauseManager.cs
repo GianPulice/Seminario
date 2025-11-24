@@ -21,7 +21,7 @@ public class PauseManager : Singleton<PauseManager>
 
     private PlayerModel playerModel;
 
-    // --- Eventos (sin cambios) ---
+    // --- Eventos ---
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
     private static event Action onButtonSettingsClickToShowCorrectPanel;
@@ -192,12 +192,34 @@ public class PauseManager : Singleton<PauseManager>
     {
         playerModel = FindFirstObjectByType<PlayerModel>();
     }
+    private bool ShouldStayInUIMode()
+    {
+        if (playerModel == null) return false;
 
+        if (playerModel.IsAdministrating) return true;
+        if (playerModel.IsCooking) return true;
+        if (playerModel.IsInTrashPanel) return true;
+        if (playerModel.IsInTutorial) return true;
+       // if (IngredientInventoryManagerUI.OnInventoryOpen) return true;
+        
+
+        return false;
+    }
     private void ShowPause()
     {
-        onGamePaused?.Invoke();
-        wasUiActiveOnPause = DeviceManager.Instance.IsUIModeActive;
+        DeviceManager.Instance.IsUIModeActive = true;
 
+        if(InteractionManagerUI.Exists)
+        {
+            InteractionManagerUI.instance.ShowOrHideCenterPointUI(false);
+            if(InteractionManagerUI.instance.MessageAnimator!= null)
+            {
+                InteractionManagerUI.instance.MessageAnimator.HideInstantly();
+            }
+        }
+
+        onGamePaused?.Invoke();
+            
         AudioManager.Instance.PauseCurrentMusic();
         StartCoroutine(AudioManager.Instance.PlayMusic("Pause"));
         pauseOpacity.SetActive(true);
@@ -215,7 +237,17 @@ public class PauseManager : Singleton<PauseManager>
         Time.timeScale = 1f;
         isGamePaused = false;
 
-        DeviceManager.Instance.IsUIModeActive = wasUiActiveOnPause;
+        bool stayInUi = ShouldStayInUIMode();
+
+        DeviceManager.Instance.IsUIModeActive = stayInUi;
+
+        if (!stayInUi)
+        {
+            if (InteractionManagerUI.Instance != null)
+            {
+                InteractionManagerUI.Instance.ForceResetUI();
+            }
+        }
 
         //No Borrar nunca
         onRestoreSelectedGameObject?.Invoke();
