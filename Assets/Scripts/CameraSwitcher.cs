@@ -15,10 +15,11 @@ public class CameraSwitcher : MonoBehaviour
     void Start()
     {
         if (fadeOverlay != null)
-            fadeOverlay.alpha = 0f;
+            fadeOverlay.alpha = 1f;
 
         ActivateCamera(0);
         StartCoroutine(AutoSwitchRoutine());
+        StartCoroutine(WaitSomeSecondsToChangeAlphaMode());
     }
 
     private IEnumerator AutoSwitchRoutine()
@@ -47,6 +48,16 @@ public class CameraSwitcher : MonoBehaviour
         {
             LeanTween.alphaCanvas(fadeOverlay, 0f, fadeDuration).setEase(fadeEase);
             yield return new WaitForSeconds(fadeDuration);
+        }
+    }
+
+    private IEnumerator WaitSomeSecondsToChangeAlphaMode()
+    {
+        yield return new WaitUntil(() => ScenesManager.Instance != null);
+
+        if (fadeOverlay != null)
+        {
+            LeanTween.alphaCanvas(fadeOverlay, 0f, fadeDuration).setEase(fadeEase);
         }
     }
 

@@ -64,6 +64,6 @@ public class Administration : MonoBehaviour, IInteractable
     }
     private void SetAdministratingFalse()
     {
-    playerController.PlayerModel.IsAdministrating = false;
+        playerController.PlayerModel.IsAdministrating = false;
     }
 }

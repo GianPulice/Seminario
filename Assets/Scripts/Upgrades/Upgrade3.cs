@@ -5,8 +5,8 @@ public class Upgrades3 : MonoBehaviour, IUpgradable
 {
     [SerializeField] private UpgradesData upgradesData;
 
-    [SerializeField] private List<GameObject> newCookingDeskUI;
     [SerializeField] private List<FoodSupport> foodSupportsToActive;
+    [SerializeField] private ClientType newClientTypeToAdd;
 
     private bool isUnlocked = false;
 
@@ -17,11 +17,6 @@ public class Upgrades3 : MonoBehaviour, IUpgradable
 
     public void Unlock()
     {
-        foreach (var kitchen  in newCookingDeskUI) // Desbloquear soportes de cocina nueva
-        {
-            kitchen.gameObject.SetActive(true);
-        }
-
         if (foodSupportsToActive != null)
         {
             foreach (var table in foodSupportsToActive) // Desbloquear soportes de comida
@@ -29,6 +24,8 @@ public class Upgrades3 : MonoBehaviour, IUpgradable
                 table.gameObject.SetActive(true);
             }
         }
+
+        ClientManager.Instance.AvailableClientTypes.Add(newClientTypeToAdd); // Agregar nuevo cliente
 
         isUnlocked = true;
     }
