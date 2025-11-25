@@ -25,6 +25,7 @@ public class OutlineManager : Singleton<OutlineManager>
             Outline outline = obj.AddComponent<Outline>();
             outline.OutlineWidth = 0;
             outline.OutlineColor = outlineManagerData.DefaultOutlineColor;
+            outline.OutlineMode = Outline.Mode.OutlineVisible;
             outlines.Add(obj, outline);
         }
     }

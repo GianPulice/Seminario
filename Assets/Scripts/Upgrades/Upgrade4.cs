@@ -5,7 +5,8 @@ public class Upgrade4 : MonoBehaviour, IUpgradable
 {
     [SerializeField] private UpgradesData upgradesData;
 
-    [SerializeField] private List<FoodRecipeData> recipesToUnlock;
+    [SerializeField] private List<GameObject> debrisFirstFloor;
+    [SerializeField] private List<Table> tablesToActive;
 
     private bool isUnlocked = false;
 
@@ -16,14 +17,19 @@ public class Upgrade4 : MonoBehaviour, IUpgradable
 
     public void Unlock()
     {
-        foreach (var recipeData in recipesToUnlock) // Desbloquear nueva receta
+        if (debrisFirstFloor != null) // Desbloquear escombros
         {
-            RecipeProgressManager.Instance.UnlockRecipe(recipeData.FoodType);
-
-            // Desbloquear automáticamente los ingredientes de esta receta
-            foreach (var ingredientAmount in recipeData.Ingridients)
+            foreach (var debris in debrisFirstFloor) 
             {
-                RecipeProgressManager.Instance.UnlockIngredient(ingredientAmount.IngredientType);
+                debris.gameObject.SetActive(false);
+            }
+        }
+
+        if (tablesToActive != null)
+        {
+            foreach (var table in tablesToActive) // Desbloquear mesas
+            {
+                table.gameObject.SetActive(true);
             }
         }
 

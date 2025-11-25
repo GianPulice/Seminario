@@ -63,6 +63,7 @@ public class ScenesManager : Singleton<ScenesManager>
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         asyncLoad.allowSceneActivation = false;
 
+        loadingBar.value = 0.15f;
         StartCoroutine(UpdateLoadingSlider(asyncLoad));
 
         bool additiveScenesLoaded = false;
@@ -174,6 +175,7 @@ public class ScenesManager : Singleton<ScenesManager>
     {
         float totalTime = 0.9f + scenesManagerData.DuringTimeLoadingScenePanel;
         float timer = 0f;
+        const float startValue = 0.15f;
 
         while (timer < totalTime)
         {
@@ -182,7 +184,7 @@ public class ScenesManager : Singleton<ScenesManager>
             float sceneProgress = Mathf.Clamp01(asyncLoad.progress / 0.9f); // normaliza a 0-1
             float timeProgress = Mathf.Clamp01(timer / totalTime);
 
-            loadingBar.value = Mathf.Min(sceneProgress, timeProgress);
+            loadingBar.value = startValue + (Mathf.Min(sceneProgress, timeProgress) * (1f - startValue));
 
             yield return null;
         }

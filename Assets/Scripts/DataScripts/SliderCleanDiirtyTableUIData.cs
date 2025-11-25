@@ -5,5 +5,5 @@ public class SliderCleanDiirtyTableUIData : ScriptableObject
 {
     [SerializeField] private float maxHoldTime;
 
-    public float MaxHoldTime { get =>  maxHoldTime; }
+    public float MaxHoldTime { get => maxHoldTime; set => maxHoldTime = value; }
 }
