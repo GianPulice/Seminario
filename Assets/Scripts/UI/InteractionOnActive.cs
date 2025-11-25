@@ -87,6 +87,8 @@ public class InteractionOnActive : MonoBehaviour
         isShown = false;
         LeanTween.cancel(gameObject);
 
+        //Si borras esto el panel se va al infinito y mas alla 
+        //Buena suerte
         if (!gameObject.activeInHierarchy) return;
 
         LeanTween.scale(rectTransform, initialScale, hideTime).setEase(LeanTweenType.easeOutQuad);
