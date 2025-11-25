@@ -18,7 +18,7 @@ public class TabTweenButton : GenericTweenButton
         if (behavior == ButtonBehavior.HoverOnly) return;
         if (tabGroup != null)
         {
-            tabGroup.OnTabSelected(this);
+            tabGroup.OnTabSelected(this, true);
         }
         else
         {

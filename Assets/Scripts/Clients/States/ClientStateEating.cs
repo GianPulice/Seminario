@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class ClientStateEating<T> : State<T>
@@ -27,6 +28,8 @@ public class ClientStateEating<T> : State<T>
         base.Enter();
         Debug.Log("Eating");
 
+        clientModel.StartCoroutine(WaitFrameToPlaySound());
+
         clientView.SetSpriteTypeName("SpriteEating");
     }
 
@@ -49,8 +52,32 @@ public class ClientStateEating<T> : State<T>
     {
         base.Exit();
 
+        clientModel.AudioSource3D.Stop();
+
         isEating = false;
         clientView.Anim.transform.position += Vector3.down * 0.38f;
         eatingTime = 0f;
+    }
+
+
+    private IEnumerator WaitFrameToPlaySound()
+    {
+        yield return new WaitForSecondsRealtime(0.35f);
+
+        AudioClip clipEating;
+        int randomSound = Random.Range(0, 2);
+
+        if (randomSound == 0)
+        {
+            clipEating = AudioManager.Instance.GetSFX("Eating1");
+        }
+
+        else
+        {
+            clipEating = AudioManager.Instance.GetSFX("Eating2");
+        }
+
+        clientModel.AudioSource3D.clip = clipEating;
+        clientModel.AudioSource3D.Play();
     }
 }
