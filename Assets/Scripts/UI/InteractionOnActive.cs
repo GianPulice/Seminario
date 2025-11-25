@@ -41,15 +41,13 @@ public class InteractionOnActive : MonoBehaviour
     }
     private void OnDisable()
     {
-        isShown = false;
         LeanTween.cancel(gameObject);
-        rectTransform.anchoredPosition = hiddenPosition;
-        canvasGroup.alpha = 0f;
-        rectTransform.localScale = initialScale;
+        isShown = false;
 
     }
     private void ForceHideState()
     {
+        LeanTween.cancel(gameObject);
         rectTransform.anchoredPosition = hiddenPosition;
         canvasGroup.alpha = 0f;
         gameObject.SetActive(false);
@@ -57,55 +55,58 @@ public class InteractionOnActive : MonoBehaviour
     }
     public void Show(string message)
     {
-        messageText.text = message;
+        if (isShown && gameObject.activeSelf && !LeanTween.isTweening(gameObject)) return;
 
-        if (isShown) return;
+        messageText.text = message;
         isShown = true;
 
         LeanTween.cancel(gameObject);
-
         gameObject.SetActive(true);
-
         rectTransform.localScale = initialScale;
 
-        LeanTween.alphaCanvas(canvasGroup, 1f, showTime)
-            .setEase(showEase)
-            .setIgnoreTimeScale(true);
+        if (float.IsNaN(rectTransform.anchoredPosition.x) || float.IsNaN(rectTransform.anchoredPosition.y) ||
+            rectTransform.anchoredPosition.magnitude > 10000f)
+        {
+            rectTransform.anchoredPosition = hiddenPosition;
+        }
+
         LeanTween.move(rectTransform, showPosition, showTime)
-            .setEase(showEase)
-            .setIgnoreTimeScale(true)
-            .setOnComplete(() =>
-            {
-                StartIdleAnimation();
-            });
+             .setEase(showEase)
+             .setIgnoreTimeScale(true)
+             .setOnComplete(StartIdleAnimation);
+
+        LeanTween.alphaCanvas(canvasGroup, 1f, showTime)
+        .setEase(showEase)
+        .setIgnoreTimeScale(true);
     }
 
     public void Hide()
     {
+        if (!isShown) return;
+
         isShown = false;
-
         LeanTween.cancel(gameObject);
-
-        rectTransform.localScale = initialScale;
 
         if (!gameObject.activeInHierarchy) return;
 
+        LeanTween.scale(rectTransform, initialScale, hideTime).setEase(LeanTweenType.easeOutQuad);
+       
         LeanTween.move(rectTransform, hiddenPosition, hideTime)
-            .setEase(hideEase)
-            .setIgnoreTimeScale(true)
-            .setOnComplete(() =>
-            {
-                messageText.text = string.Empty;
-                gameObject.SetActive(false);
-            });
+             .setEase(hideEase)
+             .setIgnoreTimeScale(true)
+             .setOnComplete(() =>
+             {
+                 rectTransform.anchoredPosition = hiddenPosition;
+                 messageText.text = string.Empty;
+                 gameObject.SetActive(false);
+             });
+        
         LeanTween.alphaCanvas(canvasGroup, 0f, hideTime / 2)
             .setEase(hideEase)
             .setIgnoreTimeScale(true);
     }
     public void HideInstantly()
     {
-        if (!isShown && !gameObject.activeSelf) return;
-
         LeanTween.cancel(gameObject);
         messageText.text = string.Empty;
         ForceHideState();

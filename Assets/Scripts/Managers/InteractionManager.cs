@@ -7,7 +7,7 @@ public class InteractionManager : Singleton<InteractionManager>
     private IInteractable currentTarget;
 
     private bool isPlayerInUI = false;
-    
+    public bool IsPlayerInUI => isPlayerInUI;
 
     void Awake()
     {
@@ -169,7 +169,7 @@ public class InteractionManager : Singleton<InteractionManager>
             currentTarget.HideOutline();
             if (InteractionManagerUI.Instance != null)
             {
-                InteractionManagerUI.Instance.MessageAnimator.Hide();
+                InteractionManagerUI.Instance.MessageAnimator.HideInstantly();
             }
             currentTarget = null;
         }
