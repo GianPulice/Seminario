@@ -29,10 +29,6 @@ public class FloatingMoneyText : MonoBehaviour
     {
         LeanTween.cancel(gameObject);
     }
-    public void PrepareForAnimation()
-    {
-        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
-    }
     public void Initialize(string _text, Color _color)
     {
         if (textAmount == null) FetchComponents();
