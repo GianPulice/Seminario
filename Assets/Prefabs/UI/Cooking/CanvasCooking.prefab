@@ -382,8 +382,7 @@ MonoBehaviour:
   recipesContentGroup: {fileID: 5153759971869923043}
   ingredientsContentGroup: {fileID: 3404209383420484728}
   cauldronContentGroup: {fileID: 1848459176276182119}
-  showDuration: 0.5
-  hideDuration: 0.3
+  animTime: 0.25
   contentFadeTime: 0.2
   showEase: 27
   hideEase: 3
@@ -397,6 +396,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   OnAnimateOutComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAnimateInStart:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAnimateOutStart:
     m_PersistentCalls:
       m_Calls: []
 --- !u!222 &4037174625803927604
@@ -5092,7 +5097,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3963724382745963698, guid: 0fb64b0ea63dc2649a928ec87751c894, type: 3}
       propertyPath: m_text
-      value: cANCEL
+      value: CANCEL
       objectReference: {fileID: 0}
     - target: {fileID: 3963724382745963698, guid: 0fb64b0ea63dc2649a928ec87751c894, type: 3}
       propertyPath: m_fontSize

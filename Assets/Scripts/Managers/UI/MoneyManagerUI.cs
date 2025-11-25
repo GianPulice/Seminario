@@ -1,70 +1,52 @@
 using System;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class MoneyManagerUI : MonoBehaviour
 {
-    [Header("UI References")]
     [SerializeField] private TextMeshProUGUI moneyText;
+
     [SerializeField] private RectTransform rectTransformToMove;
-    
-    [Header("Floating Text")]
-    [SerializeField] private ObjectPooler floatingMoneyTextPool;
-    [SerializeField] private Color tipColor = Color.green;
-    [SerializeField] private Color deductionColor = Color.red;
 
     [Header("Animación de Posición")]
     [SerializeField] private Vector2 normalPosition = new Vector2(-200, 100);
     [SerializeField] private Vector2 adminPosition = new Vector2(0, 0);
     [SerializeField] private float animTime = 0.4f;
     [SerializeField] private LeanTweenType easeType = LeanTweenType.easeOutQuad;
+    
+   
+    public static Action<TextMeshProUGUI> OnTextGetComponent { get => onTextGetComponent; set => onTextGetComponent = value; }
+
+    private static event Action<TextMeshProUGUI> onTextGetComponent;
+
 
     void Awake()
     {
-        if (rectTransformToMove != null)
-            rectTransformToMove.anchoredPosition = normalPosition;
-        if (MoneyManager.Exists)
+        if (rectTransformToMove == null)
         {
-            MoneyManager.Instance.OnMoneyUpdated += UpdateMoneyText;
-            MoneyManager.Instance.OnMoneyTransaction += ShowFloatingMoneyText;
-
-            UpdateMoneyText(MoneyManager.Instance.CurrentMoney);
+            Debug.LogError("¡No se ha asignado 'Rect Transform To Move' en el Inspector de MoneyManagerUI!", this);
+            enabled = false;
+            return;
         }
+
+        rectTransformToMove.anchoredPosition = normalPosition;
+
+        InvokeEvent();
+
         SuscribeToPlayerViewEvents();
     }
     void OnDestroy()
     {
         UnsuscribeToPlayerViewEvents();
-
-        if (MoneyManager.Exists)
-        {
-            MoneyManager.Instance.OnMoneyUpdated -= UpdateMoneyText;
-            MoneyManager.Instance.OnMoneyTransaction -= ShowFloatingMoneyText;
-        }
     }
-    private void UpdateMoneyText(float currentMoney)
+    private void InvokeEvent()
     {
-        if (moneyText != null)
-            moneyText.text = currentMoney.ToString("N0");
-    }
-    private void ShowFloatingMoneyText(float amount, bool positive)
-    {
-        if (floatingMoneyTextPool == null) return;
-
-        FloatingMoneyText obj = floatingMoneyTextPool.GetObjectFromPool<FloatingMoneyText>();
-
-        if (obj != null)
+        if (moneyText == null)
         {
-            obj.transform.SetParent(moneyText.transform, false);
-
-            string sign = positive ? "+" : "-";
-            Color targetColor = positive ? tipColor : deductionColor;
-
-            obj.Initialize(sign + amount.ToString(), targetColor);
-
-            StartCoroutine(floatingMoneyTextPool.ReturnObjectToPool(obj, obj.MaxTimeToReturnObjectToPool));
+            Debug.LogError("¡MoneyText no está asignado en el Inspector de MoneyManagerUI!", this);
+            return;
         }
+        onTextGetComponent?.Invoke(moneyText);
     }
     private void SuscribeToPlayerViewEvents()
     {
@@ -90,7 +72,7 @@ public class MoneyManagerUI : MonoBehaviour
         LeanTween.cancel(rectTransformToMove.gameObject); // Cancelar animación anterior
         LeanTween.move(rectTransformToMove, adminPosition, animTime)
             .setEase(easeType)
-            .setIgnoreTimeScale(true); 
+            .setIgnoreTimeScale(true);
 
     }
 
@@ -102,7 +84,7 @@ public class MoneyManagerUI : MonoBehaviour
         LeanTween.move(rectTransformToMove, normalPosition, animTime)
             .setEase(easeType)
             .setIgnoreTimeScale(true);
-    
+
     }
     private void HandleEnterCookMode()
     {

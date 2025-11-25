@@ -181,9 +181,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moneyText: {fileID: 9178700833119072759}
   rectTransformToMove: {fileID: 9178700833119072760}
-  floatingMoneyTextPool: {fileID: 9178700833119072761}
-  tipColor: {r: 0, g: 1, b: 0, a: 1}
-  deductionColor: {r: 1, g: 0, b: 0, a: 1}
   normalPosition: {x: 0, y: 0}
   adminPosition: {x: -800, y: -50}
   animTime: 0.4
@@ -2179,7 +2176,8 @@ PrefabInstance:
       value: CanvasMoney
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 8590828611589142260, guid: 6f7e2664996a533478a3d7122c640bb4, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6f7e2664996a533478a3d7122c640bb4, type: 3}
@@ -2199,17 +2197,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8344298290115502619, guid: 6f7e2664996a533478a3d7122c640bb4, type: 3}
   m_PrefabInstance: {fileID: 9178700833119072758}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &9178700833119072761 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8334442778419107035, guid: 6f7e2664996a533478a3d7122c640bb4, type: 3}
-  m_PrefabInstance: {fileID: 9178700833119072758}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eca38078cd505034f9dfabc69705f8bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
