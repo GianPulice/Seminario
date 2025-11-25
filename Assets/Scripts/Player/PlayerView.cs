@@ -66,6 +66,8 @@ public class PlayerView : MonoBehaviour
 
     private void GetComponents()
     {
-        dish = transform.Find("Dish").gameObject;
+        dish = GetComponentInChildren<MeshCollider>().gameObject;
+
+        //dish = transform.Find("Dish").gameObject;
     }
 }

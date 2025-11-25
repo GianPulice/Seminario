@@ -20,6 +20,7 @@ public class ClientModel : MonoBehaviour
 
     private Rigidbody rb;
     private NavMeshAgent navMeshAgent;
+    private AudioSource audioSource3D;
     private CapsuleCollider capsuleCollider;
     private Table currentTable;
 
@@ -36,6 +37,7 @@ public class ClientModel : MonoBehaviour
     public OrderDataUI CurrentOrderDataUI { get => currentOrderDataUI; set => currentOrderDataUI = value; }
 
     public NavMeshAgent NavMeshAgent { get => navMeshAgent; set => navMeshAgent = value; }
+    public AudioSource AudioSource3D { get => audioSource3D; }
     public Table CurrentTable { get => currentTable; set => currentTable = value; }
 
     public ClientType ClientType { get => clientType; }
@@ -121,6 +123,7 @@ public class ClientModel : MonoBehaviour
 
         rb = GetComponent<Rigidbody>();
         navMeshAgent = GetComponent<NavMeshAgent>();
+        audioSource3D = GetComponentInChildren<AudioSource>();
         capsuleCollider =  GetComponent<CapsuleCollider>();
     }
 

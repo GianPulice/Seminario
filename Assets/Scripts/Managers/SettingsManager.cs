@@ -34,19 +34,14 @@ public class SettingsManager : Singleton<SettingsManager>
     [Header("Controls")]
     private float sensitivityMouseX;
     private float sensitivityMouseY;
-    private float sensitivityJoystickX;
-    private float sensitivityJoystickY;
 
     public float SensitivityMouseX { get => sensitivityMouseX; set => sensitivityMouseX = value; }
     public float SensitivityMouseY { get => sensitivityMouseY; set => sensitivityMouseY = value; }
-    public float SensitivityJoystickX { get => sensitivityJoystickX; set => sensitivityJoystickX = value; }
-    public float SensitivityJoystickY { get => sensitivityJoystickY; set => sensitivityJoystickY = value; }
 
 
     void Awake()
     {
         CreateSingleton(true);
-        //PlayerPrefs.DeleteAll();
     }
 
 
@@ -134,20 +129,6 @@ public class SettingsManager : Singleton<SettingsManager>
         PlayerPrefs.SetFloat("SensitivityMouseY", value);
     }
 
-    public void SetSensitivityJoystickX(float value)
-    {
-        sensitivityJoystickX = value;
-        PlayerInputs.Instance.JoystickInputs.SensitivityX = sensitivityJoystickX;
-        PlayerPrefs.SetFloat("SensitivityJoystickX", value);
-    }
-
-    public void SetSensitivityJoystickY(float value)
-    {
-        sensitivityJoystickY = value;
-        PlayerInputs.Instance.JoystickInputs.SensitivityY = sensitivityJoystickY;
-        PlayerPrefs.SetFloat("SensitivityJoystickY", value);
-    }
-
 
     private void LoadAudioValuesFromPlayerPrefs()
     {
@@ -220,16 +201,12 @@ public class SettingsManager : Singleton<SettingsManager>
     {
         sensitivityMouseX = PlayerPrefs.GetFloat("SensitivityMouseX", PlayerInputs.Instance.KeyboardInputs.SensitivityX);
         sensitivityMouseY = PlayerPrefs.GetFloat("SensitivityMouseY", PlayerInputs.Instance.KeyboardInputs.SensitivityY);
-        sensitivityJoystickX = PlayerPrefs.GetFloat("SensitivityJoystickX", PlayerInputs.Instance.JoystickInputs.SensitivityX);
-        sensitivityJoystickY = PlayerPrefs.GetFloat("SensitivityJoystickY", PlayerInputs.Instance.JoystickInputs.SensitivityY);
 
         // Aplicamos a PlayerInputs
         if (PlayerInputs.Instance != null)
         {
             PlayerInputs.Instance.KeyboardInputs.SensitivityX = sensitivityMouseX;
             PlayerInputs.Instance.KeyboardInputs.SensitivityY = sensitivityMouseY;
-            PlayerInputs.Instance.JoystickInputs.SensitivityX = sensitivityJoystickX;
-            PlayerInputs.Instance.JoystickInputs.SensitivityY = sensitivityJoystickY;
         }
     }
 }

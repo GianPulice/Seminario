@@ -5,9 +5,7 @@ using System.Collections.Generic;
 
 public class SettingsManagerUI : MonoBehaviour
 {
-    /// <summary>
-    /// Analizar el tema de porque no se guardan las settings correctamente hasta que se presiona el boton settings de las settings
-    /// </summary>
+    [SerializeField] private GameObject settingsPanel;
 
     [Header("General:")]
     [SerializeField] private TabGroup tabGroup;
@@ -30,16 +28,13 @@ public class SettingsManagerUI : MonoBehaviour
     [SerializeField] private Toggle toggleFullscreen;
     [SerializeField] private Toggle toggleVSync;
     [SerializeField] private Toggle toggleShowFPS;
+    [SerializeField] private TargetFPSTextDisplay targetFPSTextDisplay;
 
     [Header("Controls Options:")]
     [SerializeField] private Slider sensitivityMouseXSlider;
     [SerializeField] private Slider sensitivityMouseYSlider;
-    [SerializeField] private Slider sensitivityJoystickXSlider;
-    [SerializeField] private Slider sensitivityJoystickYSlider;
     [SerializeField] private TMP_Text sensitivityMouseXText;
     [SerializeField] private TMP_Text sensitivityMouseYText;
-    [SerializeField] private TMP_Text sensitivityJoystickXText;
-    [SerializeField] private TMP_Text sensitivityJoystickYText;
 
 
     void Awake()
@@ -47,23 +42,21 @@ public class SettingsManagerUI : MonoBehaviour
         SuscribeToMainMenuEvent();
         SuscribeToPauseManagerEvent();
         SuscribeToUpdateManagerEvent();
-    }
 
-    void Start()
-    {
         SettingsManager.Instance.ApplyAllSettingsValues();
         InitializeAudioOptions();
         InitializeVideoOptions();
         InitializeControlOptions();
-        if (tabGroup != null)
+        /*if (tabGroup != null)
         {
-            tabGroup.SelectTabByIndex(0);
-        }
+            tabGroup.SelectTabByIndex(0, false);
+        }*/
     }
 
     // Simulacion de Update
     void UpdateSettingsManagerUI()
     {
+       
     }
 
     void OnDestroy()
@@ -75,24 +68,36 @@ public class SettingsManagerUI : MonoBehaviour
 
     public void CloseSettingsPanel()
     {
-        gameObject.SetActive(false);
+        settingsPanel.SetActive(false);
+    }
+
+    public void PlayAudioButtonSelectedWhenChangeSelectedGameObjectExceptFirstTime()
+    {
+        AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
     }
 
     public void SetPanelAudio()
     {
-        tabGroup.SelectTabByIndex(0);
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        if (settingsPanel.activeSelf)
+        {
+            tabGroup.SelectTabByIndex(0);
+        }
     } 
     
     public void SetPanelVideo()
     {
-        tabGroup.SelectTabByIndex(1);
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        if (settingsPanel.activeSelf)
+        {
+            tabGroup.SelectTabByIndex(1);
+        }
     }
+
     public void SetPanelControls()
     {
-        tabGroup.SelectTabByIndex(2);
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        if (settingsPanel.activeSelf)
+        {
+            tabGroup.SelectTabByIndex(2);
+        }
     }
 
     private void SuscribeToMainMenuEvent()
@@ -125,7 +130,7 @@ public class SettingsManagerUI : MonoBehaviour
         UpdateManager.OnUpdate -= UpdateSettingsManagerUI;
     }
 
-    private void InitializeAudioOptions()
+    public void InitializeAudioOptions()
     {
         generalSlider.value = SettingsManager.Instance.GeneralVolume;
         musicSlider.value = SettingsManager.Instance.MusicVolume;
@@ -163,7 +168,7 @@ public class SettingsManagerUI : MonoBehaviour
         currentText.text = Mathf.RoundToInt(value * 100f) + "%";
     }
 
-    private void InitializeVideoOptions()
+    public void InitializeVideoOptions()
     {
         dropdownResolution.ClearOptions();
 
@@ -204,10 +209,6 @@ public class SettingsManagerUI : MonoBehaviour
             SettingsManager.Instance.SetResolution(selected.width, selected.height, mode);
         });
 
-
-        // ------------------------
-        // CALIDAD
-        // ------------------------
         dropdownQuality.ClearOptions();
         dropdownQuality.AddOptions(new List<string>(QualitySettings.names));
 
@@ -216,10 +217,6 @@ public class SettingsManagerUI : MonoBehaviour
 
         dropdownQuality.onValueChanged.AddListener(SettingsManager.Instance.SetQualityLevel);
 
-
-        // ------------------------
-        // FPS
-        // ------------------------
         dropdownFPS.ClearOptions();
         dropdownFPS.AddOptions(new List<string> { "30", "60", "120", "144", "Unlimited" });
 
@@ -237,13 +234,16 @@ public class SettingsManagerUI : MonoBehaviour
 
         dropdownFPS.onValueChanged.AddListener(OnFPSChanged);
 
-
-        // ------------------------
-        // TOGGLES
-        // ------------------------
         toggleFullscreen.isOn = SettingsManager.Instance.FullscreenMode != FullScreenMode.Windowed;
         toggleVSync.isOn = SettingsManager.Instance.VSync;
         toggleShowFPS.isOn = SettingsManager.Instance.ShowFPS;
+        UpdateFPSTextVisibility(toggleShowFPS.isOn); // Actualiza la visibilidad al abrir el panel
+
+        toggleShowFPS.onValueChanged.AddListener(value =>
+        {
+            SettingsManager.Instance.SetShowFPS(value);
+            UpdateFPSTextVisibility(value);
+        });
 
         toggleFullscreen.onValueChanged.AddListener(OnFullscreenChanged);
         toggleVSync.onValueChanged.AddListener(SettingsManager.Instance.SetVSync);
@@ -279,6 +279,15 @@ public class SettingsManagerUI : MonoBehaviour
             _ => 60
         };
         SettingsManager.Instance.SetTargetFPS(fps);
+        targetFPSTextDisplay.UpdateFPSText(fps);
+    }
+
+    private void UpdateFPSTextVisibility(bool isVisible)
+    {
+        if (targetFPSTextDisplay != null && targetFPSTextDisplay.gameObject != null)
+        {
+            targetFPSTextDisplay.gameObject.SetActive(isVisible);
+        }
     }
 
     private void OnFullscreenChanged(bool isFullscreen)
@@ -288,7 +297,7 @@ public class SettingsManagerUI : MonoBehaviour
         SettingsManager.Instance.SetResolution(res.width, res.height, mode);
     }
 
-    private void InitializeControlOptions()
+    public void InitializeControlOptions()
     {
         float defaultMin = 1f;
         float defaultMax = 400f;
@@ -297,20 +306,12 @@ public class SettingsManagerUI : MonoBehaviour
         sensitivityMouseXSlider.maxValue = defaultMax;
         sensitivityMouseYSlider.minValue = defaultMin;
         sensitivityMouseYSlider.maxValue = defaultMax;
-        sensitivityJoystickXSlider.minValue = defaultMin;
-        sensitivityJoystickXSlider.maxValue = defaultMax;
-        sensitivityJoystickYSlider.minValue = defaultMin;
-        sensitivityJoystickYSlider.maxValue = defaultMax;
 
         sensitivityMouseXSlider.value = SettingsManager.Instance.SensitivityMouseX;
         sensitivityMouseYSlider.value = SettingsManager.Instance.SensitivityMouseY;
-        sensitivityJoystickXSlider.value = SettingsManager.Instance.SensitivityJoystickX;
-        sensitivityJoystickYSlider.value = SettingsManager.Instance.SensitivityJoystickY;
 
         UpdateTextControls(sensitivityMouseXText, sensitivityMouseXSlider.value);
         UpdateTextControls(sensitivityMouseYText, sensitivityMouseYSlider.value);
-        UpdateTextControls(sensitivityJoystickXText, sensitivityJoystickXSlider.value);
-        UpdateTextControls(sensitivityJoystickYText, sensitivityJoystickYSlider.value);
 
         // Listeners
         sensitivityMouseXSlider.onValueChanged.AddListener(value =>
@@ -323,18 +324,6 @@ public class SettingsManagerUI : MonoBehaviour
         {
             SettingsManager.Instance.SetSensitivityMouseY(value);
             UpdateTextControls(sensitivityMouseYText, value);
-        });
-
-        sensitivityJoystickXSlider.onValueChanged.AddListener(value =>
-        {
-            SettingsManager.Instance.SetSensitivityJoystickX(value);
-            UpdateTextControls(sensitivityJoystickXText, value);
-        });
-
-        sensitivityJoystickYSlider.onValueChanged.AddListener(value =>
-        {
-            SettingsManager.Instance.SetSensitivityJoystickY(value);
-            UpdateTextControls(sensitivityJoystickYText, value);
         });
     }
 

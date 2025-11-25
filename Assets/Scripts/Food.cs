@@ -50,6 +50,7 @@ public class Food : MonoBehaviour, IInteractable
     private bool isInstantiateFirstTime = true;
     private bool canChangeCookingBarUIPosition = false;
     private bool isInPlayerDishPosition = false;
+    private bool isInFoodSupport = false;
     private bool isServedInTable = false;
 
     public InteractionMode InteractionMode { get => InteractionMode.Press; }
@@ -137,9 +138,11 @@ public class Food : MonoBehaviour, IInteractable
             PlayerView.OnEnabledDishForced?.Invoke(true);
 
             isInPlayerDishPosition = true;
+            isInFoodSupport = false;
 
             cookingManager.ReleaseStovePosition(stovePosition);
             playerDishPosition = cookingManager.MoveFoodToDish(this);
+            /// Resolver error de rotacion de la comida cuando se rota dentro del metodo MoveFoodToDish que esta arri
 
             SetMeshRootActive(defaultMesh, false);
             EnabledOrDisablePhysics(defaultMesh, false);
@@ -187,9 +190,6 @@ public class Food : MonoBehaviour, IInteractable
         RestartValues();
     }
 
-    /// <summary>
-    /// Analizar para que lo haga con el boxCollider en vez del meshrenderer
-    /// </summary>
     public float GetBottomOffset()
     {
         // Tomamos el mesh que esté activo (default o cocinado)
@@ -435,6 +435,8 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (cookTimeCounter >= foodData.TimeToBeenCooked) return;
         if (isInPlayerDishPosition) return;
+        if (isInFoodSupport) return;
+        if (isServedInTable) return;
 
         cookingBarUI.gameObject.SetActive(true);
         cookingBarOutside.gameObject.SetActive(false);
@@ -444,6 +446,8 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (cookTimeCounter >= foodData.TimeToBeenCooked) return;
         if (isInPlayerDishPosition) return;
+        if (isInFoodSupport) return;
+        if (isServedInTable) return;
 
         cookingBarUI.gameObject.SetActive(false);
         cookingBarOutside.gameObject.SetActive(true);
@@ -493,6 +497,7 @@ public class Food : MonoBehaviour, IInteractable
 
         cookTimeCounter = 0f;
         isInPlayerDishPosition = false;
+        isInFoodSupport = false;
         canChangeCookingBarUIPosition = false;
         isServedInTable = false;
 
@@ -542,6 +547,7 @@ public class Food : MonoBehaviour, IInteractable
 
             Vector3 biggerSize = nativeParentScaleSize * 2f;
             SetGlobalScale(transform, biggerSize);
+            transform.rotation = Quaternion.Euler(0f, 0f, 0f);
             cookingManager.ReleaseDishPosition(playerDishPosition);
 
             Transform freeSpot = null;
@@ -576,8 +582,10 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (currentFood != null && isInPlayerDishPosition)
         {
+            isInFoodSupport = true;
             Vector3 biggerSize = nativeParentScaleSize * 1.5f;
             SetGlobalScale(transform, biggerSize);
+            transform.rotation = Quaternion.Euler(0f, 0f, 0f);
             cookingManager.ReleaseDishPosition(playerDishPosition);
             isInPlayerDishPosition = false;
             EnabledOrDisablePhysics(foodMesh, true);

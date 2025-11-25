@@ -87,6 +87,7 @@ public class CookingManager : Singleton<CookingManager>
         {
             currentFood.transform.SetParent(targetPosition);
             float offsetY = currentFood.GetBottomOffset() - 0.030f;
+            currentFood.transform.rotation = targetPosition.rotation;
             currentFood.transform.position = targetPosition.position + new Vector3(0, offsetY, 0);
         }
 
