@@ -6,7 +6,10 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
 {
     [SerializeField] private SliderCleanDiirtyTableUIData sliderCleanDiirtyTableUIData;
 
-    [SerializeField] private Slider sliderCleanDirtyTable;
+    [SerializeField] private Slider sliderBar;
+    [SerializeField] private Slider sliderRadial;
+
+    private Slider currentSlider;
 
     private Table currentTable;
 
@@ -19,6 +22,7 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
         SuscribeToLamdaEvents();
         SuscribeToPlayerViewEvents();
         SuscribeToPlayerControllerEvents();
+        ChooseCurrentSliderType();
     }
 
     // Simulacion de Update
@@ -89,7 +93,7 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
             currentTable = null;
         }
 
-        sliderCleanDirtyTable.gameObject.SetActive(current);
+        currentSlider.gameObject.SetActive(current);
     }
 
     private void IncreaseFromCurrentTable(Table table)
@@ -107,7 +111,7 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
         if (currentTable.CurrentCleanProgress >= sliderCleanDiirtyTableUIData.MaxHoldTime)
         {
             currentTable.CurrentCleanProgress = 0;
-            sliderCleanDirtyTable.value = sliderCleanDirtyTable.minValue;
+            currentSlider.value = currentSlider.minValue;
             onDeactivateSlider?.Invoke();
             table.SetDirty(false);
         }
@@ -131,7 +135,7 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
 
     private void UpdateSliderValueFromCurrentTable(Table table)
     {
-        sliderCleanDirtyTable.value = table.CurrentCleanProgress / sliderCleanDiirtyTableUIData.MaxHoldTime;
+        currentSlider.value = table.CurrentCleanProgress / sliderCleanDiirtyTableUIData.MaxHoldTime;
     }
 
     private void DecreaseAllSliderValuesExceptCurrentTable()
@@ -140,13 +144,26 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
         {
             Table table = TablesManager.Instance.Tables[i];
 
-            if (sliderCleanDirtyTable.gameObject.activeSelf && currentTable != null && table == currentTable)
+            if (currentSlider.gameObject.activeSelf && currentTable != null && table == currentTable)
             {
                 continue;
             }
 
             table.CurrentCleanProgress -= Time.deltaTime;
             table.CurrentCleanProgress = Mathf.Max(table.CurrentCleanProgress, 0f);
+        }
+    }
+
+    private void ChooseCurrentSliderType()
+    {
+        if (sliderCleanDiirtyTableUIData.SliderType == SliderCleanDirtyTableType.SliderBar)
+        {
+            currentSlider = sliderBar;
+        }
+
+        else
+        {
+            currentSlider = sliderRadial;
         }
     }
 }

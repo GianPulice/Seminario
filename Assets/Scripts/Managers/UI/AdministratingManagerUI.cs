@@ -115,6 +115,7 @@ public class AdministratingManagerUI : MonoBehaviour
 
     private void RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI()
     {
+        if (panelAdministrating == null) return; // Esta linea de codigo se agrego, porque sino cuando se volvio del game al mainmenu y luego se volvio a entrar al game, la pausa no anda y tira un error
         if (panelAdministrating.activeSelf)
         {
             ignoreFirstButtonSelected = true;

@@ -28,6 +28,8 @@ public class ClientStateEating<T> : State<T>
         base.Enter();
         Debug.Log("Eating");
 
+        SuscribeToPauseManagerEvents();
+
         clientModel.StartCoroutine(WaitFrameToPlaySound());
 
         clientView.SetSpriteTypeName("SpriteEating");
@@ -52,6 +54,8 @@ public class ClientStateEating<T> : State<T>
     {
         base.Exit();
 
+        UnsuscribeToPauseManagerEvents();
+
         clientModel.AudioSource3D.Stop();
 
         isEating = false;
@@ -59,6 +63,28 @@ public class ClientStateEating<T> : State<T>
         eatingTime = 0f;
     }
 
+
+    private void SuscribeToPauseManagerEvents()
+    {
+        PauseManager.OnGamePaused += OnPauseCurrentAudioSource3D;
+        PauseManager.OnGameUnPaused += OnUnPauseCurrentAudioSource3D;
+    }
+
+    public void UnsuscribeToPauseManagerEvents()
+    {
+        PauseManager.OnGamePaused -= OnPauseCurrentAudioSource3D;
+        PauseManager.OnGameUnPaused -= OnUnPauseCurrentAudioSource3D;
+    }
+
+    private void OnPauseCurrentAudioSource3D()
+    {
+        clientModel.AudioSource3D.Pause();
+    }
+
+    private void OnUnPauseCurrentAudioSource3D()
+    {
+        clientModel.AudioSource3D.UnPause();
+    }
 
     private IEnumerator WaitFrameToPlaySound()
     {

@@ -233,6 +233,12 @@ public class CookingManagerUI : Singleton<CookingManagerUI>
         DeselectAllIngredients();
     }
 
+    public void ButtonCancel()
+    {
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        DeselectAllIngredients();
+    }
+
     public void DeselectAllIngredients()
     {
         selectedIngredients.Clear();
