@@ -9,7 +9,7 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
     [SerializeField] private GameObject orderUIPrefab;
     [Header("UI Effect")]
     [SerializeField] private Vector3 cookingScale = new Vector3(0.8f, 0.8f, 0.8f);
-    [SerializeField] private Vector3 cookingNewPosition = new Vector3(0f, -50f, 0f);
+    [SerializeField] private float cookingOffsetY = -50f;
     [SerializeField] private float animTime = 0.4f;
     [SerializeField] private LeanTweenType easeType = LeanTweenType.easeOutQuad;
 
@@ -17,14 +17,14 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
 
     private List<OrderItemUI> activeOrders = new List<OrderItemUI>();
     private int totalOrdersBeforeTabernOpen = 0;
-    private Vector3 originalPosition;
+    private Vector2 originalAnchoredPos;
     public int TotalOrdersBeforeTabernOpen { get => totalOrdersBeforeTabernOpen; }
 
     void Awake()
     {
         CreateSingleton(false);
         SubscribeToPlayerViewEvents();
-        originalPosition = ordersContainer.localPosition;
+        originalAnchoredPos = ordersContainer.anchoredPosition;
     }
 
     private void OnDestroy()
@@ -151,11 +151,13 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
             {
                 LeanTween.scale(order.gameObject, cookingScale, animTime)
                     .setEase(easeType)
-                    .setIgnoreTimeScale(true); // Para que funcione si el juego se pausa
+                    .setIgnoreTimeScale(true);
             }
         }
 
-        LeanTween.moveLocal(ordersContainer.gameObject, cookingNewPosition, animTime)
+        Vector2 target = originalAnchoredPos + new Vector2(0f, cookingOffsetY);
+
+        LeanTween.move(ordersContainer, target, animTime)
             .setEase(easeType)
             .setIgnoreTimeScale(true);
     }
@@ -166,12 +168,13 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
             if (order != null)
             {
                 LeanTween.scale(order.gameObject, Vector3.one, animTime)
-                      .setEase(easeType)
-                      .setIgnoreTimeScale(true);
+                    .setEase(easeType)
+                    .setIgnoreTimeScale(true);
             }
         }
-        LeanTween.moveLocal(ordersContainer.gameObject, originalPosition, animTime)
-                   .setEase(easeType)
-                   .setIgnoreTimeScale(true);
+
+        LeanTween.move(ordersContainer, originalAnchoredPos, animTime)
+            .setEase(easeType)
+            .setIgnoreTimeScale(true);
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 
 public class CookingManager : Singleton<CookingManager>
 {
@@ -10,6 +9,8 @@ public class CookingManager : Singleton<CookingManager>
 
     private CookingDeskUI currentDesk;
     private Transform currentStove;
+
+    private event Action<int> onAvailableStoveIndex;
 
     // Para las posiciones en la bandeja del player
     [SerializeField] private List<Transform> dishPositions;
@@ -21,6 +22,7 @@ public class CookingManager : Singleton<CookingManager>
     public Transform CurrentStove { get => currentStove; }
     public Queue<Transform> AvailableDishPositions { get => availableDishPositions; }
 
+    public Action<int> OnAvailableStoveIndex { get => onAvailableStoveIndex; set => onAvailableStoveIndex = value; }
 
     void Awake()
     {
@@ -28,11 +30,6 @@ public class CookingManager : Singleton<CookingManager>
         SuscribeToCookingManagerUIEvent();
         EnqueueDishPositions();
         InitializeFoodPoolDictionary();
-    }
-
-    void Start()
-    {
-        StartCoroutine(PlayTabernMusic());
     }
 
     void OnDestroy()
@@ -90,6 +87,7 @@ public class CookingManager : Singleton<CookingManager>
         {
             currentFood.transform.SetParent(targetPosition);
             float offsetY = currentFood.GetBottomOffset() - 0.030f;
+            currentFood.transform.rotation = targetPosition.rotation;
             currentFood.transform.position = targetPosition.position + new Vector3(0, offsetY, 0);
         }
 
@@ -135,6 +133,8 @@ public class CookingManager : Singleton<CookingManager>
                 if (currentStove != null)
                 {
                     foodAbstractFactory.CreateObject(prefabFoodName, currentStove, new Vector3(0, 0.2f, 0));
+                    int index = currentDesk.StoveIndexOf(currentStove);
+                    onAvailableStoveIndex?.Invoke(index);
                 }
             }
         }
@@ -159,12 +159,5 @@ public class CookingManager : Singleton<CookingManager>
                 foodPoolDictionary[foodType] = foodPools[i];
             }
         }
-    }
-
-    private IEnumerator PlayTabernMusic()
-    {
-        yield return new WaitUntil(() => AudioManager.Instance != null);
-
-        StartCoroutine(AudioManager.Instance.PlayMusic("TabernBGM"));
     }
 }

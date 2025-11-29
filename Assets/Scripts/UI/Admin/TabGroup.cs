@@ -31,18 +31,18 @@ public class TabGroup : MonoBehaviour
     {
         if (startingSelectedButton != null)
         {
-            OnTabSelected(startingSelectedButton);
+            OnTabSelected(startingSelectedButton, true);
         }
         else if (tabButtons.Count > 0)
         {
-            OnTabSelected(tabButtons[0]);
+            OnTabSelected(tabButtons[0], true);
         }
         else
         {
             DeselectAllTabsAndHidePages();
         }
     }
-    public void OnTabSelected(TabTweenButton selectedButton)
+    public void OnTabSelected(TabTweenButton selectedButton, bool playSound)
     {
         if (selectedButton == null)
         {
@@ -78,7 +78,13 @@ public class TabGroup : MonoBehaviour
                 pagesToSwap[i].SetActive(i == selectedIndex);
             }
         }
+
+        if (playSound)
+        {
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        }
     }
+
     private void DeselectAllTabsAndHidePages()
     {
         foreach (var button in tabButtons)
@@ -120,7 +126,7 @@ public class TabGroup : MonoBehaviour
 
         RefreshAllTabsVisuals();
     }
-    public void SelectTabByIndex(int index)
+    public void SelectTabByIndex(int index, bool playSound = true)
     {
         if (index < 0 || index >= tabButtons.Count)
             return;
@@ -129,7 +135,7 @@ public class TabGroup : MonoBehaviour
 
 
         TabTweenButton buttonToSelect = tabButtons[index];
-        OnTabSelected(buttonToSelect);
+        OnTabSelected(buttonToSelect, playSound);
     }
     public int GetButtonIndex(TabTweenButton button)
     {

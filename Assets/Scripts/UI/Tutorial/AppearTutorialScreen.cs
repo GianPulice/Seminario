@@ -15,19 +15,26 @@ public class AppearTutorialScreen : MonoBehaviour
     {
         canvasGroup = GetComponent<CanvasGroup>();
         originalScale = transform.localScale;
+        
         canvasGroup.alpha = 0f;
         transform.localScale = initialScale;
+       
     }
     public void ShowPannel()
     {
+        LeanTween.cancel(gameObject);
+
         gameObject.SetActive(true);
+   //     AudioManager.Instance.PlayOneShotSFX("TutorialAppear");
         canvasGroup.interactable = false;
 
         LeanTween.alphaCanvas(canvasGroup, 1f, animTime)
-            .setEase(easeType);
+            .setEase(easeType)
+            .setIgnoreTimeScale(true);
 
         LeanTween.scale(gameObject, originalScale, animTime)
             .setEase(easeType)
+            .setIgnoreTimeScale(true)
             .setOnComplete(() =>
             {
                 canvasGroup.interactable = true;
@@ -36,14 +43,18 @@ public class AppearTutorialScreen : MonoBehaviour
     }
     public void HidePanel()
     {
+        LeanTween.cancel(gameObject);
+
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
 
         LeanTween.alphaCanvas(canvasGroup, 0f, animTime)
-            .setEase(easeType); 
+            .setEase(easeType)
+            .setIgnoreTimeScale(true);
 
         LeanTween.scale(gameObject, initialScale, animTime)
             .setEase(easeType)
+            .setIgnoreTimeScale(true)
             .setOnComplete(() =>
             {
                 gameObject.SetActive(false);

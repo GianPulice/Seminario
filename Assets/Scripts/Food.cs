@@ -31,6 +31,7 @@ public class Food : MonoBehaviour, IInteractable
     private Image sliderFillCookingBarUI;
     private Slider cookingBarOutside;
     private Image sliderFillCookingBarOutside;
+    private RectTransform cookingBarUIRectTransform;
     private MeshRenderer meshRenderer;
     private ParticleSystem smoke;
 
@@ -47,7 +48,9 @@ public class Food : MonoBehaviour, IInteractable
     private float cookTimeCounter = 0f;
 
     private bool isInstantiateFirstTime = true;
+    private bool canChangeCookingBarUIPosition = false;
     private bool isInPlayerDishPosition = false;
+    private bool isInFoodSupport = false;
     private bool isServedInTable = false;
 
     public InteractionMode InteractionMode { get => InteractionMode.Press; }
@@ -77,6 +80,7 @@ public class Food : MonoBehaviour, IInteractable
     {
         SuscribeToPlayerViewEvent();
         SuscribeToPauseManagerEvent();
+        CoroutineHelper.Instance.StartCoroutine(SuscribeToCookingManagerEvent());
         SuscribeToPlayerControllerEvents();
         GetComponents();
         Initialize();
@@ -105,6 +109,7 @@ public class Food : MonoBehaviour, IInteractable
         UnsuscribeToUpdateManagerEvent();
         UnsuscribeToPlayerViewEvent();
         UnsuscribeToPauseManagerEvent();
+        UnsuscribeToCookingManagerEvent();
         UnsuscribeToPlayerControllerEvents();
         OutlineManager.Instance.Unregister(defaultMesh.root);
         OutlineManager.Instance.Unregister(foodMesh.root);
@@ -133,9 +138,11 @@ public class Food : MonoBehaviour, IInteractable
             PlayerView.OnEnabledDishForced?.Invoke(true);
 
             isInPlayerDishPosition = true;
+            isInFoodSupport = false;
 
             cookingManager.ReleaseStovePosition(stovePosition);
             playerDishPosition = cookingManager.MoveFoodToDish(this);
+            /// Resolver error de rotacion de la comida cuando se rota dentro del metodo MoveFoodToDish que esta arri
 
             SetMeshRootActive(defaultMesh, false);
             EnabledOrDisablePhysics(defaultMesh, false);
@@ -183,9 +190,6 @@ public class Food : MonoBehaviour, IInteractable
         RestartValues();
     }
 
-    /// <summary>
-    /// Analizar para que lo haga con el boxCollider en vez del meshrenderer
-    /// </summary>
     public float GetBottomOffset()
     {
         // Tomamos el mesh que esté activo (default o cocinado)
@@ -237,6 +241,18 @@ public class Food : MonoBehaviour, IInteractable
         PauseManager.OnGameUnPaused -= OnUnPauseAduio3D;
     }
 
+    private IEnumerator SuscribeToCookingManagerEvent()
+    {
+        yield return new WaitUntil(() => CookingManager.Instance != null);
+
+        CookingManager.Instance.OnAvailableStoveIndex += SetCookingBarUIPositionWhenCookFood;
+    }
+
+    private void UnsuscribeToCookingManagerEvent()
+    {
+        CookingManager.Instance.OnAvailableStoveIndex -= SetCookingBarUIPositionWhenCookFood;
+    }
+
     private void SuscribeToPlayerControllerEvents()
     {
         PlayerController.OnHandOverFood += HandOver;
@@ -266,6 +282,7 @@ public class Food : MonoBehaviour, IInteractable
         cookingBarOutside = transform.Find("CanvasOutside").GetComponentInChildren<Slider>();
         sliderFillCookingBarUI = cookingBarUI.fillRect.GetComponent<Image>();
         sliderFillCookingBarOutside = cookingBarOutside.fillRect.GetComponent<Image>();
+        cookingBarUIRectTransform = cookingBarUI.GetComponent<RectTransform>();
         smoke = GetComponentInChildren<ParticleSystem>(true); // Inidica que busca componentes dentro de gameObjects que estan desactivados
     }
 
@@ -417,6 +434,9 @@ public class Food : MonoBehaviour, IInteractable
     private void OnEnterInCookMode()
     {
         if (cookTimeCounter >= foodData.TimeToBeenCooked) return;
+        if (isInPlayerDishPosition) return;
+        if (isInFoodSupport) return;
+        if (isServedInTable) return;
 
         cookingBarUI.gameObject.SetActive(true);
         cookingBarOutside.gameObject.SetActive(false);
@@ -425,6 +445,9 @@ public class Food : MonoBehaviour, IInteractable
     private void OnExitInCookMode()
     {
         if (cookTimeCounter >= foodData.TimeToBeenCooked) return;
+        if (isInPlayerDishPosition) return;
+        if (isInFoodSupport) return;
+        if (isServedInTable) return;
 
         cookingBarUI.gameObject.SetActive(false);
         cookingBarOutside.gameObject.SetActive(true);
@@ -458,6 +481,7 @@ public class Food : MonoBehaviour, IInteractable
 
         transform.localScale = nativeParentScaleSize;
         transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        cookingBarUIRectTransform.anchoredPosition = new Vector2(0.16f, 1.367f);
 
         cookingBarUI.gameObject.SetActive(true);
         cookingBarOutside.gameObject.SetActive(true);
@@ -473,6 +497,8 @@ public class Food : MonoBehaviour, IInteractable
 
         cookTimeCounter = 0f;
         isInPlayerDishPosition = false;
+        isInFoodSupport = false;
+        canChangeCookingBarUIPosition = false;
         isServedInTable = false;
 
         OutlineManager.Instance.Hide(defaultMesh.root);
@@ -521,6 +547,7 @@ public class Food : MonoBehaviour, IInteractable
 
             Vector3 biggerSize = nativeParentScaleSize * 2f;
             SetGlobalScale(transform, biggerSize);
+            transform.rotation = Quaternion.Euler(0f, 0f, 0f);
             cookingManager.ReleaseDishPosition(playerDishPosition);
 
             Transform freeSpot = null;
@@ -555,8 +582,10 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (currentFood != null && isInPlayerDishPosition)
         {
+            isInFoodSupport = true;
             Vector3 biggerSize = nativeParentScaleSize * 1.5f;
             SetGlobalScale(transform, biggerSize);
+            transform.rotation = Quaternion.Euler(0f, 0f, 0f);
             cookingManager.ReleaseDishPosition(playerDishPosition);
             isInPlayerDishPosition = false;
             EnabledOrDisablePhysics(foodMesh, true);
@@ -592,5 +621,25 @@ public class Food : MonoBehaviour, IInteractable
         float lerp = scaled - index;
 
         return Color.Lerp(colorsSlider[index], colorsSlider[index + 1], lerp);
+    }
+
+    private void SetCookingBarUIPositionWhenCookFood(int stoveIndex)
+    {
+        if (!gameObject.activeSelf) return;
+        if (canChangeCookingBarUIPosition && gameObject.activeSelf) return;
+
+        // Si el indice es 1 no hacer nada
+
+        if (stoveIndex == 0)
+        {
+            cookingBarUIRectTransform.anchoredPosition = new Vector2(0.7f, 0f);
+        }
+
+        else if (stoveIndex == 2)
+        {
+            cookingBarUIRectTransform.anchoredPosition = new Vector2(-0.70f, 0f);
+        }
+
+        canChangeCookingBarUIPosition = true;
     }
 }

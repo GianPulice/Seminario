@@ -21,11 +21,13 @@ public class ConfirmationPanel : MonoBehaviour
         yesButton.onClick.AddListener(() =>
         {
             onConfirm?.Invoke();
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
             Hide();
         });
 
         noButton.onClick.AddListener(() =>
         {
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
             Hide();
         });
     }

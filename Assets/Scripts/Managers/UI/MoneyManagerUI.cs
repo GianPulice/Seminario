@@ -13,11 +13,12 @@ public class MoneyManagerUI : MonoBehaviour
     [SerializeField] private Vector2 adminPosition = new Vector2(0, 0);
     [SerializeField] private float animTime = 0.4f;
     [SerializeField] private LeanTweenType easeType = LeanTweenType.easeOutQuad;
-
-
+    
+   
     public static Action<TextMeshProUGUI> OnTextGetComponent { get => onTextGetComponent; set => onTextGetComponent = value; }
 
     private static event Action<TextMeshProUGUI> onTextGetComponent;
+
 
     void Awake()
     {
@@ -71,7 +72,7 @@ public class MoneyManagerUI : MonoBehaviour
         LeanTween.cancel(rectTransformToMove.gameObject); // Cancelar animación anterior
         LeanTween.move(rectTransformToMove, adminPosition, animTime)
             .setEase(easeType)
-            .setIgnoreTimeScale(true); 
+            .setIgnoreTimeScale(true);
 
     }
 
@@ -83,7 +84,7 @@ public class MoneyManagerUI : MonoBehaviour
         LeanTween.move(rectTransformToMove, normalPosition, animTime)
             .setEase(easeType)
             .setIgnoreTimeScale(true);
-    
+
     }
     private void HandleEnterCookMode()
     {

@@ -20,16 +20,12 @@ public class InteractionOnActive : MonoBehaviour
     [Header("Idle Settings")]
     [Tooltip("Qué tanto crece (1.05 = 5%)")]
     [SerializeField] private float idleScaleAmount = 1.05f;
-    [Tooltip("Duración de un ciclo de \"respiración\"")
-        ]
+    [Tooltip("Duración de un ciclo de \"respiración\"")]
     [SerializeField] private float idleTime = 1.0f;
     [SerializeField] private LeanTweenType idleEase = LeanTweenType.easeInOutSine;
 
-    private int currentMoveTweenId = -1;
-    private int currentIdleTweenId = -1;
     private bool isShown = false;
     private Vector3 initialScale;
-
 
     private void Awake()
     {
@@ -38,103 +34,91 @@ public class InteractionOnActive : MonoBehaviour
         if (messageText == null)
         {
             messageText = GetComponentInChildren<TextMeshProUGUI>();
-
         }
         initialScale = rectTransform.localScale;
 
+        ForceHideState();
+    }
+    private void OnDisable()
+    {
+        LeanTween.cancel(gameObject);
+        isShown = false;
+
+    }
+    private void ForceHideState()
+    {
+        LeanTween.cancel(gameObject);
         rectTransform.anchoredPosition = hiddenPosition;
-        canvasGroup.alpha = 0.1f;
+        canvasGroup.alpha = 0f;
         gameObject.SetActive(false);
         isShown = false;
     }
-
     public void Show(string message)
     {
-        messageText.text = message;
+        if (isShown && gameObject.activeSelf && !LeanTween.isTweening(gameObject)) return;
 
-        if (isShown) return;
+        messageText.text = message;
         isShown = true;
 
-        CancelAllTweens();
-
+        LeanTween.cancel(gameObject);
         gameObject.SetActive(true);
+        rectTransform.localScale = initialScale;
 
-        currentMoveTweenId = LeanTween.move(rectTransform, showPosition, showTime)
-            .setEase(showEase)
-            .setOnComplete(() =>
-            {
-                // Cuando termina de moverse, resetea el ID y empieza el "idle"
-                currentMoveTweenId = -1;
-                StartIdleAnimation();
-            })
-            .id;
+        if (float.IsNaN(rectTransform.anchoredPosition.x) || float.IsNaN(rectTransform.anchoredPosition.y) ||
+            rectTransform.anchoredPosition.magnitude > 10000f)
+        {
+            rectTransform.anchoredPosition = hiddenPosition;
+        }
+
+        LeanTween.move(rectTransform, showPosition, showTime)
+             .setEase(showEase)
+             .setIgnoreTimeScale(true)
+             .setOnComplete(StartIdleAnimation);
+
         LeanTween.alphaCanvas(canvasGroup, 1f, showTime)
-            .setEase(showEase);
+        .setEase(showEase)
+        .setIgnoreTimeScale(true);
     }
 
     public void Hide()
     {
-        if (!isShown)
-        {
-            return;
-        }
+        if (!isShown) return;
 
         isShown = false;
+        LeanTween.cancel(gameObject);
 
-        CancelAllTweens();
-
-        rectTransform.localScale = initialScale;
-
+        //Si borras esto el panel se va al infinito y mas alla 
+        //Buena suerte
         if (!gameObject.activeInHierarchy) return;
 
-        currentMoveTweenId = LeanTween.move(rectTransform, hiddenPosition, hideTime)
+        LeanTween.scale(rectTransform, initialScale, hideTime).setEase(LeanTweenType.easeOutQuad);
+       
+        LeanTween.move(rectTransform, hiddenPosition, hideTime)
+             .setEase(hideEase)
+             .setIgnoreTimeScale(true)
+             .setOnComplete(() =>
+             {
+                 rectTransform.anchoredPosition = hiddenPosition;
+                 messageText.text = string.Empty;
+                 gameObject.SetActive(false);
+             });
+        
+        LeanTween.alphaCanvas(canvasGroup, 0f, hideTime / 2)
             .setEase(hideEase)
-            .setOnComplete(() =>
-            {
-                currentMoveTweenId = -1;
-                messageText.text = string.Empty;
-                gameObject.SetActive(false);
-            })
-            .id;
-        LeanTween.alphaCanvas(canvasGroup, 0f, hideTime/2)
-            .setEase(hideEase);
+            .setIgnoreTimeScale(true);
     }
     public void HideInstantly()
     {
-        if (!isShown) return;
-        CancelAllTweens();
-        isShown = false;
-        rectTransform.localScale = initialScale;
-        rectTransform.anchoredPosition = hiddenPosition;
-        canvasGroup.alpha = 0f;
+        LeanTween.cancel(gameObject);
         messageText.text = string.Empty;
-
-        gameObject.SetActive(false);
+        ForceHideState();
     }
     private void StartIdleAnimation()
     {
         if (!isShown) return;
-
-        rectTransform.localScale = initialScale;
-        Vector3 targetIdleScale = initialScale * idleScaleAmount;
-
-        currentIdleTweenId = LeanTween.scale(rectTransform, targetIdleScale, idleTime)
-            .setEase(idleEase)
-            .setLoopPingPong() // Causa que vaya de 1 a 1.05 y vuelva a 1, infinitamente
-            .id;
+        LeanTween.scale(rectTransform, initialScale * idleScaleAmount, idleTime)
+             .setEase(idleEase)
+             .setLoopPingPong()
+             .setIgnoreTimeScale(true);
     }
-    private void CancelAllTweens()
-    {
-        if (currentMoveTweenId != -1)
-        {
-            LeanTween.cancel(currentMoveTweenId);
-            currentMoveTweenId = -1;
-        }
-        if (currentIdleTweenId != -1)
-        {
-            LeanTween.cancel(currentIdleTweenId);
-            currentIdleTweenId = -1;
-        }
-    }
-
 }

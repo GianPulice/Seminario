@@ -55,6 +55,11 @@ public class ClientController : MonoBehaviour
     void OnDestroy()
     {
         UnsuscribeToUpdateManagerEvents();
+
+        if (csEating != null)
+        {
+            csEating.UnsuscribeToPauseManagerEvents();
+        }
     }
 
     void OnTriggerEnter(Collider collider)

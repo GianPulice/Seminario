@@ -19,7 +19,7 @@ public class LoadingObjectUI : MonoBehaviour
 
     [Header("Configuración Triángulo")]
     [SerializeField] private float triangleShiftRotateDegrees = 180f; // Rotación total en un shift
-    [SerializeField] private float triangleShiftTime = 0.25f; // Tiempo que toma hacer el shift
+  //  [SerializeField] private float triangleShiftTime = 0.25f; // Tiempo que toma hacer el shift
     [SerializeField] private float triangleLoopDuration = 3f;
     [SerializeField] private LeanTweenType triangleShiftEase = LeanTweenType.easeOutQuad;
     void Start()

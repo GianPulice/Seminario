@@ -18,9 +18,9 @@ public class PlayerStateJump<T> : State<T>
     {
         base.Enter();
         //Debug.Log("Jump");
-       
+
+        AudioManager.Instance.PlayOneShotSFX("Jump");
         playerModel.JumpStart();
-        
     }
 
     public override void Execute()
@@ -31,5 +31,10 @@ public class PlayerStateJump<T> : State<T>
         {
             Fsm.TransitionTo(inputToIdle);
         }
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
     }
 }

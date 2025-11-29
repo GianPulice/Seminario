@@ -5,9 +5,7 @@ using System.Collections.Generic;
 
 public class SettingsManagerUI : MonoBehaviour
 {
-    /// <summary>
-    /// Analizar el tema de que las resoluciones que pone sean unicamente las compatibles con tu monitor y agregar mas alternativas de FPS
-    /// </summary>
+    [SerializeField] private GameObject settingsPanel;
 
     [Header("General:")]
     [SerializeField] private TabGroup tabGroup;
@@ -30,16 +28,13 @@ public class SettingsManagerUI : MonoBehaviour
     [SerializeField] private Toggle toggleFullscreen;
     [SerializeField] private Toggle toggleVSync;
     [SerializeField] private Toggle toggleShowFPS;
+    [SerializeField] private TargetFPSTextDisplay targetFPSTextDisplay;
 
     [Header("Controls Options:")]
     [SerializeField] private Slider sensitivityMouseXSlider;
     [SerializeField] private Slider sensitivityMouseYSlider;
-    [SerializeField] private Slider sensitivityJoystickXSlider;
-    [SerializeField] private Slider sensitivityJoystickYSlider;
     [SerializeField] private TMP_Text sensitivityMouseXText;
     [SerializeField] private TMP_Text sensitivityMouseYText;
-    [SerializeField] private TMP_Text sensitivityJoystickXText;
-    [SerializeField] private TMP_Text sensitivityJoystickYText;
 
 
     void Awake()
@@ -47,23 +42,21 @@ public class SettingsManagerUI : MonoBehaviour
         SuscribeToMainMenuEvent();
         SuscribeToPauseManagerEvent();
         SuscribeToUpdateManagerEvent();
-    }
 
-    void Start()
-    {
+        SettingsManager.Instance.ApplyAllSettingsValues();
         InitializeAudioOptions();
         InitializeVideoOptions();
         InitializeControlOptions();
-        if (tabGroup != null)
+        /*if (tabGroup != null)
         {
-            tabGroup.SelectTabByIndex(0);
-        }
+            tabGroup.SelectTabByIndex(0, false);
+        }*/
     }
 
     // Simulacion de Update
     void UpdateSettingsManagerUI()
     {
-        CheckJoystickInputsToInteractWithPanels();
+       
     }
 
     void OnDestroy()
@@ -75,12 +68,37 @@ public class SettingsManagerUI : MonoBehaviour
 
     public void CloseSettingsPanel()
     {
-        gameObject.SetActive(false);
+        settingsPanel.SetActive(false);
     }
 
-    public void SetPanelAudio() => tabGroup.SelectTabByIndex(0);
-    public void SetPanelVideo() => tabGroup.SelectTabByIndex(1);
-    public void SetPanelControls() => tabGroup.SelectTabByIndex(2);
+    public void PlayAudioButtonSelectedWhenChangeSelectedGameObjectExceptFirstTime()
+    {
+        AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
+    }
+
+    public void SetPanelAudio()
+    {
+        if (settingsPanel.activeSelf)
+        {
+            tabGroup.SelectTabByIndex(0);
+        }
+    } 
+    
+    public void SetPanelVideo()
+    {
+        if (settingsPanel.activeSelf)
+        {
+            tabGroup.SelectTabByIndex(1);
+        }
+    }
+
+    public void SetPanelControls()
+    {
+        if (settingsPanel.activeSelf)
+        {
+            tabGroup.SelectTabByIndex(2);
+        }
+    }
 
     private void SuscribeToMainMenuEvent()
     {
@@ -112,7 +130,7 @@ public class SettingsManagerUI : MonoBehaviour
         UpdateManager.OnUpdate -= UpdateSettingsManagerUI;
     }
 
-    private void InitializeAudioOptions()
+    public void InitializeAudioOptions()
     {
         generalSlider.value = SettingsManager.Instance.GeneralVolume;
         musicSlider.value = SettingsManager.Instance.MusicVolume;
@@ -150,64 +168,58 @@ public class SettingsManagerUI : MonoBehaviour
         currentText.text = Mathf.RoundToInt(value * 100f) + "%";
     }
 
-    private void InitializeVideoOptions()
+    public void InitializeVideoOptions()
     {
         dropdownResolution.ClearOptions();
-        List<string> resOptions = new List<string>();
-        Resolution[] resolutions = Screen.resolutions;
-        HashSet<string> addedRes = new HashSet<string>(); // Para evitar duplicados
 
-        foreach (var res in resolutions)
+        Resolution[] allRes = Screen.resolutions;
+        List<Resolution> filteredRes = new List<Resolution>();
+        HashSet<string> seen = new HashSet<string>();
+        List<string> options = new List<string>();
+
+        foreach (var r in allRes)
         {
-            string resText = res.width + " x " + res.height;
-            if (!addedRes.Contains(resText))
+            string key = r.width + "x" + r.height;
+            if (!seen.Contains(key))
             {
-                resOptions.Add(resText);
-                addedRes.Add(resText);
+                seen.Add(key);
+                filteredRes.Add(r);
+                options.Add($"{r.width} x {r.height}");
             }
         }
 
-        dropdownResolution.AddOptions(resOptions);
+        dropdownResolution.AddOptions(options);
 
-        // ---- Calidad ----
+        // Buscar índice según PlayerPrefs (SettingsManager)
+        int index = filteredRes.FindIndex(r =>
+            r.width == SettingsManager.Instance.CurrentResolution.width &&
+            r.height == SettingsManager.Instance.CurrentResolution.height
+        );
+
+        if (index < 0) index = filteredRes.Count - 1;
+
+        dropdownResolution.value = index;
+        dropdownResolution.RefreshShownValue();
+
+        // Listener actualizado
+        dropdownResolution.onValueChanged.AddListener(i =>
+        {
+            Resolution selected = filteredRes[i];
+            FullScreenMode mode = toggleFullscreen.isOn ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
+            SettingsManager.Instance.SetResolution(selected.width, selected.height, mode);
+        });
+
         dropdownQuality.ClearOptions();
         dropdownQuality.AddOptions(new List<string>(QualitySettings.names));
 
-        // ---- FPS ----
-        dropdownFPS.ClearOptions();
-        dropdownFPS.AddOptions(new List<string> { "30", "60", "120", "144", "Unlimited" });
-
-        // ---- Toggles ----
-        toggleFullscreen.isOn = SettingsManager.Instance.FullscreenMode != FullScreenMode.Windowed;
-        toggleVSync.isOn = SettingsManager.Instance.VSync;
-        toggleShowFPS.isOn = SettingsManager.Instance.ShowFPS;
-
-        // ---- Listeners ----
-        dropdownResolution.onValueChanged.AddListener(OnResolutionChanged);
-        dropdownQuality.onValueChanged.AddListener(SettingsManager.Instance.SetQualityLevel);
-        dropdownFPS.onValueChanged.AddListener(OnFPSChanged);
-        toggleFullscreen.onValueChanged.AddListener(OnFullscreenChanged);
-        toggleVSync.onValueChanged.AddListener(SettingsManager.Instance.SetVSync);
-        toggleShowFPS.onValueChanged.AddListener(SettingsManager.Instance.SetShowFPS);
-
-        int currentResIndex = 0;
-        for (int i = 0; i < resolutions.Length; i++)
-        {
-            if (resolutions[i].width == SettingsManager.Instance.CurrentResolution.width &&
-                resolutions[i].height == SettingsManager.Instance.CurrentResolution.height)
-            {
-                currentResIndex = i;
-                break;
-            }
-        }
-        dropdownResolution.value = currentResIndex;
-        dropdownResolution.RefreshShownValue();
-
-        // Calidad actual
         dropdownQuality.value = SettingsManager.Instance.QualityLevel;
         dropdownQuality.RefreshShownValue();
 
-        // FPS actual
+        dropdownQuality.onValueChanged.AddListener(SettingsManager.Instance.SetQualityLevel);
+
+        dropdownFPS.ClearOptions();
+        dropdownFPS.AddOptions(new List<string> { "30", "60", "120", "144", "Unlimited" });
+
         int fps = SettingsManager.Instance.TargetFPS;
         dropdownFPS.value = fps switch
         {
@@ -219,13 +231,40 @@ public class SettingsManagerUI : MonoBehaviour
             _ => 1
         };
         dropdownFPS.RefreshShownValue();
+
+        dropdownFPS.onValueChanged.AddListener(OnFPSChanged);
+
+        toggleFullscreen.isOn = SettingsManager.Instance.FullscreenMode != FullScreenMode.Windowed;
+        toggleVSync.isOn = SettingsManager.Instance.VSync;
+        toggleShowFPS.isOn = SettingsManager.Instance.ShowFPS;
+        UpdateFPSTextVisibility(toggleShowFPS.isOn); // Actualiza la visibilidad al abrir el panel
+
+        toggleShowFPS.onValueChanged.AddListener(value =>
+        {
+            SettingsManager.Instance.SetShowFPS(value);
+            UpdateFPSTextVisibility(value);
+        });
+
+        toggleFullscreen.onValueChanged.AddListener(OnFullscreenChanged);
+        toggleVSync.onValueChanged.AddListener(SettingsManager.Instance.SetVSync);
+        toggleShowFPS.onValueChanged.AddListener(SettingsManager.Instance.SetShowFPS);
     }
 
     private void OnResolutionChanged(int index)
     {
-        Resolution res = Screen.resolutions[index];
+        string[] parts = dropdownResolution.options[index].text.Split('x');
+        int width = int.Parse(parts[0]);
+        int height = int.Parse(parts[1]);
+
+        FullScreenMode mode = toggleFullscreen.isOn ?
+                FullScreenMode.FullScreenWindow :
+                FullScreenMode.Windowed;
+
+        SettingsManager.Instance.SetResolution(width, height, mode);
+
+        /*Resolution res = Screen.resolutions[index];
         FullScreenMode mode = toggleFullscreen.isOn ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
-        SettingsManager.Instance.SetResolution(res.width, res.height, mode);
+        SettingsManager.Instance.SetResolution(res.width, res.height, mode);*/
     }
 
     private void OnFPSChanged(int index)
@@ -240,6 +279,15 @@ public class SettingsManagerUI : MonoBehaviour
             _ => 60
         };
         SettingsManager.Instance.SetTargetFPS(fps);
+        targetFPSTextDisplay.UpdateFPSText(fps);
+    }
+
+    private void UpdateFPSTextVisibility(bool isVisible)
+    {
+        if (targetFPSTextDisplay != null && targetFPSTextDisplay.gameObject != null)
+        {
+            targetFPSTextDisplay.gameObject.SetActive(isVisible);
+        }
     }
 
     private void OnFullscreenChanged(bool isFullscreen)
@@ -249,7 +297,7 @@ public class SettingsManagerUI : MonoBehaviour
         SettingsManager.Instance.SetResolution(res.width, res.height, mode);
     }
 
-    private void InitializeControlOptions()
+    public void InitializeControlOptions()
     {
         float defaultMin = 1f;
         float defaultMax = 400f;
@@ -258,20 +306,12 @@ public class SettingsManagerUI : MonoBehaviour
         sensitivityMouseXSlider.maxValue = defaultMax;
         sensitivityMouseYSlider.minValue = defaultMin;
         sensitivityMouseYSlider.maxValue = defaultMax;
-        sensitivityJoystickXSlider.minValue = defaultMin;
-        sensitivityJoystickXSlider.maxValue = defaultMax;
-        sensitivityJoystickYSlider.minValue = defaultMin;
-        sensitivityJoystickYSlider.maxValue = defaultMax;
 
         sensitivityMouseXSlider.value = SettingsManager.Instance.SensitivityMouseX;
         sensitivityMouseYSlider.value = SettingsManager.Instance.SensitivityMouseY;
-        sensitivityJoystickXSlider.value = SettingsManager.Instance.SensitivityJoystickX;
-        sensitivityJoystickYSlider.value = SettingsManager.Instance.SensitivityJoystickY;
 
         UpdateTextControls(sensitivityMouseXText, sensitivityMouseXSlider.value);
         UpdateTextControls(sensitivityMouseYText, sensitivityMouseYSlider.value);
-        UpdateTextControls(sensitivityJoystickXText, sensitivityJoystickXSlider.value);
-        UpdateTextControls(sensitivityJoystickYText, sensitivityJoystickYSlider.value);
 
         // Listeners
         sensitivityMouseXSlider.onValueChanged.AddListener(value =>
@@ -285,83 +325,78 @@ public class SettingsManagerUI : MonoBehaviour
             SettingsManager.Instance.SetSensitivityMouseY(value);
             UpdateTextControls(sensitivityMouseYText, value);
         });
-
-        sensitivityJoystickXSlider.onValueChanged.AddListener(value =>
-        {
-            SettingsManager.Instance.SetSensitivityJoystickX(value);
-            UpdateTextControls(sensitivityJoystickXText, value);
-        });
-
-        sensitivityJoystickYSlider.onValueChanged.AddListener(value =>
-        {
-            SettingsManager.Instance.SetSensitivityJoystickY(value);
-            UpdateTextControls(sensitivityJoystickYText, value);
-        });
     }
 
     private void UpdateTextControls(TMP_Text currentText, float value)
     {
         currentText.text = Mathf.RoundToInt(value).ToString();
     }
+}
 
-    private void CheckJoystickInputsToInteractWithPanels()
+/*dropdownResolution.ClearOptions();
+List<string> resOptions = new List<string>();
+Resolution[] resolutions = Screen.resolutions;
+HashSet<string> addedRes = new HashSet<string>(); // Para evitar duplicados
+
+foreach (var res in resolutions)
+{
+    string resText = res.width + " x " + res.height;
+    if (!addedRes.Contains(resText))
     {
-        if (panelAudio.activeSelf || panelVideo.activeSelf || panelControls.activeSelf)
-        {
-            if (PlayerInputs.Instance != null)
-            {
-                if (PlayerInputs.Instance.R1())
-                {
-                    SetNexPanelUsingJoystickR1();
-                }
-
-                if (PlayerInputs.Instance.L1())
-                {
-                    SetNexPanelUsingJoystickL1();
-                }
-            }
-        }
-    }
-
-    private void SetNexPanelUsingJoystickR1()
-    {
-        if (panelAudio.activeSelf)
-        {
-            SetPanelVideo();
-            return;
-        }
-
-        if (panelVideo.activeSelf)
-        {
-            SetPanelControls();
-            return;
-        }
-
-        if (panelControls.activeSelf)
-        {
-            SetPanelAudio();
-            return;
-        }
-    }
-
-    private void SetNexPanelUsingJoystickL1()
-    {
-        if (panelAudio.activeSelf)
-        {
-            SetPanelControls();
-            return;
-        }
-
-        if (panelVideo.activeSelf)
-        {
-            SetPanelAudio();
-            return;
-        }
-
-        if (panelControls.activeSelf)
-        {
-            SetPanelVideo();
-            return;
-        }
+        resOptions.Add(resText);
+        addedRes.Add(resText);
     }
 }
+
+dropdownResolution.AddOptions(resOptions);
+
+// ---- Calidad ----
+dropdownQuality.ClearOptions();
+dropdownQuality.AddOptions(new List<string>(QualitySettings.names));
+
+// ---- FPS ----
+dropdownFPS.ClearOptions();
+dropdownFPS.AddOptions(new List<string> { "30", "60", "120", "144", "Unlimited" });
+
+// ---- Toggles ----
+toggleFullscreen.isOn = SettingsManager.Instance.FullscreenMode != FullScreenMode.Windowed;
+toggleVSync.isOn = SettingsManager.Instance.VSync;
+toggleShowFPS.isOn = SettingsManager.Instance.ShowFPS;
+
+// ---- Listeners ----
+dropdownResolution.onValueChanged.AddListener(OnResolutionChanged);
+dropdownQuality.onValueChanged.AddListener(SettingsManager.Instance.SetQualityLevel);
+dropdownFPS.onValueChanged.AddListener(OnFPSChanged);
+toggleFullscreen.onValueChanged.AddListener(OnFullscreenChanged);
+toggleVSync.onValueChanged.AddListener(SettingsManager.Instance.SetVSync);
+toggleShowFPS.onValueChanged.AddListener(SettingsManager.Instance.SetShowFPS);
+
+int currentResIndex = 0;
+for (int i = 0; i < resolutions.Length; i++)
+{
+    if (resolutions[i].width == SettingsManager.Instance.CurrentResolution.width &&
+        resolutions[i].height == SettingsManager.Instance.CurrentResolution.height)
+    {
+        currentResIndex = i;
+        break;
+    }
+}
+dropdownResolution.value = currentResIndex;
+dropdownResolution.RefreshShownValue();
+
+// Calidad actual
+dropdownQuality.value = SettingsManager.Instance.QualityLevel;
+dropdownQuality.RefreshShownValue();
+
+// FPS actual
+int fps = SettingsManager.Instance.TargetFPS;
+dropdownFPS.value = fps switch
+{
+    30 => 0,
+    60 => 1,
+    120 => 2,
+    144 => 3,
+    -1 => 4,
+    _ => 1
+};
+dropdownFPS.RefreshShownValue();*/

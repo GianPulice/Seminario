@@ -20,6 +20,14 @@ public class TrashUI : MonoBehaviour
         GetComponents();
     }
 
+    void Update()
+    {
+        if (PlayerInputs.Instance.BackPanelsUI())
+        {
+            No();
+        }
+    }
+
 
     public void Yes()
     {
@@ -92,5 +100,7 @@ public class TrashUI : MonoBehaviour
     {
         Trash.OnShowPanelTrash -= OnShowPanelTrash;
         Trash.OnHidePanelTrash -= OnHidePanelTrash;
+        if(contentTrash != null)
+            LeanTween.cancel(contentTrash);
     }
 }

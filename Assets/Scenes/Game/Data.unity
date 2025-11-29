@@ -243,7 +243,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 50
   m_TargetDisplay: 0
 --- !u!224 &36040484
 RectTransform:
@@ -1188,6 +1188,52 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &356846975
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 356846977}
+  - component: {fileID: 356846976}
+  m_Layer: 0
+  m_Name: FloatingTextPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &356846976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 356846975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eca38078cd505034f9dfabc69705f8bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 2745537329709784526, guid: bc9dde767edcaeb41aa37067b606f2ee, type: 3}
+  poolSize: 5
+--- !u!4 &356846977
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 356846975}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1264300542}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &440804618
 GameObject:
   m_ObjectHideFlags: 0
@@ -1780,52 +1826,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5328159999085970572, guid: 04abc46b38884bf4badee480eaa5bc13, type: 3}
   m_PrefabInstance: {fileID: 7904610206305094740}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &984179506
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 984179507}
-  - component: {fileID: 984179508}
-  m_Layer: 0
-  m_Name: FloatingMoneyTextPool
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &984179507
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 984179506}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 862.6026, y: 630.3348, z: 1.5244477}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1264300542}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &984179508
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 984179506}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eca38078cd505034f9dfabc69705f8bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prefab: {fileID: 2745537329709784526, guid: a999ff67fa213b54ca6a3d0b001e9331, type: 3}
-  poolSize: 10
 --- !u!1 &1062312283
 GameObject:
   m_ObjectHideFlags: 0
@@ -2423,8 +2423,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moneyManagerData: {fileID: 11400000, guid: a1db7c9a3a06a5f45b725c20ec253879, type: 2}
-  floatingMoneyTextPool: {fileID: 984179508}
-  floatingMoneyText: {fileID: 459090452467391953, guid: a999ff67fa213b54ca6a3d0b001e9331, type: 3}
+  floatingMoneyTextPool: {fileID: 356846976}
+  floatingMoneyText: {fileID: 459090452467391953, guid: bc9dde767edcaeb41aa37067b606f2ee, type: 3}
   tipColor: {r: 0, g: 1, b: 0, a: 1}
   deductionColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!4 &1264300542
@@ -2440,7 +2440,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 984179507}
+  - {fileID: 356846977}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1302569138
@@ -3288,6 +3288,14 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 5c6f529c72e25534ea992bbc6ea37a37, type: 3}
   - name: Cooking
     clip: {fileID: 8300000, guid: 3c1e41542cf914749b753c305542819b, type: 3}
+  - name: Jump
+    clip: {fileID: 8300000, guid: 3ab1b95edbcd12e41a2f9fbfca823c43, type: 3}
+  - name: TabChange
+    clip: {fileID: 8300000, guid: 951b96d96188f9640b12fa2d7fade185, type: 3}
+  - name: Eating1
+    clip: {fileID: 8300000, guid: a6fce114ff2bbcc49af218feb98c2277, type: 3}
+  - name: Eating2
+    clip: {fileID: 8300000, guid: 1e18a334db67b91478f0d33510f244a4, type: 3}
 --- !u!1 &1722558582
 GameObject:
   m_ObjectHideFlags: 0
@@ -4037,6 +4045,18 @@ PrefabInstance:
     - target: {fileID: 7798009427380949015, guid: 04abc46b38884bf4badee480eaa5bc13, type: 3}
       propertyPath: m_Name
       value: LoadingScenePanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 7798009427380949015, guid: 04abc46b38884bf4badee480eaa5bc13, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7825078941932317477, guid: 04abc46b38884bf4badee480eaa5bc13, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.155
+      objectReference: {fileID: 0}
+    - target: {fileID: 7825078941932317477, guid: 04abc46b38884bf4badee480eaa5bc13, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

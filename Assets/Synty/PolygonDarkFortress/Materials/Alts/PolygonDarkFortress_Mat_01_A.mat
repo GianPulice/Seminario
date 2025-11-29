@@ -21,23 +21,20 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: PolygonDarkFortress_Mat_01_A
-  m_Shader: {fileID: -6465566751694194690, guid: 3b44a38ec6f81134ab0f820ac54d6a93,
-    type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 3b44a38ec6f81134ab0f820ac54d6a93, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _ALPHATEST_ON
-  - _BUILTIN_ALPHATEST_ON
-  - _BUILTIN_AlphaClip
+  m_ValidKeywords: []
   m_InvalidKeywords:
+  - _ALPHATEST_ON
   - _EMISSION
   - _NORMALMAP
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2000
   stringTagMap:
-    RenderType: TransparentCutout
+    RenderType: Opaque
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
@@ -116,7 +113,7 @@ Material:
     - _AlphaClip: 1
     - _AlphaToMask: 1
     - _Alpha_Clip_Threshold: 0.5
-    - _BUILTIN_AlphaClip: 1
+    - _BUILTIN_AlphaClip: 0
     - _BUILTIN_Blend: 0
     - _BUILTIN_CullMode: 2
     - _BUILTIN_DstBlend: 0
@@ -135,7 +132,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _Enable_Emission: 1
+    - _Enable_Emission: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.2
     - _GlossyReflections: 1
@@ -165,6 +162,7 @@ Material:
     - _Hair_Color: {r: 0.80628294, g: 0.8524069, b: 0.88699996, a: 0}
     - _Skin_Color: {r: 0.55360997, g: 0.63271934, b: 0.667, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &1940937704335416750
 MonoBehaviour:
   m_ObjectHideFlags: 11
