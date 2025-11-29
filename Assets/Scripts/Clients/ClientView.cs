@@ -9,12 +9,15 @@ public class ClientView : MonoBehaviour
 
     [SerializeField] private ClientsFoodPreferencesData clientsFoodPreferencesData;
 
+    private ClientModel clientModel;
+
     private PlayerController playerController;
     private ClientManager clientManager;
     private Table tablePlayerCollision; 
 
     private Animator anim;
     private Transform order; // GameObject padre de la UI
+    private Transform orderBorder;
     private List<SpriteRenderer> spritesTypeList = new List<SpriteRenderer>();
 
     private List<string> orderFoodNames = new List<string>(); /// <summary>
@@ -25,6 +28,8 @@ public class ClientView : MonoBehaviour
 
     private FoodType currentSelectedFood;
 
+    private float currentFoodCookingTime;
+
     private bool canTakeOrder = false; // Se pone en true cuando nos acercamos a la mesa y no pidio nada todavia
 
     public Animator Anim { get => anim; }
@@ -32,6 +37,8 @@ public class ClientView : MonoBehaviour
     public List<string> OrderFoodNames { get => orderFoodNames; }
 
     public FoodType CurrentSelectedFood { get => currentSelectedFood; }
+
+    public float CurrentFoodCookingTime { get => currentFoodCookingTime; }
 
     public bool CanTakeOrder { get => canTakeOrder; set => canTakeOrder = value; }
 
@@ -104,20 +111,29 @@ public class ClientView : MonoBehaviour
         {
             orderFoodNames.Clear();
 
-            FoodType selectedFood = clientsFoodPreferencesData.GetRandomFood();
-            currentSelectedFood = selectedFood;
+            FoodType? selectedFood = clientsFoodPreferencesData.GetRandomFood();
 
-            Sprite sprite = clientManager.GetSpriteForRandomFood(selectedFood);
+            if (!selectedFood.HasValue) return;
 
-            if (sprite != null)
+            currentSelectedFood = selectedFood.Value;
+
+            Sprite spriteSelectedFood = clientManager.GetSpriteForRandomFood(selectedFood.Value);
+
+            FoodData data = FoodTimesManager.Instance.GetFoodData(selectedFood.Value);
+            currentFoodCookingTime = data.TimeToBeenCooked;
+
+            clientModel.CurrentOrderDataUI = new OrderDataUI(spriteSelectedFood, clientModel.ClientData.ClientImage, clientModel.ClientData.MaxTimeWaitingFood + currentFoodCookingTime);
+            OrdersManagerUI.Instance.AddOrder(clientModel.CurrentOrderDataUI);
+
+            if (spriteSelectedFood != null)
             {
                 DisableAllSpriteTypes();
                 spritesTypeList[0].gameObject.SetActive(true);
 
-                spritesTypeList[0].sprite = sprite;
+                spritesTypeList[0].sprite = spriteSelectedFood;
                 orderFoodNames.Clear();
                 orderFoodNames.Add(selectedFood.ToString());
-                AutoAdjustSpriteScale(sprite);
+                AutoAdjustSpriteScale(spriteSelectedFood);
 
                 canTakeOrder = false;
                 ClearTable();
@@ -127,24 +143,28 @@ public class ClientView : MonoBehaviour
 
     public void RotateOrderUIToLookAtPlayer()
     {
-        Vector3 playerDirection = (playerController.transform.position - order.position).normalized;
+        Vector3 playerDirection = (playerController.transform.position - transform.position).normalized;
         Vector3 lookDirection = new Vector3(playerDirection.x, 0, playerDirection.z);
 
         if (lookDirection != Vector3.zero)
         {
             Quaternion rotation = Quaternion.LookRotation(lookDirection);
             order.rotation = rotation;
+            orderBorder.rotation = rotation;
         }
     }
 
 
     private void GetComponents()
     {
+        clientModel = GetComponent<ClientModel>();
+
         playerController = FindFirstObjectByType<PlayerController>();
         clientManager = FindFirstObjectByType<ClientManager>();
 
         anim = GetComponentInChildren<Animator>();
         order = transform.Find("Order");
+        orderBorder = transform.Find("OrderBorder");
 
         foreach (Transform child in order)
         {

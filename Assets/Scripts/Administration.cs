@@ -12,7 +12,7 @@ public class Administration : MonoBehaviour, IInteractable
     void Awake()
     {
         GetComponents();
-        StartCoroutine(RegisterOutline());
+        StartCoroutine(RegisterOutline());       
     }
 
     void OnDestroy()
@@ -23,7 +23,7 @@ public class Administration : MonoBehaviour, IInteractable
 
     public void Interact(bool isPressed)
     {
-        playerController.PlayerModel.IsAdministrating = true;
+        SetAdministratingTrue();
     }
 
     public void ShowOutline()
@@ -38,17 +38,14 @@ public class Administration : MonoBehaviour, IInteractable
         InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
 
-    public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
+   
+    public bool TryGetInteractionMessage(out string message)
     {
         string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
-        interactionManagerUIText.text = $"Press" + keyText + "to enter administration";
-    }
+        message = $"Press {keyText} to enter administration";
 
-    public void HideMessage(TextMeshProUGUI interactionManagerUIText)
-    {
-        interactionManagerUIText.text = string.Empty;
+        return true;
     }
-
 
     private void GetComponents()
     {
@@ -60,5 +57,13 @@ public class Administration : MonoBehaviour, IInteractable
         yield return new WaitUntil(() => OutlineManager.Instance != null);
 
         OutlineManager.Instance.Register(gameObject);
+    }
+    private void SetAdministratingTrue()
+    {
+        playerController.PlayerModel.IsAdministrating = true;
+    }
+    private void SetAdministratingFalse()
+    {
+    playerController.PlayerModel.IsAdministrating = false;
     }
 }

@@ -7,16 +7,13 @@ public class SettingsManagerUI : MonoBehaviour
 {
     /// <summary>
     /// Analizar el tema de que las resoluciones que pone sean unicamente las compatibles con tu monitor y agregar mas alternativas de FPS
-    /// Tambien no se guardan correctamente los valores de las settings, es decir se guardan pero no se ven reflejados
     /// </summary>
 
     [Header("General:")]
+    [SerializeField] private TabGroup tabGroup;
     [SerializeField] private GameObject panelAudio;
     [SerializeField] private GameObject panelVideo;
     [SerializeField] private GameObject panelControls;
-    [SerializeField] private Button buttonAudio;
-    [SerializeField] private Button buttonVideo;
-    [SerializeField] private Button buttonControls;
 
     [Header("Audio Options:")]
     [SerializeField] private Slider generalSlider;
@@ -57,6 +54,10 @@ public class SettingsManagerUI : MonoBehaviour
         InitializeAudioOptions();
         InitializeVideoOptions();
         InitializeControlOptions();
+        if (tabGroup != null)
+        {
+            tabGroup.SelectTabByIndex(0);
+        }
     }
 
     // Simulacion de Update
@@ -72,66 +73,14 @@ public class SettingsManagerUI : MonoBehaviour
         UnsuscribeToUpdateEvent();
     }
 
-
-    // Funciones asignadas a OnPointerEnter para el mouse y combinadas con los Inputs del joystick
-    // El objetivo es que se abran los paneles correctamente y se cierren correctamente
-    public void SetPanelAudio()
+    public void CloseSettingsPanel()
     {
-        // Color blanco
-        ColorBlock color = buttonAudio.colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-
-        if (buttonAudio.colors == color)
-        {
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-
-            SetButtonNormalColorInWhite(buttonVideo);
-            SetButtonNormalColorInWhite(buttonControls);
-
-            SetButtonNormalColorInGreen(buttonAudio);
-            DisableAllPanels();
-            panelAudio.SetActive(true);
-        }
+        gameObject.SetActive(false);
     }
 
-    public void SetPanelVideo()
-    {
-        // Color blanco
-        ColorBlock color = buttonAudio.colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-
-        if (buttonVideo.colors == color)
-        {
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-
-            SetButtonNormalColorInWhite(buttonAudio);
-            SetButtonNormalColorInWhite(buttonControls);
-
-            SetButtonNormalColorInGreen(buttonVideo);
-            DisableAllPanels();
-            panelVideo.SetActive(true);
-        }
-    }
-
-    public void SetPanelControls()
-    {
-        // Color blanco
-        ColorBlock color = buttonAudio.colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-
-        if (buttonControls.colors == color)
-        {
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-
-            SetButtonNormalColorInWhite(buttonAudio);
-            SetButtonNormalColorInWhite(buttonVideo);
-
-            SetButtonNormalColorInGreen(buttonControls);
-            DisableAllPanels();
-            panelControls.SetActive(true);
-        }
-    }
-
+    public void SetPanelAudio() => tabGroup.SelectTabByIndex(0);
+    public void SetPanelVideo() => tabGroup.SelectTabByIndex(1);
+    public void SetPanelControls() => tabGroup.SelectTabByIndex(2);
 
     private void SuscribeToMainMenuEvent()
     {
@@ -203,14 +152,6 @@ public class SettingsManagerUI : MonoBehaviour
 
     private void InitializeVideoOptions()
     {
-        // ---- Resoluciones ----
-        /*dropdownResolution.ClearOptions();
-        List<string> resOptions = new List<string>();
-        Resolution[] resolutions = Screen.resolutions;
-        foreach (var res in resolutions)
-            resOptions.Add(res.width + " x " + res.height);
-        dropdownResolution.AddOptions(resOptions);*/
-
         dropdownResolution.ClearOptions();
         List<string> resOptions = new List<string>();
         Resolution[] resolutions = Screen.resolutions;
@@ -248,6 +189,36 @@ public class SettingsManagerUI : MonoBehaviour
         toggleFullscreen.onValueChanged.AddListener(OnFullscreenChanged);
         toggleVSync.onValueChanged.AddListener(SettingsManager.Instance.SetVSync);
         toggleShowFPS.onValueChanged.AddListener(SettingsManager.Instance.SetShowFPS);
+
+        int currentResIndex = 0;
+        for (int i = 0; i < resolutions.Length; i++)
+        {
+            if (resolutions[i].width == SettingsManager.Instance.CurrentResolution.width &&
+                resolutions[i].height == SettingsManager.Instance.CurrentResolution.height)
+            {
+                currentResIndex = i;
+                break;
+            }
+        }
+        dropdownResolution.value = currentResIndex;
+        dropdownResolution.RefreshShownValue();
+
+        // Calidad actual
+        dropdownQuality.value = SettingsManager.Instance.QualityLevel;
+        dropdownQuality.RefreshShownValue();
+
+        // FPS actual
+        int fps = SettingsManager.Instance.TargetFPS;
+        dropdownFPS.value = fps switch
+        {
+            30 => 0,
+            60 => 1,
+            120 => 2,
+            144 => 3,
+            -1 => 4,
+            _ => 1
+        };
+        dropdownFPS.RefreshShownValue();
     }
 
     private void OnResolutionChanged(int index)
@@ -331,27 +302,6 @@ public class SettingsManagerUI : MonoBehaviour
     private void UpdateTextControls(TMP_Text currentText, float value)
     {
         currentText.text = Mathf.RoundToInt(value).ToString();
-    }
-
-    private void DisableAllPanels()
-    {
-        panelAudio.SetActive(false);
-        panelVideo.SetActive(false);
-        panelControls.SetActive(false);
-    }
-
-    private void SetButtonNormalColorInWhite(Button currentButton)
-    {
-        ColorBlock color = currentButton.colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-        currentButton.colors = color;
-    }
-
-    private void SetButtonNormalColorInGreen(Button currentButton)
-    {
-        ColorBlock color = currentButton.colors;
-        color.normalColor = new Color32(0x28, 0xFF, 0x00, 0xFF);
-        currentButton.colors = color;
     }
 
     private void CheckJoystickInputsToInteractWithPanels()

@@ -77,10 +77,50 @@ public class AudioManager : Singleton<AudioManager>
             if (src != null && src.isPlaying)
             {
                 src.Stop();
-                activeSFX.Remove(sfxName);
                 src.clip = null;
+                activeSFX.Remove(sfxName);
             }
         }
+    }
+
+    public void PlayLoopSFX(string sfxName)
+    {
+        if (!SFXDictionary.ContainsKey(sfxName))
+        {
+            Debug.LogWarning("SFX no encontrado: " + sfxName);
+            return;
+        }
+
+        AudioSource loopSource = GetAvailableAudioSource();
+        loopSource.clip = SFXDictionary[sfxName];
+        loopSource.loop = true;
+        loopSource.Play();
+
+        activeSFX[sfxName] = loopSource;
+    }
+
+    public void StopLoopSFX(string sfxName)
+    {
+        if (activeSFX.ContainsKey(sfxName))
+        {
+            AudioSource source = activeSFX[sfxName];
+            source.Stop();
+            source.loop = false;
+            source.clip = null;
+
+            activeSFX.Remove(sfxName);
+        }
+    }
+
+    public AudioClip GetSFX(string sfxName)
+    {
+        if (SFXDictionary.ContainsKey(sfxName))
+        {
+            return SFXDictionary[sfxName];
+        }
+
+        Debug.LogWarning("SFX no encontrado: " + sfxName);
+        return null;
     }
 
     // ------------------------------------------ MUSIC ---------------------------------------------------
@@ -150,6 +190,7 @@ public class AudioManager : Singleton<AudioManager>
             if (src.isPlaying)
             {
                 src.Stop();
+                src.loop = false;
                 src.clip = null;
             }
         }
@@ -173,8 +214,8 @@ public class AudioManager : Singleton<AudioManager>
 
         if (activeSFX.ContainsKey(sfxName))
         {
-            activeSFX.Remove(sfxName);
             src.clip = null;
+            activeSFX.Remove(sfxName);
         }
     }
 

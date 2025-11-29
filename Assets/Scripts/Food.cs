@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
 
 public enum FoodType // FrutosDelBosqueOscuro, SopaDeLaLunaPlateada, CarneDeBestia, CarneCuradaDelAbismo, SusurroDelElixir
@@ -27,12 +26,20 @@ public class Food : MonoBehaviour, IInteractable
     private PlayerController playerController;
     private CookingManager cookingManager;
     private Table currentTable; // Esta Table hace referencia a la mesa en la cual podemos entregar el pedido
-    private Slider cookingBar;
+    private AudioSource currentAudioSource3D;
+    private Slider cookingBarUI;
+    private Image sliderFillCookingBarUI;
+    private Slider cookingBarOutside;
+    private Image sliderFillCookingBarOutside;
     private MeshRenderer meshRenderer;
-    private Color originalColor;
+    private ParticleSystem smoke;
 
     private Transform stovePosition;
     private Transform playerDishPosition;
+
+    private Vector3 nativeParentScaleSize;
+                                                                 // Naranja                                   // Lima   
+    private Color[] colorsSlider = new Color[] { Color.red, new Color(1f, 0.5f, 0f), Color.yellow, new Color(0.5f, 1f, 0f), Color.green } ;
 
     [SerializeField] private FoodType foodType;
     private CookingStates currentCookingState;
@@ -49,7 +56,7 @@ public class Food : MonoBehaviour, IInteractable
     public CookingStates CurrentCookingState { get => currentCookingState; }
 
 
-    private class FoodMesh
+    public class FoodMesh
     {
         public GameObject root;
         public Collider collider;
@@ -68,6 +75,8 @@ public class Food : MonoBehaviour, IInteractable
 
     void Awake()
     {
+        SuscribeToPlayerViewEvent();
+        SuscribeToPauseManagerEvent();
         SuscribeToPlayerControllerEvents();
         GetComponents();
         Initialize();
@@ -77,7 +86,7 @@ public class Food : MonoBehaviour, IInteractable
     // Simulacion de Update
     void UpdateFood()
     {
-        RotateSliderUIToLookAtPlayer();
+        RotateSliderOutsideToLookAtPlayer();
     }
 
     void OnEnable()
@@ -94,9 +103,11 @@ public class Food : MonoBehaviour, IInteractable
     void OnDestroy()
     {
         UnsuscribeToUpdateManagerEvent();
+        UnsuscribeToPlayerViewEvent();
+        UnsuscribeToPauseManagerEvent();
         UnsuscribeToPlayerControllerEvents();
-        OutlineManager.Instance.Register(defaultMesh.root);
-        OutlineManager.Instance.Register(foodMesh.root);
+        OutlineManager.Instance.Unregister(defaultMesh.root);
+        OutlineManager.Instance.Unregister(foodMesh.root);
     }
 
 
@@ -104,9 +115,19 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (gameObject.activeSelf && !isServedInTable && !isInPlayerDishPosition && cookingManager.AvailableDishPositions.Count > 0)
         {
-            if (cookingBar.gameObject.activeSelf)
+            currentAudioSource3D.Stop();
+            AudioManager.Instance.PlayOneShotSFX("GrabFood");
+
+            transform.localScale = nativeParentScaleSize;
+
+            if (cookingBarUI.gameObject.activeSelf)
             {
-                cookingBar.gameObject.SetActive(false);
+                cookingBarUI.gameObject.SetActive(false);
+            }
+
+            if (cookingBarOutside.gameObject.activeSelf)
+            {
+                cookingBarOutside.gameObject.SetActive(false);
             }
 
             PlayerView.OnEnabledDishForced?.Invoke(true);
@@ -117,9 +138,9 @@ public class Food : MonoBehaviour, IInteractable
             playerDishPosition = cookingManager.MoveFoodToDish(this);
 
             SetMeshRootActive(defaultMesh, false);
-            StartCoroutine(EnabledOrDisablePhysics(defaultMesh, false));
+            EnabledOrDisablePhysics(defaultMesh, false);
             SetMeshRootActive(foodMesh, true);
-            StartCoroutine(EnabledOrDisablePhysics(foodMesh, false));
+            EnabledOrDisablePhysics(foodMesh, false);
         }
     }
 
@@ -142,24 +163,43 @@ public class Food : MonoBehaviour, IInteractable
         InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
 
-    public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
+    public bool TryGetInteractionMessage(out string message)
     {
         if (cookingManager.AvailableDishPositions.Count > 0 && !isServedInTable && !isInPlayerDishPosition)
         {
             string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
-            interactionManagerUIText.text = $"Press" + keyText + "to grab food";
-        }
-    }
+            message = $"Press {keyText} to grab food";
 
-    public void HideMessage(TextMeshProUGUI interactionManagerUIText)
-    {
-        interactionManagerUIText.text = string.Empty;
+            return true;
+        }
+
+        message = null;
+        return false;
     }
 
     public void ReturnObjetToPool()
     {
         cookingManager.ReturnObjectToPool(foodType, this);
         RestartValues();
+    }
+
+    /// <summary>
+    /// Analizar para que lo haga con el boxCollider en vez del meshrenderer
+    /// </summary>
+    public float GetBottomOffset()
+    {
+        // Tomamos el mesh que esté activo (default o cocinado)
+        MeshRenderer renderer = foodMesh.ms;
+
+        if (renderer == null)
+            return 0f;
+
+        Bounds bounds = renderer.bounds;
+        float bottomY = bounds.min.y;
+        float centerY = transform.position.y;
+
+        // La diferencia entre el centro del objeto y la base del mesh
+        return centerY - bottomY;
     }
 
 
@@ -171,6 +211,30 @@ public class Food : MonoBehaviour, IInteractable
     private void UnsuscribeToUpdateManagerEvent()
     {
         UpdateManager.OnUpdate -= UpdateFood;
+    }
+
+    private void SuscribeToPlayerViewEvent()
+    {
+        PlayerView.OnEnterInCookMode += OnEnterInCookMode;
+        PlayerView.OnExitInCookMode += OnExitInCookMode;
+    }
+
+    private void UnsuscribeToPlayerViewEvent()
+    {
+        PlayerView.OnEnterInCookMode -= OnEnterInCookMode;
+        PlayerView.OnExitInCookMode -= OnExitInCookMode;
+    }
+
+    private void SuscribeToPauseManagerEvent()
+    {
+        PauseManager.OnGamePaused += OnPauseAudio3D;
+        PauseManager.OnGameUnPaused += OnUnPauseAduio3D;
+    }
+
+    private void UnsuscribeToPauseManagerEvent()
+    {
+        PauseManager.OnGamePaused -= OnPauseAudio3D;
+        PauseManager.OnGameUnPaused -= OnUnPauseAduio3D;
     }
 
     private void SuscribeToPlayerControllerEvents()
@@ -197,7 +261,12 @@ public class Food : MonoBehaviour, IInteractable
     {
         playerController = FindFirstObjectByType<PlayerController>();
         cookingManager = FindFirstObjectByType<CookingManager>();
-        cookingBar = GetComponentInChildren<Slider>();
+        currentAudioSource3D = GetComponent<AudioSource>();   
+        cookingBarUI = transform.Find("CanvasUI").GetComponentInChildren<Slider>();
+        cookingBarOutside = transform.Find("CanvasOutside").GetComponentInChildren<Slider>();
+        sliderFillCookingBarUI = cookingBarUI.fillRect.GetComponent<Image>();
+        sliderFillCookingBarOutside = cookingBarOutside.fillRect.GetComponent<Image>();
+        smoke = GetComponentInChildren<ParticleSystem>(true); // Inidica que busca componentes dentro de gameObjects que estan desactivados
     }
 
     private IEnumerator RegisterOutline()
@@ -211,15 +280,15 @@ public class Food : MonoBehaviour, IInteractable
     private void Initialize()
     {
         SetupFoodMesh(ref defaultMesh, "DefaultMesh");
-        string cleanName = gameObject.name.Replace("(Clone)", "").Trim();
-        SetupFoodMesh(ref foodMesh, cleanName + "Mesh");
+        SetupFoodMesh(ref foodMesh, gameObject.name.Replace("(Clone)", "").Trim() + "Mesh");
 
         SetMeshRootActive(defaultMesh, true);
         SetMeshRootActive(foodMesh, false);
 
         meshRenderer = defaultMesh.ms;
-        originalColor = meshRenderer.material.color;
         currentCookingState = CookingStates.Raw;
+        defaultMesh.ms.material = foodData.RawMaterial;
+        nativeParentScaleSize = transform.localScale;
     }
 
     private void SetupFoodMesh(ref FoodMesh foodMesh, string gameObjectHierarchyName)
@@ -237,24 +306,61 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (!isInPlayerDishPosition && !isInstantiateFirstTime)
         {
+            AudioClip clipCooking = AudioManager.Instance.GetSFX("Cooking");
+            currentAudioSource3D.clip = clipCooking;
+            currentAudioSource3D.loop = true;
+            currentAudioSource3D.Play();
             stovePosition = cookingManager.CurrentStove;
 
-            cookingBar.maxValue = foodData.TimeToBeenCooked;
-            cookingBar.value = 0;
+            cookingBarUI.maxValue = foodData.TimeToBeenCooked;
+            cookingBarUI.value = 0;
+            cookingBarOutside.maxValue = foodData.TimeToBeenCooked;
+            cookingBarOutside.value = 0;
+
             cookTimeCounter = 0f;
 
-            while (cookTimeCounter <= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned)
+            bool isFoodAlreadyCooked = false;
+
+            meshRenderer.material = foodData.RawMaterial;
+
+            while (cookTimeCounter <= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned) // Esto es para que la logica se ejecute durante el tiempo de coccion + el tiempo de quemarse y despues no funcione mas la corrutina
             {
                 cookTimeCounter += Time.deltaTime;
 
                 if (cookTimeCounter <= foodData.TimeToBeenCooked)
                 {
-                    cookingBar.value = cookTimeCounter;
+                    cookingBarUI.value = cookTimeCounter;
+                    sliderFillCookingBarUI.color = EvaluateColor(cookingBarUI.value / cookingBarUI.maxValue);
+                    cookingBarOutside.value = cookTimeCounter;
+                    sliderFillCookingBarOutside.color = EvaluateColor(cookingBarOutside.value / cookingBarOutside.maxValue);
                 }
 
-                if (cookTimeCounter >= foodData.TimeToBeenCooked && cookingBar.gameObject.activeSelf)
+                if (cookTimeCounter >= foodData.TimeToBeenCooked && !isFoodAlreadyCooked)
                 {
-                    cookingBar.gameObject.SetActive(false);
+                    currentAudioSource3D.Stop();
+                    AudioManager.Instance.PlayOneShotSFX("FoodIsAlredyCooked");
+
+                    cookingBarUI.value = cookingBarUI.maxValue;
+                    sliderFillCookingBarUI.color = EvaluateColor(1f);
+
+                    cookingBarOutside.value = cookingBarOutside.maxValue;
+                    sliderFillCookingBarOutside.color = EvaluateColor(1f);
+
+                    yield return new WaitForSeconds(0.1f); // Esperara este tiempo para que se muestre el slider completo
+
+                    cookingBarUI.gameObject.SetActive(false);
+                    cookingBarOutside.gameObject.SetActive(false);
+
+                    isFoodAlreadyCooked = true;
+                }
+
+                if (cookTimeCounter >= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned && !smoke.gameObject.activeSelf)
+                {
+                    AudioClip clipBurning = AudioManager.Instance.GetSFX("Burning");
+                    currentAudioSource3D.clip = clipBurning;
+                    currentAudioSource3D.loop = true;
+                    currentAudioSource3D.Play();
+                    smoke.gameObject.SetActive(true);
                 }
 
                 if (isInPlayerDishPosition)
@@ -263,9 +369,20 @@ public class Food : MonoBehaviour, IInteractable
                     yield break;
                 }
 
-                // Lerp del color original a un color oscuro
-                Color targetColor = Color.Lerp(originalColor, Color.black, cookTimeCounter / (foodData.TimeToBeenCooked + foodData.TimeToBeenBurned));
-                meshRenderer.material.color = targetColor;                
+                if (cookTimeCounter < foodData.TimeToBeenCooked)
+                {
+                    meshRenderer.material = foodData.RawMaterial;
+                }
+
+                else if (cookTimeCounter >= foodData.TimeToBeenCooked && cookTimeCounter < foodData.TimeToBeenCooked + foodData.TimeToBeenBurned)
+                {
+                    meshRenderer.material = foodData.FoodMaterial;
+                }
+
+                else if (cookTimeCounter >= foodData.TimeToBeenCooked + foodData.TimeToBeenBurned)
+                {
+                    meshRenderer.material = foodData.BurnedMaterial;
+                }
 
                 yield return null;
             }
@@ -282,10 +399,8 @@ public class Food : MonoBehaviour, IInteractable
     }
 
     // Si es true activa las fisicas, sino las desactiva
-    private IEnumerator EnabledOrDisablePhysics(FoodMesh mesh, bool value)
+    private void EnabledOrDisablePhysics(FoodMesh mesh, bool value)
     {
-        yield return null;
-
         if (value)
         {
             mesh.rb.isKinematic = false;
@@ -299,32 +414,60 @@ public class Food : MonoBehaviour, IInteractable
         }
     }
 
-    public void RotateSliderUIToLookAtPlayer()
+    private void OnEnterInCookMode()
     {
-        Vector3 playerDirection = (playerController.transform.position - cookingBar.transform.position).normalized;
+        if (cookTimeCounter >= foodData.TimeToBeenCooked) return;
+
+        cookingBarUI.gameObject.SetActive(true);
+        cookingBarOutside.gameObject.SetActive(false);
+    }
+
+    private void OnExitInCookMode()
+    {
+        if (cookTimeCounter >= foodData.TimeToBeenCooked) return;
+
+        cookingBarUI.gameObject.SetActive(false);
+        cookingBarOutside.gameObject.SetActive(true);
+    }
+
+    private void OnPauseAudio3D()
+    {
+        currentAudioSource3D.Pause();
+    }
+
+    private void OnUnPauseAduio3D()
+    {
+        currentAudioSource3D.UnPause();
+    }
+
+    private void RotateSliderOutsideToLookAtPlayer()
+    {
+        Vector3 playerDirection = (playerController.transform.position - cookingBarOutside.transform.position).normalized;
         Vector3 lookDirection = new Vector3(playerDirection.x, 0, playerDirection.z);
 
         if (lookDirection != Vector3.zero)
         {
             Quaternion rotation = Quaternion.LookRotation(lookDirection);
-            cookingBar.transform.rotation = rotation;
+            cookingBarOutside.transform.rotation = rotation;
         }
     }
 
     private void RestartValues()
     {
-        meshRenderer.material.color = originalColor;
+        meshRenderer.material = foodData.RawMaterial;
 
-        cookingBar.gameObject.SetActive(true);
+        transform.localScale = nativeParentScaleSize;
+        transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+
+        cookingBarUI.gameObject.SetActive(true);
+        cookingBarOutside.gameObject.SetActive(true);
+        smoke.gameObject.SetActive(false);
 
         stovePosition = null;
         playerDishPosition = null;
 
-        defaultMesh.rb.isKinematic = false;
-        defaultMesh.collider.enabled = true;
-
-        foodMesh.rb.isKinematic = false;
-        foodMesh.collider.enabled = true;
+        EnabledOrDisablePhysics(defaultMesh, true);
+        EnabledOrDisablePhysics(foodMesh, true);
 
         currentCookingState = CookingStates.Raw;
 
@@ -374,6 +517,10 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (isInPlayerDishPosition && currentTable != null && currentTable.IsOccupied)
         {
+            AudioManager.Instance.PlayOneShotSFX("DeliverOrder");
+
+            Vector3 biggerSize = nativeParentScaleSize * 2f;
+            SetGlobalScale(transform, biggerSize);
             cookingManager.ReleaseDishPosition(playerDishPosition);
 
             Transform freeSpot = null;
@@ -392,12 +539,12 @@ public class Food : MonoBehaviour, IInteractable
                 transform.SetParent(freeSpot);
                 transform.position = freeSpot.position + new Vector3(0, 0.1f, 0);
 
-                StartCoroutine(EnabledOrDisablePhysics(foodMesh, true));
+                EnabledOrDisablePhysics(foodMesh, true);
 
                 isInPlayerDishPosition = false;
                 isServedInTable = true;
 
-                currentTable.CurrentFoods.Add(this); 
+                currentTable.CurrentFoods.Add(this);
 
                 ClearTable();
             }
@@ -408,10 +555,12 @@ public class Food : MonoBehaviour, IInteractable
     {
         if (currentFood != null && isInPlayerDishPosition)
         {
+            Vector3 biggerSize = nativeParentScaleSize * 1.5f;
+            SetGlobalScale(transform, biggerSize);
             cookingManager.ReleaseDishPosition(playerDishPosition);
             isInPlayerDishPosition = false;
-            StartCoroutine(EnabledOrDisablePhysics(foodMesh, true));
-        }  
+            EnabledOrDisablePhysics(foodMesh, true);
+        }
     }
 
     private void ThrowFoodToTrash()
@@ -421,5 +570,27 @@ public class Food : MonoBehaviour, IInteractable
             cookingManager.ReleaseDishPosition(playerDishPosition);
             ReturnObjetToPool();
         }
+    }
+
+    private void SetGlobalScale(Transform transform, Vector3 globalScale)
+    {
+        transform.localScale = Vector3.one;
+        transform.localScale = new Vector3(
+            globalScale.x / transform.lossyScale.x * transform.localScale.x,
+            globalScale.y / transform.lossyScale.y * transform.localScale.y,
+            globalScale.z / transform.lossyScale.z * transform.localScale.z
+        );
+    }
+
+    private Color EvaluateColor(float t)
+    {
+        if (t <= 0f) return colorsSlider[0];
+        if (t >= 1f) return colorsSlider[colorsSlider.Length - 1];
+
+        float scaled = t * (colorsSlider.Length - 1);
+        int index = Mathf.FloorToInt(scaled);
+        float lerp = scaled - index;
+
+        return Color.Lerp(colorsSlider[index], colorsSlider[index + 1], lerp);
     }
 }

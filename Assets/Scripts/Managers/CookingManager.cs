@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 
-public class CookingManager : MonoBehaviour
+public class CookingManager : Singleton<CookingManager>
 {
     [SerializeField] private AbstractFactory foodAbstractFactory;
     [SerializeField] private List<ObjectPooler> foodPools;
 
-    [Header("Positions")]
-    // Para las posiciones de las sarten
-    [SerializeField] private List<Transform> stovesPositions;
+    private CookingDeskUI currentDesk;
     private Transform currentStove;
-    private Queue<Transform> availableStovesPositions = new Queue<Transform>();
-    private HashSet<Transform> occupiedStovesPositions = new HashSet<Transform>();
 
     // Para las posiciones en la bandeja del player
     [SerializeField] private List<Transform> dishPositions;
@@ -28,8 +24,8 @@ public class CookingManager : MonoBehaviour
 
     void Awake()
     {
+        CreateSingleton(false);
         SuscribeToCookingManagerUIEvent();
-        EnqueueStovesPositions();
         EnqueueDishPositions();
         InitializeFoodPoolDictionary();
     }
@@ -45,6 +41,11 @@ public class CookingManager : MonoBehaviour
     }
 
 
+    public void SetCurrentDesk(CookingDeskUI desk)
+    {
+        currentDesk = desk;
+    }
+
     public void ReturnObjectToPool(FoodType foodType, Food currentFood)
     {
         if (foodPoolDictionary.ContainsKey(foodType))
@@ -55,11 +56,7 @@ public class CookingManager : MonoBehaviour
 
     public void ReleaseStovePosition(Transform stovePosition)
     {
-        if (occupiedStovesPositions.Contains(stovePosition))
-        {
-            occupiedStovesPositions.Remove(stovePosition);
-            availableStovesPositions.Enqueue(stovePosition);
-        }
+        currentDesk?.ReleaseStove(stovePosition);
     }
 
     public void ReleaseDishPosition(Transform dishPosition)
@@ -91,8 +88,9 @@ public class CookingManager : MonoBehaviour
 
         if (targetPosition != null)
         {
-            currentFood.transform.position = targetPosition.position;
             currentFood.transform.SetParent(targetPosition);
+            float offsetY = currentFood.GetBottomOffset() - 0.030f;
+            currentFood.transform.position = targetPosition.position + new Vector3(0, offsetY, 0);
         }
 
         return targetPosition;
@@ -109,50 +107,36 @@ public class CookingManager : MonoBehaviour
         CookingManagerUI.OnButtonSetFood -= GetFood;
     }
 
-    private void GetFood(string prefabFoodName)
+    private void GetFood(string prefabFoodName, bool ClickWellOrClickWrong)
     {
+        if (ClickWellOrClickWrong)
+        {
+            if (currentDesk.AvailableStoves.Count == 0)
+            {
+                AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
+                return;
+            }
+
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        }
+
+        else
+        {
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
+            return;
+        }
+
         if (Enum.TryParse(prefabFoodName, out FoodType foodType))
         {
             if (IngredientInventoryManager.Instance.TryCraftFood(foodType))
             {
-                currentStove = GetNextAvailableStove();
+                currentStove = currentDesk?.GetAvailableStove();
 
                 if (currentStove != null)
                 {
                     foodAbstractFactory.CreateObject(prefabFoodName, currentStove, new Vector3(0, 0.2f, 0));
                 }
             }
-        }
-    }
-
-    private Transform GetNextAvailableStove()
-    {
-        Transform targetPosition = null;
-
-        if (availableStovesPositions.Count == 0) return null;
-
-        while (availableStovesPositions.Count > 0)
-        {
-            targetPosition = availableStovesPositions.Dequeue();
-
-            if (occupiedStovesPositions.Contains(targetPosition))
-            {
-                availableStovesPositions.Enqueue(targetPosition);
-                continue;
-            }
-
-            occupiedStovesPositions.Add(targetPosition);
-            break;
-        }
-
-        return targetPosition;
-    }
-
-    private void EnqueueStovesPositions()
-    {
-        foreach (var position in stovesPositions)
-        {
-            availableStovesPositions.Enqueue(position);
         }
     }
 

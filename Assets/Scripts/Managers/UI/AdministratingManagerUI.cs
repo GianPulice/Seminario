@@ -1,218 +1,91 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
+using System.Linq;
 
 public class AdministratingManagerUI : MonoBehaviour
 {
+    [Header("Paneles Principales")]
     [SerializeField] private GameObject panelAdministrating;
-
-    [SerializeField] private GameObject panelTabern;
     [SerializeField] private GameObject panelIngredients;
-    [SerializeField] private GameObject panelUpgrades; 
+    [SerializeField] private GameObject panelUpgrades;
+    [SerializeField] private AdminUIAppear panelAnimator;
 
-    private List<ZoneUnlock> zoneUnlocks = new List<ZoneUnlock>();
-    private Image currentImageZoneUnlock;
-    private TextMeshProUGUI textPriceCurrentZoneUnlock;
+    [Header("Gestión de Pestañas")]
+    [Tooltip("Referencia al script TabGroup que gestiona los botones y paneles")]
+    [SerializeField] private TabGroup tabGroup;
 
-    private List<Button> buttonsPanelAdministrating = new List<Button>(); // Botones de arriba de todo
+    [Header("Botones de Lógica")]
+    [Tooltip("El botón tipo Switch para Iniciar/Cerrar la taberna")]
+    [SerializeField] private SwitchTweenButton startTavernSwitch;
 
-    private List<GameObject> buttonsTabern = new List<GameObject>();
-    private List<GameObject> buttonsIngredients = new List<GameObject>();
-    private List<GameObject> buttonsUpgrades = new List<GameObject>();
+    [Header("Referencias (Panel Ingredients)")]
+    [SerializeField] private GameObject ingredientButtonContainer;
+    [SerializeField] private GameObject upgradeButtonContainer;
 
-    private GameObject lastSelectedButtonFromAdminPanel;
+    [Header("Referencias (Panel Upgrades)")]
+    [SerializeField] private ConfirmationPanel confirmationPanel;
+    [SerializeField] private TextMeshProUGUI confirmationText;
+    [SerializeField] private Image currentImageUpgrade;
+    [SerializeField] private TextMeshProUGUI textPriceCurrentUpgradeUnlock;
+    [SerializeField] private TextMeshProUGUI textInformationCurrentUpgrade;
 
-    private event Action onEnterAdmin, onExitAdmin;
+    //--- Listas de botones ---
+    private List<IngredientButtonUI> ingredientButtons = new List<IngredientButtonUI>();
+    private List<GenericTweenButton> upgradeButtons = new List<GenericTweenButton>();
 
+    private static event Action onEnterAdmin, onExitAdmin;
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
+    private static event Action onStartTabern,onCloseTabern;
 
-    private static event Action onStartTabern;
-
-    private bool ignoreFirstButtonSelected = true;
-
+    public static Action OnExitAdmin { get => onExitAdmin; set => onExitAdmin = value; } 
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
-
     public static Action OnStartTabern { get => onStartTabern; set => onStartTabern = value; }
+    public static Action OnCloseTabern { get => onCloseTabern; set => onCloseTabern = value; }
 
+    // --- Variables de control ---
+    private GameObject lastSelectedButtonFromAdminPanel;
+    private bool ignoreFirstButtonSelected = true;
+    private int currentActiveTabIndex = 0;
+    private bool localTavernState = false;
 
+    //--- Variable estaticas ---
+    private static int lastTabIndex = -1;
+    
     void Awake()
     {
-        SuscribeToUpdateManagerEvent();
-        InitializeLambdaEvents();
-        SuscribeToPlayerViewEvents();
-        SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
         GetComponents();
-    }
-
-    // Simulacion de Update
-    void UpdateAdministratingManagerUI()
-    {
-        CheckLastSelectedButtonIfAdminPanelIsOpen();
-        CheckJoystickInputsToInteractWithPanels();
+        InitializeAnimatorEventBindings();
+        SuscribeToPlayerViewEvents();
+        SuscribeToUpdateManagerEvent();
+        SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
+        SuscribeToRecipeProgressEvents();
     }
 
     void OnDestroy()
     {
-        UnsuscribeToUpdateManagerEvent();
         UnsuscribeToPlayerViewEvents();
-        UnscribeToPauseManagerRestoreSelectedGameObjectEvent();
-    }
+        UnsuscribeToUpdateManagerEvent();
+        UnsuscribeToPauseManagerRestoreSelectedGameObjectEvent();
+        UnSuscribeToRecipeProgressEvents();
 
-
-    // Funcion asignada a botones en la UI para setear el selected GameObject del EventSystem con Mouse
-    public void SetButtonAsSelectedGameObjectIfHasBeenHover(int indexButton)
-    {
-        if (EventSystem.current != null)
+        if (panelAnimator != null)
         {
-            if (panelTabern.activeSelf) EventSystem.current.SetSelectedGameObject(buttonsTabern[indexButton]);
-            if (panelIngredients.activeSelf) EventSystem.current.SetSelectedGameObject(buttonsIngredients[indexButton]);
-            if (panelUpgrades.activeSelf) EventSystem.current.SetSelectedGameObject(buttonsUpgrades[indexButton]);
+            panelAnimator.OnAnimateInComplete.RemoveListener(SetupInitialTab);
         }
     }
 
-    // Funcion asignada a botones en la UI para reproducir el sonido selected
-    public void PlayAudioButtonSelectedWhenChangeSelectedGameObjectExceptFirstTime()
+    #region === Actualización y Gestión de Foco ===
+
+    void UpdateAdministratingManagerUI()
     {
-        if (!ignoreFirstButtonSelected)
-        {
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-            return;
-        }
-
-        ignoreFirstButtonSelected = false;
+        CheckLastSelectedButtonIfAdminPanelIsOpen();
     }
-
-    /// <summary>
-    /// Funcion hay que ajustarla en un futuro para que funcione con varias zonas de desbloqueo, actualmente funciona desde codigo
-    /// </summary>
-    public void ShowCurrentZoneInformation(int index)
-    {
-        currentImageZoneUnlock.sprite = zoneUnlocks[index].ZoneUnlockData.ImageZoneUnlock;
-        textPriceCurrentZoneUnlock.text = "Price: " + zoneUnlocks[index].ZoneUnlockData.Cost.ToString();
-    }
-
-    // Funcion asignada a boton UI
-    public void ButtonStartTabern()
-    {
-        onStartTabern?.Invoke();
-        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
-    }
-
-    // Funcion asignada a boton UI
-    public void ButtonBuyIngredient(string ingredientName)
-    {
-        if (Enum.TryParse(ingredientName, out IngredientType ingredient))
-        {
-            int price = IngredientInventoryManager.Instance.GetPriceOfIngredient(ingredient);
-
-            if (MoneyManager.Instance.CurrentMoney >= price)
-            {
-                AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
-                IngredientInventoryManager.Instance.IncreaseIngredientStock(ingredient);
-                MoneyManager.Instance.SubMoney(price);
-            }
-
-            else
-            {
-                AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
-            }
-        }
-    }
-
-    // Funcion asignada a boton UI
-    public void ButtonUnlockNewZone(int index)
-    {
-        if (zoneUnlocks[index].IsUnlocked) return;
-
-        int price = zoneUnlocks[index].ZoneUnlockData.Cost;
-
-        if (MoneyManager.Instance.CurrentMoney >= price)
-        {
-            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
-            zoneUnlocks[index].UnlockZone();
-            MoneyManager.Instance.SubMoney(price);
-        }
-
-        else
-        {
-            AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
-        }
-    }
-
-    // Funciones asignadas a OnPointerEnter para el mouse y combinadas con los Inputs del joystick
-    // El objetivo es que se abran los paneles correctamente y se cierren correctamente
-    public void SetPanelTabern()
-    {
-        ColorBlock color = buttonsPanelAdministrating[0].colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-
-        if (buttonsPanelAdministrating[0].colors == color) 
-        {
-            onSetSelectedCurrentGameObject?.Invoke(buttonsTabern[0]);
-
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[1]);
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[2]);
-            panelIngredients.SetActive(false);
-            panelUpgrades.SetActive(false);
-
-            SetButtonNormalColorInGreen(buttonsPanelAdministrating[0]);
-            panelTabern.SetActive(true);
-        }
-    }
-
-    public void SetPanelIngredients()
-    {
-        // Color blanco
-        ColorBlock color = buttonsPanelAdministrating[1].colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-
-        if (buttonsPanelAdministrating[1].colors == color)
-        {
-            // Aca se podria agregar que selecione el ultimo que tenia antes
-            onSetSelectedCurrentGameObject?.Invoke(buttonsIngredients[0]);
-
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[0]);
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[2]);
-            panelTabern.SetActive(false);
-            panelUpgrades.SetActive(false);
-
-            SetButtonNormalColorInGreen(buttonsPanelAdministrating[1]);
-            panelIngredients.SetActive(true);
-        }
-    }
-
-    public void SetPanelUpgrades()
-    {
-        // Color blanco
-        ColorBlock color = buttonsPanelAdministrating[2].colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-
-        if (buttonsPanelAdministrating[2].colors == color)
-        {
-            // Aca se podria agregar que selecione el ultimo que tenia antes
-            onSetSelectedCurrentGameObject?.Invoke(buttonsUpgrades[0]);
-            ShowCurrentZoneInformation(0);
-
-            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
-
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[0]);
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[1]);
-            panelTabern.SetActive(false);
-            panelIngredients.SetActive(false);
-
-            SetButtonNormalColorInGreen(buttonsPanelAdministrating[2]);
-            panelUpgrades.SetActive(true);
-        }
-    }
-
 
     private void SuscribeToUpdateManagerEvent()
     {
@@ -221,25 +94,8 @@ public class AdministratingManagerUI : MonoBehaviour
 
     private void UnsuscribeToUpdateManagerEvent()
     {
-        UpdateManager.OnUpdate -= UpdateAdministratingManagerUI;
-    }
-
-    private void InitializeLambdaEvents()
-    {
-        onEnterAdmin += () => ActiveOrDeactivatePanel(true);
-        onExitAdmin += () => ActiveOrDeactivatePanel(false);
-    }
-
-    private void SuscribeToPlayerViewEvents()
-    {
-        PlayerView.OnEnterInAdministrationMode += onEnterAdmin;
-        PlayerView.OnExitInAdministrationMode += onExitAdmin;
-    }
-
-    private void UnsuscribeToPlayerViewEvents()
-    {
-        PlayerView.OnEnterInAdministrationMode -= onEnterAdmin;
-        PlayerView.OnExitInAdministrationMode -= onExitAdmin;
+        if (UpdateManager.Instance != null)
+            UpdateManager.OnUpdate -= UpdateAdministratingManagerUI;
     }
 
     private void SuscribeToPauseManagerRestoreSelectedGameObjectEvent()
@@ -247,71 +103,10 @@ public class AdministratingManagerUI : MonoBehaviour
         PauseManager.OnRestoreSelectedGameObject += RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
     }
 
-    private void UnscribeToPauseManagerRestoreSelectedGameObjectEvent()
+    private void UnsuscribeToPauseManagerRestoreSelectedGameObjectEvent()
     {
-        PauseManager.OnRestoreSelectedGameObject -= RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
-    }
-
-    private void GetComponents()
-    {
-        foreach (Transform childs in panelAdministrating.transform)
-        {
-            buttonsPanelAdministrating.Add(childs.GetComponent<Button>());
-        }
-
-        FindGameObjectsReferences(panelTabern, buttonsTabern);
-        FindGameObjectsReferences(panelIngredients, buttonsIngredients);
-        FindGameObjectsReferences(panelUpgrades, buttonsUpgrades);
-
-        GameObject ZonesToUnlockFather = GameObject.Find("ZonesToUnlock");
-        foreach (Transform childs in ZonesToUnlockFather.transform)
-        {
-            zoneUnlocks.Add(childs.GetComponent<ZoneUnlock>());
-        }
-
-        currentImageZoneUnlock = panelUpgrades.transform.transform.Find("ImageBorderCurrentZone").transform.Find("ImageCurrentZone").GetComponent<Image>();
-        textPriceCurrentZoneUnlock = panelUpgrades.transform.transform.Find("ImageBorderCurrentZone").transform.Find("TextPriceCurrentZone").GetComponent<TextMeshProUGUI>();
-    }
-
-    private void FindGameObjectsReferences(GameObject panel, List<GameObject> buttons)
-    {
-        foreach (Transform childs in panel.transform)
-        {
-            if (childs.GetComponent<Button>())
-            {
-                buttons.Add(childs.gameObject);
-            }
-        }
-    }
-
-    private void ActiveOrDeactivatePanel(bool state)
-    {
-        panelAdministrating.SetActive(state);
-
-        if (state)
-        {
-            DeviceManager.Instance.IsUIModeActive = true;
-            SetButtonNormalColorInGreen(buttonsPanelAdministrating[0]);
-
-            panelTabern.SetActive(state);
-
-            onSetSelectedCurrentGameObject?.Invoke(buttonsTabern[0]);
-        }
-
-        else
-        {
-            DeviceManager.Instance.IsUIModeActive = false;
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[0]);
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[1]);
-            SetButtonNormalColorInWhite(buttonsPanelAdministrating[2]);
-
-            panelTabern.SetActive(state);
-            panelIngredients.SetActive(state);
-            panelUpgrades.SetActive(state);
-
-            ignoreFirstButtonSelected = true;
-            onClearSelectedCurrentGameObject?.Invoke();
-        }
+        if (PauseManager.Instance != null)
+            PauseManager.OnRestoreSelectedGameObject -= RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI;
     }
 
     private void RestoreLastSelectedGameObjectIfGameWasPausedDuringAdministratingUI()
@@ -320,90 +115,354 @@ public class AdministratingManagerUI : MonoBehaviour
         {
             ignoreFirstButtonSelected = true;
             DeviceManager.Instance.IsUIModeActive = true;
-            EventSystem.current.SetSelectedGameObject(lastSelectedButtonFromAdminPanel);
+            onSetSelectedCurrentGameObject?.Invoke(lastSelectedButtonFromAdminPanel);
         }
     }
 
     private void CheckLastSelectedButtonIfAdminPanelIsOpen()
     {
-        if (EventSystem.current != null && PauseManager.Instance != null && !PauseManager.Instance.IsGamePaused && panelAdministrating.activeSelf)
+        if (EventSystem.current != null && PauseManager.Instance != null && !PauseManager.Instance.IsGamePaused)
         {
-            lastSelectedButtonFromAdminPanel = EventSystem.current.currentSelectedGameObject;
-        }
-    }
-
-    private void SetButtonNormalColorInWhite(Button currentButton)
-    {
-        ColorBlock color = currentButton.colors;
-        color.normalColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-        currentButton.colors = color;
-    }
-
-    private void SetButtonNormalColorInGreen(Button currentButton)
-    {
-        ColorBlock color = currentButton.colors;
-        color.normalColor = new Color32(0x28, 0xFF, 0x00, 0xFF);
-        currentButton.colors = color;
-    }
-
-    private void CheckJoystickInputsToInteractWithPanels()
-    {
-        if (panelAdministrating.activeSelf)
-        {
-            if (PlayerInputs.Instance != null)
+            GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
+            if (currentSelected != null && currentSelected.transform.IsChildOf(this.transform))
             {
-                if (PlayerInputs.Instance.R1())
-                {
-                    SetNexPanelUsingJoystickR1();
-                }
-
-                if (PlayerInputs.Instance.L1())
-                {
-                    SetNexPanelUsingJoystickL1();
-                }
+                lastSelectedButtonFromAdminPanel = currentSelected;
             }
         }
     }
 
-    private void SetNexPanelUsingJoystickR1()
+    public void PlayAudioButtonSelectedWhenChangeSelectedGameObjectExceptFirstTime()
     {
-        if (panelTabern.activeSelf)
+        if (!ignoreFirstButtonSelected)
         {
-            SetPanelIngredients();
+            AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
             return;
         }
+        ignoreFirstButtonSelected = false;
+    }
+    #endregion
 
-        if (panelIngredients.activeSelf)
+    #region == Botones de Lógica ===
+    public void OnStartTavernSwitchClicked()
+    {
+        if (startTavernSwitch == null) return;
+
+        bool isTavernOn = startTavernSwitch.GetSelectedState();
+
+        if (isTavernOn)
         {
-            SetPanelUpgrades();
-            return;
+            Debug.Log("¡Taberna ABIERTA!");
+            onStartTabern?.Invoke();
+            localTavernState = true;
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_On"
         }
-
-        if (panelUpgrades.activeSelf)
+        if(!isTavernOn && ClientManager.Instance.CanCloseTabern)
         {
-            SetPanelTabern();
-            return;
+            Debug.Log("¡Taberna CERRADA!");
+            onCloseTabern?.Invoke();
+            localTavernState = false;
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_Off"
+        }
+    }
+    public void ButtonExit()
+    {
+        onExitAdmin?.Invoke();
+    }
+
+    public void ButtonBuyIngredient(string ingredientName)
+    {
+        if (Enum.TryParse(ingredientName, out IngredientType ingredient))
+        {
+            int price = IngredientInventoryManager.Instance.GetPriceOfIngredient(ingredient);
+            if (MoneyManager.Instance.CurrentMoney >= price)
+            {
+                AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+                IngredientInventoryManager.Instance.IncreaseIngredientStock(ingredient);
+                MoneyManager.Instance.SubMoney(price);
+                
+                UpdateAllIngredientButtons();
+            }
+            else
+            {
+                AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
+            }
+        }
+    }
+    private void UpdateAllIngredientButtons()
+    {
+        if (ingredientButtons == null) return;
+
+        foreach (var btnUI in ingredientButtons)
+        {
+            IngredientType type = btnUI.IngredientType;
+
+            int price = IngredientInventoryManager.Instance.GetPriceOfIngredient(type);
+            int stock = IngredientInventoryManager.Instance.GetStock(type);
+
+            btnUI.UpdateUI(price, stock);
+
+            bool isUnlocked = RecipeProgressManager.Instance.IsIngredientUnlocked(type);
+            btnUI.gameObject.SetActive(isUnlocked);
         }
     }
 
-    private void SetNexPanelUsingJoystickL1()
+    public void ButtonUnlockNewZone(int index)
     {
-        if (panelTabern.activeSelf)
+        var upgrade = UpgradesManager.Instance.GetUpgrade(index);
+        if (upgrade == null) return;
+
+        // Si ya está desbloqueado, no hacemos nada
+        if (!upgrade.CanUpgrade)
         {
-            SetPanelUpgrades();
+            //AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
             return;
         }
 
-        if (panelIngredients.activeSelf)
-        {
-            SetPanelTabern();
-            return;
-        }
+        int price = upgrade.UpgradesData.Cost;
 
-        if (panelUpgrades.activeSelf)
+        if (MoneyManager.Instance.CurrentMoney >= price)
         {
-            SetPanelIngredients();
-            return;
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+            UpgradesManager.Instance.UnlockUpgrade(index);
+            MoneyManager.Instance.SubMoney(price);
+        }
+        else
+        {
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
         }
     }
+
+    public void OnUpgradeButtonClicked(int index)
+    {
+        var upgrade = UpgradesManager.Instance.GetUpgrade(index);
+        var data = upgrade.UpgradesData;
+        confirmationText.text = $"Are you sure you want to spend <color=yellow>${data.Cost}</color> to buy this upgrade";
+
+        // Mostrar panel de confirmación y asignar la acción a realizar si presiona YES
+        if (confirmationPanel != null)
+        {
+            confirmationPanel.Show(() => ButtonUnlockNewZone(index));
+        }
+    }
+
+    public void ShowCurrentZoneInformation(int index)
+    {
+        var upgrade = UpgradesManager.Instance.GetUpgrade(index);
+        if (upgrade == null) return;
+
+        if (!upgrade.CanUpgrade)
+        {
+            /// Agregar un sprite generico que muestre que ya tenes la zona desbloqueada
+            return;
+        }
+
+        var data = upgrade.UpgradesData;
+
+        currentImageUpgrade.sprite = data.ImageZoneUnlock;
+        textPriceCurrentUpgradeUnlock.text = $"Price: {data.Cost}";
+        textInformationCurrentUpgrade.text = data.InformationCurrentZone;
+    }
+    private void UpdateIngredientButtonsFromUpgrades()
+    {
+        foreach(var btn in ingredientButtons)
+        {
+            bool isUnlocked = RecipeProgressManager.Instance.IsIngredientUnlocked(btn.IngredientType);
+            btn.gameObject.SetActive(isUnlocked);
+        }
+    }
+    private void UpdateUpgradeButtonsInteractable()
+    {
+        for (int i = 0; i < upgradeButtons.Count; i++)
+        {
+            var upgrade = UpgradesManager.Instance.GetUpgrade(i);
+
+            if (upgrade == null)
+            {
+                upgradeButtons[i].SetInteractable(false);
+                continue;
+            }
+
+            // Si se puede comprar --> interactuable
+            // Si NO se puede comprar --> desactivado visual + raycast apagado
+            upgradeButtons[i].SetInteractable(upgrade.CanUpgrade);
+        }
+    }
+    private void OnIngredientUnlocked(IngredientType ingredient)
+    {
+        UpdateIngredientButtonsFromUpgrades();
+    }
+    private void PreRefreshUI()
+    {
+        UpdateAllIngredientButtons();
+        UpdateUpgradeButtonsInteractable();
+
+        // Si estás entrando a la UI y la última tab era "Upgrades"
+        if (tabGroup != null)
+        {
+            int indexToSelect =
+                (lastTabIndex >= 0 && lastTabIndex < tabGroup.GetTabCount())
+                ? lastTabIndex
+                : 0;
+
+            // si la tab es la de upgrades, refrescá la info
+            if (indexToSelect == 2)
+            {
+                ShowCurrentZoneInformation(0);
+            }
+        }
+    }
+    #endregion
+
+    #region === Animaciones de Entrada / Salida ===
+
+    private void OnEnterInAdminMode()
+    {
+        HandlePlayerEnterAdmin();
+    }
+
+    private void OnExitAdminMode()
+    {
+        HandlePlayerExitAdmin();
+    }
+
+    private void HandlePlayerEnterAdmin()
+    {
+        AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
+        PrepareInitialUIState();
+        PreRefreshUI();
+        panelAnimator?.AnimateIn();
+    }
+
+    private void HandlePlayerExitAdmin()
+    {
+        AudioManager.Instance.PlayOneShotSFX("Admin/Cook/Pause");
+        DeviceManager.Instance.IsUIModeActive = false;
+        onClearSelectedCurrentGameObject?.Invoke();
+
+        if (tabGroup != null)
+            lastTabIndex = tabGroup.GetCurrentTabIndex();
+
+        panelAnimator?.AnimateOut();
+        confirmationPanel.Hide();
+    }
+
+    private void SetupInitialTab()
+    {
+        ignoreFirstButtonSelected = true;
+
+        UpdateAllIngredientButtons();
+        UpdateUpgradeButtonsInteractable();
+
+        if (tabGroup == null) return;
+
+        //Determino la tab a mostrar
+        int indexToSelect =
+          (lastTabIndex >= 0 && lastTabIndex < tabGroup.GetTabCount())
+          ? lastTabIndex
+          : 0;
+
+        tabGroup.SelectTabByIndex(indexToSelect);
+        tabGroup.ForceShowCurrentTab();
+
+        // Forzar selección visual del botón correcto
+        if (tabGroup.CurrentSelectedButton != null)
+        {
+            onSetSelectedCurrentGameObject?.Invoke(tabGroup.CurrentSelectedButton.gameObject);
+        }
+        if (startTavernSwitch != null)
+        {
+            startTavernSwitch.SetSelected(localTavernState); 
+        }
+        // Actualizar información si está en el tab de Upgrades
+        if (indexToSelect == 2 && UpgradesManager.Instance != null && UpgradesManager.Instance.GetUpgrade(0) != null)
+        {
+            ShowCurrentZoneInformation(0);
+        }
+    }
+
+    private void PrepareInitialUIState()
+    {
+        DeviceManager.Instance.IsUIModeActive = true;
+        int initialTabIndex = tabGroup?.GetButtonIndex(tabGroup.StartingSelectedButton) ?? 0;
+        if (initialTabIndex == 2) ShowCurrentZoneInformation(0);
+    }
+    #endregion
+
+    #region Setup y Suscripciones
+
+    private void InitializeAnimatorEventBindings()
+    {
+        panelAnimator.OnAnimateInComplete.AddListener(SetupInitialTab);
+        panelAnimator.OnAnimateOutStart.AddListener(() =>
+        {
+            panelIngredients.SetActive(false);
+            panelUpgrades.SetActive(false);
+        });
+    }
+
+    private void SuscribeToPlayerViewEvents()
+    {
+        PlayerView.OnEnterInAdministrationMode += OnEnterInAdminMode;
+        PlayerView.OnExitInAdministrationMode += OnExitAdminMode;
+    }
+
+    private void UnsuscribeToPlayerViewEvents()
+    {
+        PlayerView.OnEnterInAdministrationMode -= OnEnterInAdminMode;
+        PlayerView.OnExitInAdministrationMode -= OnExitAdminMode;
+    }
+
+    private void SuscribeToRecipeProgressEvents()
+    {
+        RecipeProgressManager.Instance.OnIngredientUnlocked += OnIngredientUnlocked;
+    }
+
+    private void UnSuscribeToRecipeProgressEvents()
+    {
+        if (RecipeProgressManager.Instance == null) return;
+
+        RecipeProgressManager.Instance.OnIngredientUnlocked -= OnIngredientUnlocked;
+    }
+
+    private void GetComponents()
+    {
+        if (panelAnimator == null)
+            Debug.LogError("Falta AdminUIAppear", this);
+        if (tabGroup == null)
+            tabGroup = GetComponent<TabGroup>();
+        
+        if (ingredientButtonContainer != null)
+        {
+           
+            ingredientButtons = ingredientButtonContainer
+              .GetComponentsInChildren<IngredientButtonUI>(true).ToList();
+
+            if (ingredientButtons.Count == 0)
+            {
+                Debug.LogWarning($"No se encontró ningún script 'IngredientButtonUI' en los hijos de {ingredientButtonContainer.name}", this);
+            }
+        }
+        else
+        {
+            Debug.LogError("'Ingredient Button Container' no está asignado en el Inspector de AdministratingManagerUI.", this);
+        }
+
+        if (upgradeButtonContainer != null)
+        {
+            upgradeButtons = upgradeButtonContainer
+             .GetComponentsInChildren<GenericTweenButton>(true).ToList();
+
+            if (upgradeButtons.Count == 0)
+            {
+                Debug.LogWarning($"No se encontró ningún 'GenericTweenButton' en los hijos de {upgradeButtonContainer.name}", this);
+            }
+        }
+        else
+        {
+            Debug.LogError("'Upgrade Button Container' no está asignado en el Inspector de AdministratingManagerUI.", this);
+        }
+        startTavernSwitch.OnTryEnableCondition = () => ClientManager.Instance.CanCloseTabern;
+    }
+
+    #endregion
 }

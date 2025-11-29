@@ -1,53 +1,85 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class IngredientInventoryManagerUI : MonoBehaviour, IBookableUI
+public class IngredientInventoryManagerUI : MonoBehaviour
 {
+    private PlayerModel playerModel;
+
     [SerializeField] private RawImage inventoryPanel;
 
     private Transform slotParentObject;
     private List<Transform> slotPositions = new List<Transform>();
     private Dictionary<IngredientType, (GameObject slot, TextMeshProUGUI text)> ingredientSlots = new();
 
-    [SerializeField] private int indexPanel;
+    private static Action onInventoryOpen;
 
-    public int IndexPanel { get => indexPanel; }
+    public static Action OnInventoryOpen { get => onInventoryOpen; set => onInventoryOpen = value; }
 
 
     void Awake()
     {
+        SuscribeToUpdateManagerEvent();
+        SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
         GetComponents();
         InitializeSlots();
     }
 
-
-    public void OpenPanel()
+    // Simulacion de Update
+    void UpdateIngredientInventoryManagerUI()
     {
-        inventoryPanel.enabled = true;
-
-        foreach (var kvp in ingredientSlots)
-        {
-            kvp.Value.slot.SetActive(true);
-            int stock = IngredientInventoryManager.Instance.GetStock(kvp.Key);
-            kvp.Value.text.text = stock.ToString();
-        }
+        CheckInputs();
     }
 
-    public void ClosePanel()
+    void OnDestroy()
     {
-        inventoryPanel.enabled = false;
-
-        foreach (var kvp in ingredientSlots)
-        {
-            kvp.Value.slot.SetActive(false);
-        }
+        UnsuscribeToUpdateManagerEvent();
+        UnscribeToPauseManagerRestoreSelectedGameObjectEvent();
     }
 
+
+    private void SuscribeToUpdateManagerEvent()
+    {
+        UpdateManager.OnUpdate += UpdateIngredientInventoryManagerUI;
+    }
+
+    private void UnsuscribeToUpdateManagerEvent()
+    {
+        UpdateManager.OnUpdate -= UpdateIngredientInventoryManagerUI;
+    }
+
+    private void SuscribeToPauseManagerRestoreSelectedGameObjectEvent()
+    {
+        PauseManager.OnRestoreSelectedGameObject += OnRestoreCenterPointUICorrectlyIfGameWasPaused;
+    }
+
+    private void UnscribeToPauseManagerRestoreSelectedGameObjectEvent()
+    {
+        PauseManager.OnRestoreSelectedGameObject -= OnRestoreCenterPointUICorrectlyIfGameWasPaused;
+    }
+
+    // La funcionalidad basicamente es que si despuesa el juego mientras tiene abierto el inventario, desaparezca el punto de interaccion
+    private void OnRestoreCenterPointUICorrectlyIfGameWasPaused()
+    {
+        StartCoroutine(DisableCenterPointUICorrutine());
+    }
+
+    private IEnumerator DisableCenterPointUICorrutine()
+    {
+        yield return null;
+
+        if (inventoryPanel.enabled)
+        {
+            InteractionManagerUI.Instance.ShowOrHideCenterPointUI(false);
+        }
+    }
 
     private void GetComponents()
     {
+        playerModel = FindFirstObjectByType<PlayerModel>();
         slotParentObject = GameObject.Find("SlotObjects").transform;
 
         Transform slotParentPositions = GameObject.Find("SlotTransforms").transform;
@@ -73,6 +105,53 @@ public class IngredientInventoryManagerUI : MonoBehaviour, IBookableUI
 
             TextMeshProUGUI stockText = slotInstance.GetComponentInChildren<TextMeshProUGUI>();
             ingredientSlots[type] = (slotInstance, stockText);
+        }
+    }
+
+    private void CheckInputs()
+    {
+        if (PlayerInputs.Instance == null) return;
+        if (PauseManager.Instance == null) return;
+        if (PauseManager.Instance.IsGamePaused) return;
+        if (playerModel.IsAdministrating || playerModel.IsCooking || playerModel.IsInTutorial) return;
+
+        if (PlayerInputs.Instance.Inventory() && !inventoryPanel.enabled)
+        {
+            AudioManager.Instance.PlayOneShotSFX("OpenOrCloseInventory");
+            OpenInventory();
+            return;
+        }
+
+        else if (PlayerInputs.Instance.Inventory() && inventoryPanel.enabled)
+        {
+            AudioManager.Instance.PlayOneShotSFX("OpenOrCloseInventory");
+            CloseInventory();
+            return;
+        }
+    }
+
+    private void OpenInventory()
+    {
+        onInventoryOpen?.Invoke();
+        InteractionManagerUI.Instance.ShowOrHideCenterPointUI(false);
+        inventoryPanel.enabled = true;
+
+        foreach (var kvp in ingredientSlots)
+        {
+            kvp.Value.slot.SetActive(true);
+            int stock = IngredientInventoryManager.Instance.GetStock(kvp.Key);
+            kvp.Value.text.text = stock.ToString();
+        }
+    }
+
+    private void CloseInventory()
+    {
+        InteractionManagerUI.Instance.ShowOrHideCenterPointUI(true);
+        inventoryPanel.enabled = false;
+
+        foreach (var kvp in ingredientSlots)
+        {
+            kvp.Value.slot.SetActive(false);
         }
     }
 }

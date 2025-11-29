@@ -65,7 +65,13 @@ public class Chest : MonoBehaviour, IInteractable
         InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
 
+    public bool TryGetInteractionMessage(out string message)
+    {
+        string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
+        message = $"Press {keyText} to enter administration";
 
+        return true;
+    }
     public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
     {
 

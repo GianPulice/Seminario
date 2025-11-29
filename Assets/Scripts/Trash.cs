@@ -1,12 +1,18 @@
 using UnityEngine;
 using System.Collections;
-using TMPro;
+using System;
 
 public class Trash : MonoBehaviour, IInteractable
 {
     private PlayerController playerController;
 
+    private static event Action onShowPanelTrash;
+    private static event Action onHidePanelTrash;
+
     public InteractionMode InteractionMode { get => InteractionMode.Press; }
+
+    public static Action OnShowPanelTrash { get => onShowPanelTrash; set => onShowPanelTrash = value; }
+    public static Action OnHidePanelTrash { get => onHidePanelTrash; set => onHidePanelTrash = value; }
 
 
     void Awake()
@@ -23,7 +29,8 @@ public class Trash : MonoBehaviour, IInteractable
 
     public void Interact(bool isPressed)
     {
-        PlayerController.OnThrowFoodToTrash?.Invoke();
+        playerController.PlayerModel.IsInTrashPanel = true;
+        onShowPanelTrash?.Invoke();
     }
 
     public void ShowOutline()
@@ -45,23 +52,20 @@ public class Trash : MonoBehaviour, IInteractable
         InteractionManagerUI.Instance.ModifyCenterPointUI(InteractionType.Normal);
     }
 
-    public void ShowMessage(TextMeshProUGUI interactionManagerUIText)
+    public bool TryGetInteractionMessage(out string message)
     {
         foreach (Transform child in playerController.PlayerView.Dish.transform)
         {
             if (child.childCount > 0)
             {
                 string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
-                interactionManagerUIText.text = $"Press" + keyText + "to throw food in the trash";
+                message = $"Press" + keyText + "to throw food in the trash";
+                return true;
             }
         }
+        message = string.Empty;
+        return false;
     }
-
-    public void HideMessage(TextMeshProUGUI interactionManagerUIText)
-    {
-        interactionManagerUIText.text = string.Empty;
-    }
-
 
     private void GetComponents()
     {

@@ -8,12 +8,13 @@ public class PlayerController : MonoBehaviour
     private PlayerCollisions playerCollisions;
 
     private FSM<PlayerStates> fsm;
+    private PlayerStateCook<PlayerStates> psCook;
+    private PlayerStateAdministration<PlayerStates> psAdmin;
 
     private static event Action onHandOverFood;
     private static event Action onTakeOrder;
     private static event Action<GameObject> onSupportFood;
     private static event Action onThrowFoodToTrash;
-    private static event Action onOpenOrCloseBook;
 
     // Estos 2 eventos corresponden a entregar el plato una vez tomado el pedido
     private static event Action<Table> onTableCollisionEnterForHandOverFood;
@@ -34,7 +35,6 @@ public class PlayerController : MonoBehaviour
     public static Action OnTakeOrder { get => onTakeOrder; set => onTakeOrder = value; }
     public static Action<GameObject> OnSupportFood { get => onSupportFood; set => onSupportFood = value; }
     public static Action OnThrowFoodToTrash { get => onThrowFoodToTrash; set => onThrowFoodToTrash = value; }
-    public static Action OnOpenOrCloseBook { get => onOpenOrCloseBook; set => onOpenOrCloseBook = value; }
 
     // Estos 2 eventos corresponden a Entregar el plato una vez tomado el pedido
     public static Action<Table> OnTableCollisionEnterForHandOverFood { get => onTableCollisionEnterForHandOverFood; set => onTableCollisionEnterForHandOverFood = value; }
@@ -61,17 +61,23 @@ public class PlayerController : MonoBehaviour
     {
         fsm.OnExecute();
         CheckInputs();
+        Debug.Log($"player Ready to Jump? {playerModel.ReadyToJump}");
     }
 
     // Simulacion de FixedUpdate
     void FixedUpdatePlayerController()
     {
-        playerModel.Movement();
+        playerModel.HandleMovement();
+        playerModel.HandleDrag();
+        playerModel.SpeedControl();
+        playerModel.HandleGravity();
     }
 
     void OnDestroy()
     {
         UnsuscribeToUpdateManagerEvents();
+        psCook.UnsuscribeToEventWhenPlayerDestroy();
+        psAdmin.UnsuscribeToEventWhenPlayerDestroy();
     }
 
     void OnCollisionEnter(Collision collision)
@@ -114,16 +120,16 @@ public class PlayerController : MonoBehaviour
         playerCollisions = new PlayerCollisions(this);
     }
 
-    private void InitializeFSM() 
+    private void InitializeFSM()
     {
         fsm = new FSM<PlayerStates>();
 
         PlayerStateIdle<PlayerStates> psIdle = new PlayerStateIdle<PlayerStates>(PlayerStates.Walk, PlayerStates.Jump, PlayerStates.Cook, PlayerStates.Admin, playerModel);
-        PlayerStateWalk<PlayerStates> psWalk = new PlayerStateWalk<PlayerStates> (PlayerStates.Idle, PlayerStates.Run, PlayerStates.Jump, PlayerStates.Cook, PlayerStates.Admin, playerModel);
+        PlayerStateWalk<PlayerStates> psWalk = new PlayerStateWalk<PlayerStates>(PlayerStates.Idle, PlayerStates.Run, PlayerStates.Jump, PlayerStates.Cook, PlayerStates.Admin, playerModel);
         PlayerStateJump<PlayerStates> psJump = new PlayerStateJump<PlayerStates>(PlayerStates.Idle, playerModel);
-        PlayerStateCook<PlayerStates> psCook = new PlayerStateCook<PlayerStates>(PlayerStates.Idle, playerModel, playerView);
+        psCook = new PlayerStateCook<PlayerStates>(PlayerStates.Idle, playerModel, playerView);
         PlayerStateRun<PlayerStates> psRun = new PlayerStateRun<PlayerStates>(PlayerStates.Idle, PlayerStates.Walk, PlayerStates.Jump, PlayerStates.Cook, PlayerStates.Admin, playerModel);
-        PlayerStateAdministration<PlayerStates> psAdmin = new PlayerStateAdministration<PlayerStates>(PlayerStates.Idle, playerModel, playerView);
+        psAdmin = new PlayerStateAdministration<PlayerStates>(PlayerStates.Idle, playerModel, playerView);
 
         psIdle.AddTransition(PlayerStates.Walk, psWalk);
         psIdle.AddTransition(PlayerStates.Jump, psJump);
@@ -135,7 +141,7 @@ public class PlayerController : MonoBehaviour
         psWalk.AddTransition(PlayerStates.Cook, psCook);
         psWalk.AddTransition(PlayerStates.Run, psRun);
         psWalk.AddTransition(PlayerStates.Admin, psAdmin);
-        
+
         psJump.AddTransition(PlayerStates.Idle, psIdle);
         psJump.AddTransition(PlayerStates.Walk, psWalk);
 
@@ -158,17 +164,13 @@ public class PlayerController : MonoBehaviour
         if (PlayerInputs.Instance == null) return;
         if (PauseManager.Instance == null) return;
         if (PauseManager.Instance.IsGamePaused) return;
-        if (playerModel.IsCooking || playerModel.IsAdministrating || playerModel.IsInTeleportPanel) return;
+        if (playerModel.IsCooking || playerModel.IsAdministrating || playerModel.IsInTeleportPanel || playerModel.IsInTrashPanel || playerModel.IsInTutorial) return;
 
         ShowOrHideDish();
-        OpenBook();
     }
 
     private void ShowOrHideDish()
     {
-        if (BookManagerUI.Instance == null) return;
-        if (BookManagerUI.Instance.IsBookOpen) return;
-
         if (PlayerInputs.Instance.ShowOrHideDish())
         {
             foreach (Transform child in playerView.Dish.transform)
@@ -179,21 +181,15 @@ public class PlayerController : MonoBehaviour
 
             if (playerView.Dish.activeSelf)
             {
+                AudioManager.Instance.PlayOneShotSFX("ShowOrHideDish");
                 playerView.ShowOrHideDish(false);
             }
 
             else
             {
+                AudioManager.Instance.PlayOneShotSFX("ShowOrHideDish");
                 playerView.ShowOrHideDish(true);
             }
-        }   
-    }
-
-    private void OpenBook()
-    {
-        if (PlayerInputs.Instance.Book())
-        {
-            onOpenOrCloseBook?.Invoke();
         }
     }
 }

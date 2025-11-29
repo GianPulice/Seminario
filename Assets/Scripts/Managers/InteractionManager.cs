@@ -5,24 +5,40 @@ public class InteractionManager : Singleton<InteractionManager>
     [SerializeField] private InteractionManagerData interactionManagerData;
 
     private IInteractable currentTarget;
-    private IInteractable previousTarget;
 
+    private bool isPlayerInUI = false;
+    
 
     void Awake()
     {
         CreateSingleton(true);
+        SuscribeToPlayerViewEvents();
         SuscribeToUpdateManagerEvent();
         SuscribeToScenesManagerEvent();
-        SuscribeToBookManagerUI();
     }
 
     // Simulacion de Update
     void UpdateInteractionManager()
     {
+        if (isPlayerInUI) return;
         DetectTarget();
         InteractWithTarget();
     }
 
+
+    private void SuscribeToPlayerViewEvents()
+    {
+        PlayerView.OnEnterTutorial += HandlePlayerEnterUI;
+        PlayerView.OnEnterInAdministrationMode += HandlePlayerEnterUI;
+        PlayerView.OnEnterInCookMode += HandlePlayerEnterUI;
+
+        PlayerView.OnExitInAdministrationMode += HandlePlayerExitUI;
+        PlayerView.OnExitInCookMode += HandlePlayerExitUI;
+        PlayerView.OnExitTutorial += HandlePlayerExitUI;
+
+        Trash.OnShowPanelTrash += HandlePlayerEnterUI;
+        Trash.OnHidePanelTrash += HandlePlayerExitUI;
+    }
 
     private void SuscribeToUpdateManagerEvent()
     {
@@ -31,76 +47,81 @@ public class InteractionManager : Singleton<InteractionManager>
 
     private void SuscribeToScenesManagerEvent()
     {
-        ScenesManager.Instance.OnSceneLoadedEvent += OnCleanReferencesWhenChangeScene;
+        ScenesManager.Instance.OnSceneLoadedEvent += OnCleanReferences;
+        IngredientInventoryManagerUI.OnInventoryOpen += OnCleanReferences;
     }
 
-    private void SuscribeToBookManagerUI()
+    private void OnCleanReferences()
     {
-        BookManagerUI.OnHideOutlinesAndTextsFromInteractableElements += HideAllOutlinesAndTexts;
-    }
+        if (currentTarget != null)
+        {
+            HideCurrentTargetUI();
+        }
 
-    private void OnCleanReferencesWhenChangeScene()
-    {
-        previousTarget = null;
         currentTarget = null;
     }
 
-    private void HideAllOutlinesAndTexts()
+    private bool ShowCurrentTargetUI()
     {
-        previousTarget?.HideOutline();
-        previousTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-        currentTarget?.HideOutline();
-        currentTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
+        if (currentTarget == null || InteractionManagerUI.Instance == null) return false;
+       
+        if (currentTarget.TryGetInteractionMessage(out string message))
+        {
+            currentTarget.ShowOutline();
+            InteractionManagerUI.Instance.MessageAnimator.Show(message);
+            return true;
+        }
 
-        OnCleanReferencesWhenChangeScene();
+        else
+        {
+            HideCurrentTargetUI();
+            return false;
+        }
+    }
+
+    private void HideCurrentTargetUI()
+    {
+        // No hacer nada si no hay objetivo
+        if (currentTarget == null) return;
+
+        currentTarget.HideOutline();
+
+        if (InteractionManagerUI.Instance != null)
+        {
+            InteractionManagerUI.Instance.MessageAnimator.Hide();
+        }
     }
 
     private void DetectTarget()
     {
         if (InteractionManagerUI.Instance == null) return;
         if (!InteractionManagerUI.Instance.CenterPointUI.gameObject.activeSelf) return;
-        if (ScenesManager.instance.CurrentSceneName == "Tabern")
-        {
-            if (BookManagerUI.Instance == null) return;
-            if (BookManagerUI.Instance.IsBookOpen) return;
-        }
 
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
+        IInteractable newTarget = null;
 
-        // Si no hay target y antes había uno, limpiamos
-        if (previousTarget != null)
+        if (Physics.Raycast(ray, out RaycastHit hit, interactionManagerData.InteractionDistance, LayerMask.GetMask("Interactable", "InteractableFood")))
         {
-            previousTarget?.HideOutline();
-            previousTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-            currentTarget?.HideOutline();
-            currentTarget?.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-           
-            previousTarget = null;
-            currentTarget = null;
+            newTarget = hit.collider.GetComponent<IInteractable>() ??
+                        hit.collider.GetComponentInChildren<IInteractable>() ??
+                        hit.collider.GetComponentInParent<IInteractable>();
         }
 
-        if (Physics.Raycast(ray, out RaycastHit hit, interactionManagerData.InteractionDistance, LayerMask.GetMask("Interactable")))
+        if (newTarget != currentTarget)
         {
-            IInteractable hitTarget = hit.collider.GetComponent<IInteractable>()?? hit.collider.GetComponentInChildren<IInteractable>()?? hit.collider.GetComponentInParent<IInteractable>();
-
-            if (hitTarget != null)
+            if (currentTarget != null)
             {
+                HideCurrentTargetUI();
+            }
 
-                if (hitTarget != previousTarget && previousTarget != null)
-                {
-                    previousTarget.HideOutline();
-                    previousTarget.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-                   
-                }
+            currentTarget = newTarget;
+        }
 
-                currentTarget = hitTarget;
-                previousTarget = hitTarget;
-
-                // Mostrar outline siempre, aunque sea el mismo objeto
-                currentTarget.ShowOutline();
-                currentTarget.ShowMessage(InteractionManagerUI.Instance.InteractionMessageText);
-               
-                return;
+        if (currentTarget != null)
+        {
+            if (!ShowCurrentTargetUI())
+            {
+                currentTarget = null;
             }
         }
     }
@@ -109,11 +130,7 @@ public class InteractionManager : Singleton<InteractionManager>
     {
         if (InteractionManagerUI.Instance == null) return;
         if (!InteractionManagerUI.Instance.CenterPointUI.gameObject.activeSelf) return;
-        if (ScenesManager.instance.CurrentSceneName == "Tabern")
-        {
-            if (BookManagerUI.Instance == null) return;
-            if (BookManagerUI.Instance.IsBookOpen) return;
-        }
+
         if (currentTarget != null && !PauseManager.Instance.IsGamePaused)
         {
             switch (currentTarget.InteractionMode)
@@ -122,9 +139,10 @@ public class InteractionManager : Singleton<InteractionManager>
                     if (PlayerInputs.Instance.InteractPress())
                     {
                         currentTarget.Interact(true);
-                        currentTarget.HideOutline();
-                        currentTarget.HideMessage(InteractionManagerUI.Instance.InteractionMessageText);
-                        
+
+                        HideCurrentTargetUI();
+
+                        currentTarget = null;
                     }
                     break;
 
@@ -132,16 +150,33 @@ public class InteractionManager : Singleton<InteractionManager>
                     if (PlayerInputs.Instance.InteractHold())
                     {
                         currentTarget.Interact(true);
-                        
                     }
-
                     else
                     {
                         currentTarget.Interact(false);
-                      
                     }
                     break;
             }
         }
+    }
+
+    private void HandlePlayerEnterUI()
+    {
+        isPlayerInUI = true;
+
+        if (currentTarget != null)
+        {
+            currentTarget.HideOutline();
+            if (InteractionManagerUI.Instance != null)
+            {
+                InteractionManagerUI.Instance.MessageAnimator.Hide();
+            }
+            currentTarget = null;
+        }
+    }
+
+    private void HandlePlayerExitUI()
+    {
+        isPlayerInUI = false;
     }
 }

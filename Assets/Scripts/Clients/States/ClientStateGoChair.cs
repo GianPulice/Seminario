@@ -7,7 +7,9 @@ public class ClientStateGoChair<T> : State<T>
     private ClientView clientView;
     private Func<Transform> getTargetTransform;
 
-    private float distanceToChair = 6f;
+    private float distanceToChair = 12f;
+
+    private bool isNearTable = false;
 
 
     public ClientStateGoChair(ClientModel clientModel, ClientView clientView, Func<Transform> getTargetTransform)
@@ -39,13 +41,16 @@ public class ClientStateGoChair<T> : State<T>
     public override void Exit() 
     { 
         base.Exit();
+
+        isNearTable = false;
     }
 
 
     private void CheckDistanceFromTransformToCurrentChair()
     {
-        if (Vector3.Distance(clientModel.transform.position, clientModel.CurrentTable.ChairPosition.position) <= distanceToChair)
+        if (!isNearTable && Vector3.Distance(clientModel.transform.position, clientModel.CurrentTable.ChairPosition.position) <= distanceToChair)
         {
+            isNearTable = true;
             clientModel.CurrentTable.SetNavMeshObstacles(false);
         }
     }

@@ -27,6 +27,8 @@ public class PlayerStateRun<T> : State<T>
         //Debug.Log("Run");
 
         playerModel.Speed = playerModel.PlayerTabernData.RunSpeed;
+
+        //AudioManager.Instance.PlayLoopSFX("PlayerFootSteps");
     }
 
     public override void Execute()
@@ -43,7 +45,7 @@ public class PlayerStateRun<T> : State<T>
             Fsm.TransitionTo(inputToWalk);
         }
 
-        if (PlayerInputs.Instance.Jump() && playerModel.IsGrounded && !playerModel.IsInTeleportPanel)
+        if (PlayerInputs.Instance.Jump() && playerModel.IsGrounded && playerModel.ReadyToJump && !playerModel.IsInTeleportPanel && !playerModel.IsInTrashPanel && !playerModel.IsInTutorial)
         {
             Fsm.TransitionTo(inputToJump);
         }
@@ -57,5 +59,12 @@ public class PlayerStateRun<T> : State<T>
         {
             Fsm.TransitionTo(inputToAdmin);
         }
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+
+        //AudioManager.Instance.StopLoopSFX("PlayerFootSteps");
     }
 }

@@ -54,7 +54,13 @@ public class Teleport : MonoBehaviour, IInteractable
     {
        
     }
+    public bool TryGetInteractionMessage(out string message)
+    {
+        string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
+        message = $"Press {keyText} to enter administration";
 
+        return true;
+    }
     private IEnumerator RegisterOutline()
     {
         yield return new WaitUntil(()=>OutlineManager.Instance != null);

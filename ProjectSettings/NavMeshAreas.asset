@@ -13,22 +13,22 @@ NavMeshProjectSettings:
     cost: 2
   - name: Trap
     cost: 3
+  - name: DesiredPath
+    cost: 0
+  - name: Walls
+    cost: 99
+  - name: 
+    cost: 1
+  - name: GoingAcross
+    cost: 3
   - name: 
     cost: 1
   - name: 
     cost: 1
   - name: 
     cost: 1
-  - name: 
-    cost: 1
-  - name: 
-    cost: 1
-  - name: 
-    cost: 1
-  - name: 
-    cost: 1
-  - name: 
-    cost: 1
+  - name: Alternate Path
+    cost: 15
   - name: 
     cost: 1
   - name: 
@@ -76,7 +76,7 @@ NavMeshProjectSettings:
     agentRadius: 0.5
     agentHeight: 2
     agentSlope: 45
-    agentClimb: 0.75
+    agentClimb: 0.1
     ledgeDropHeight: 0
     maxJumpAcrossDistance: 0
     minRegionArea: 2
@@ -94,7 +94,7 @@ NavMeshProjectSettings:
     agentRadius: 0.5
     agentHeight: 2
     agentSlope: 45
-    agentClimb: 0.4
+    agentClimb: 0.2501
     ledgeDropHeight: 0
     maxJumpAcrossDistance: 0
     minRegionArea: 2

@@ -27,7 +27,13 @@ public class IngredientPickup : MonoBehaviour, IInteractable
         Debug.Log($"+{amount} {ingredient}");
         if (destroyOnPickup) Destroy(gameObject);
     }
+    public bool TryGetInteractionMessage(out string message)
+    {
+        string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
+        message = $"Press {keyText} to enter administration";
 
+        return true;
+    }
     public void ShowMessage(TMPro.TextMeshProUGUI interactionManagerUIText)
     {
         throw new System.NotImplementedException();

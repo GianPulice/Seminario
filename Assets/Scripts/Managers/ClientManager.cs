@@ -1,37 +1,63 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClientManager : MonoBehaviour
+public class ClientManager : Singleton<ClientManager>
 {
     [SerializeField] private ClientManagerData clientManagerData;
 
     [SerializeField] private Transform spawnPosition, outsidePosition;
+    [SerializeField] private List<WaitingChairPosition> waitingChairsPositions;
 
     [SerializeField] private AbstractFactory clientAbstractFactory;
     [SerializeField] private List<ObjectPooler> clientPools;
     [SerializeField] private List<FoodTypeSpritePair> foodSpritePairs;
 
+    private List<ClientType> availableClientTypes = new List<ClientType>();
+
     private Dictionary<ClientType, ObjectPooler> clientPoolDictionary = new();
     private Dictionary<FoodType, Sprite> foodSpriteDict = new();
 
     private float spawnTime = 0f;
+    private float nextSpawnTime;
 
     private bool isTabernOpen = false;
+    private bool canOpenTabern = true;
 
     [SerializeField] private bool spawnDifferentTypeOfClients;
     [SerializeField] private bool spawnTheSameClient;
 
+    public ClientManagerData ClientManagerData { get => clientManagerData; }
+
     public Transform SpawnPosition { get => spawnPosition; }
     public Transform OutsidePosition { get => outsidePosition; }
 
+    public List<ClientType> AvailableClientTypes { get => availableClientTypes; set => availableClientTypes = value; }
+
+    public bool IsTabernOpen { get => isTabernOpen; }
+
+    public bool CanCloseTabern
+    {
+        get
+        {
+            return OrdersManagerUI.Instance.TotalOrdersBeforeTabernOpen >= clientManagerData.MinimumOrdersServedToCloseTabern;
+        }
+    }
 
     void Awake()
     {
+        CreateSingleton(false);
         SuscribeToUpdateManagerEvent();
         SuscribeToOpenTabernButtonEvent();
         InitializeClientPoolDictionary();
         InitializeFoodSpriteDictionary();
+        InitializeCurrentClientsThatCanSpawn();
+    }
+
+    void Start()
+    {
+        StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
     }
 
     // Simulacion de Update
@@ -46,6 +72,36 @@ public class ClientManager : MonoBehaviour
         UnsuscribeToOpenTabernButtonEvent();
     }
 
+
+    public Transform GetAvailableWaitingChairsPositions(ClientModel client)
+    {
+        foreach (var chair in waitingChairsPositions)
+        {
+            if (!chair.IsOccupied)
+            {
+                chair.IsOccupied = true;
+                chair.CurrentClient = client;
+                return chair.Position;
+            }
+        }
+
+        return null;
+    }
+
+    public void ReleaseWaitingChair(ClientModel client)
+    {
+        foreach (var chair in waitingChairsPositions)
+        {
+            if (chair.CurrentClient == client)
+            {
+                chair.IsOccupied = false;
+                chair.CurrentClient = null;
+                break;
+            }
+        }
+
+        ReorderClientsInQueue();
+    }
 
     public Sprite GetSpriteForRandomFood(FoodType foodType)
     {
@@ -83,25 +139,18 @@ public class ClientManager : MonoBehaviour
     private void SuscribeToOpenTabernButtonEvent()
     {
         AdministratingManagerUI.OnStartTabern += SetIsTabernOpen;
+        AdministratingManagerUI.OnCloseTabern += SetIsTabernClosed;
     }
 
     private void UnsuscribeToOpenTabernButtonEvent()
     {
         AdministratingManagerUI.OnStartTabern -= SetIsTabernOpen;
+        AdministratingManagerUI.OnCloseTabern -= SetIsTabernClosed;
     }
-
-    /*private System.Collections.IEnumerator InitializeRandomClient()
-    {
-        yield return new WaitUntil(() => System.Linq.Enumerable.All(clientPools, p => p != null && p.Prefab != null));
-        
-        int randomIndex = UnityEngine.Random.Range(0, clientPools.Count);
-        string prefabName = clientPools[randomIndex].Prefab.name;
-        clientAbstractFactory.CreateObject(prefabName);
-    }*/
 
     private void SpawnClients()
     {
-        if (isTabernOpen)
+        if (isTabernOpen && GetIfAllWaitingChairPositionsAreOccupied())
         {
             if (spawnTheSameClient)
             {
@@ -117,33 +166,109 @@ public class ClientManager : MonoBehaviour
 
     private void SetIsTabernOpen()
     {
-        isTabernOpen = true;
+        if (canOpenTabern)
+        {
+            StartCoroutine(PlayCurrentTabernMusic("TabernOpen"));
+            canOpenTabern = false;
+            isTabernOpen = true;
+            SetRandomSpawnTime();
+        }
+    }
+
+    private void SetIsTabernClosed()
+    {
+        if (OrdersManagerUI.Instance.TotalOrdersBeforeTabernOpen >= clientManagerData.MinimumOrdersServedToCloseTabern)
+        {
+            StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
+            isTabernOpen = false;
+            OrdersManagerUI.Instance.RemoveTotalOrdersWhenCloseTabern();
+            StartCoroutine(DelayForOpenTabernAgain());
+        }
+    }
+
+    private void SetRandomSpawnTime()
+    {
+        nextSpawnTime = UnityEngine.Random.Range(clientManagerData.MinSpawnTime, clientManagerData.MaxSpawnTime);
     }
 
     private void GetClientRandomFromPool()
     {
         spawnTime += Time.deltaTime;
 
-        if (spawnTime >= clientManagerData.TimeToWaitForSpawnNewClient)
+        if (spawnTime >= nextSpawnTime)
         {
-            int randomIndex = UnityEngine.Random.Range(0, clientPools.Count);
-            string prefabName = clientPools[randomIndex].Prefab.name;
-            clientAbstractFactory.CreateObject(prefabName);
-            
+            ClientType? selectedType = clientManagerData.GetRandomClient(availableClientTypes);
+
+            if (selectedType.HasValue)
+            {
+                if (clientPoolDictionary.TryGetValue(selectedType.Value, out ObjectPooler pool))
+                {
+                    string prefabName = pool.Prefab.name;
+                    clientAbstractFactory.CreateObject(prefabName);
+                    StartCoroutine(PlaySoundWhenEnterTabern());
+                }
+            }
+
             spawnTime = 0f;
+            SetRandomSpawnTime();
         }
     }
 
+    // Testeo solo para Devs
     private void GetTheSameClientFromPool()
     {
         spawnTime += Time.deltaTime;
 
-        if (spawnTime > clientManagerData.TimeToWaitForSpawnNewClient)
+        if (spawnTime > 5)
         {
             clientAbstractFactory.CreateObject("ClientGoblin");
 
             spawnTime = 0f;
         }
+    }
+
+    private void ReorderClientsInQueue()
+    {
+        waitingChairsPositions.Sort((a, b) => a.PriorityIndex.CompareTo(b.PriorityIndex));
+
+        // Recorrer las sillas en orden
+        for (int i = 0; i < waitingChairsPositions.Count; i++)
+        {
+            // Si esta silla está libre y hay alguien detrás
+            if (!waitingChairsPositions[i].IsOccupied)
+            {
+                for (int j = i + 1; j < waitingChairsPositions.Count; j++)
+                {
+                    var clientBehind = waitingChairsPositions[j].CurrentClient;
+                    if (clientBehind != null)
+                    {
+                        // Mover cliente al hueco
+                        waitingChairsPositions[i].CurrentClient = clientBehind;
+                        waitingChairsPositions[i].IsOccupied = true;
+
+                        waitingChairsPositions[j].CurrentClient = null;
+                        waitingChairsPositions[j].IsOccupied = false;
+
+                        clientBehind.MoveToTarget(waitingChairsPositions[i].Position.position);
+                        break; // solo mueve uno por iteración
+                    }
+                }
+            }
+        }
+    }
+
+    // Devuelve true si hay sillas de espera que no estan ocupadas, sino devuelve false
+    private bool GetIfAllWaitingChairPositionsAreOccupied()
+    {
+        foreach (var chair in waitingChairsPositions)
+        {
+            if (!chair.IsOccupied)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void InitializeClientPoolDictionary()
@@ -170,6 +295,33 @@ public class ClientManager : MonoBehaviour
             }
         }
     }
+
+    private void InitializeCurrentClientsThatCanSpawn()
+    {
+        availableClientTypes.Clear();
+        availableClientTypes.Add(ClientType.Goblin);
+    }
+
+    private IEnumerator DelayForOpenTabernAgain()
+    {
+        yield return new WaitForSeconds(clientManagerData.DelayToOpenTabernAgainAfterClose);
+
+        canOpenTabern = true;
+    }
+
+    private IEnumerator PlayCurrentTabernMusic(string musicClipName)
+    {
+        yield return new WaitUntil(() => AudioManager.Instance != null);
+
+        StartCoroutine(AudioManager.Instance.PlayMusic(musicClipName));
+    }
+
+    private IEnumerator PlaySoundWhenEnterTabern()
+    {
+        yield return new WaitForSeconds(4);
+
+        AudioManager.Instance.PlayOneShotSFX("ClientEnterTabern");
+    }
 }
 
 [Serializable]
@@ -180,4 +332,20 @@ public class FoodTypeSpritePair
 
     public FoodType FoodType { get => foodType; }
     public Sprite Sprite { get => sprite; }
+}
+
+[Serializable]
+public class WaitingChairPosition
+{
+    [SerializeField] private Transform position;
+    [SerializeField] private int priorityIndex;
+
+    private ClientModel currentClient;
+    private bool isOccupied = false;
+
+    public Transform Position { get => position; }
+    public int PriorityIndex { get => priorityIndex; }  
+
+    public ClientModel CurrentClient { get => currentClient; set => currentClient = value; }
+    public bool IsOccupied { get => isOccupied; set => isOccupied = value; }
 }

@@ -7,6 +7,8 @@ public class OutlineManager : Singleton<OutlineManager>
 
     private Dictionary<GameObject, Outline> outlines = new();
 
+    public OutlineManagerData OutlineManagerData { get => outlineManagerData; }
+
 
     void Awake()
     {
@@ -43,6 +45,7 @@ public class OutlineManager : Singleton<OutlineManager>
 
         if (outlines.TryGetValue(obj, out Outline outline))
         {
+            outline.OutlineColor = outlineManagerData.DefaultOutlineColor;
             outline.OutlineWidth = outlineManagerData.ActiveWidth;
         }
     }

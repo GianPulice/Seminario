@@ -53,11 +53,9 @@ public class PlayerCamera : MonoBehaviour
 
     private void UpdateCameraFollow()
     {
-        if (BookManagerUI.Instance == null) return;
-        if (BookManagerUI.Instance.IsBookOpen) return;
         if (PauseManager.Instance == null) return;
         if (PauseManager.Instance.IsGamePaused) return;
-        if (playerModel.IsCooking || playerModel.IsAdministrating || playerModel.IsInTeleportPanel) return;
+        if (playerModel.IsCooking || playerModel.IsAdministrating || playerModel.IsInTeleportPanel || playerModel.IsInTrashPanel|| playerModel.IsInTutorial) return;
 
         cameraOffset = new Vector3(0f, offSetY, 0.3f);
 

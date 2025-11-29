@@ -13,13 +13,10 @@ public enum ClientType
 
 public class ClientModel : MonoBehaviour
 {
-    /// <summary>
-    /// El bug del Animation gameObject que se separa del padre esta solucionado, ya que vuelve a su posicion cuando entra en idle
-    /// </summary>
-    /// 
     [SerializeField] private ClientData clientData;
 
     private ClientManager clientManager;
+    private OrderDataUI currentOrderDataUI;
 
     private Rigidbody rb;
     private NavMeshAgent navMeshAgent;
@@ -31,21 +28,29 @@ public class ClientModel : MonoBehaviour
     [SerializeField] private ClientType clientType;
 
     private bool isInstantiateFirstTime = true;
+    private bool wasTableDirtyWhenSeated = false;
 
     public ClientData ClientData { get => clientData; }
 
     public ClientManager ClientManager { get => clientManager; }
+    public OrderDataUI CurrentOrderDataUI { get => currentOrderDataUI; set => currentOrderDataUI = value; }
 
     public NavMeshAgent NavMeshAgent { get => navMeshAgent; }
     public Table CurrentTable { get => currentTable; set => currentTable = value; }
 
     public ClientType ClientType { get => clientType; }
 
+    public bool WasTableDirtyWhenSeated { get => wasTableDirtyWhenSeated; set => wasTableDirtyWhenSeated = value; }
+
 
     void Awake()
     {
         GetComponents();
         InitializeValuesFromNavMeshAgent();
+
+        /// Provisorio
+        navMeshAgent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
+        //navMeshAgent.avoidancePriority = 0;
     }
 
     void OnEnable()
@@ -62,6 +67,7 @@ public class ClientModel : MonoBehaviour
         }
     }
 
+    // SetDestination ademas de rotar al player hacia el destino, frana gradualmente la velocidad cuando llega al destiono
     public void MoveToTarget(Vector3 target)
     {
         navMeshAgent.isStopped = false;
