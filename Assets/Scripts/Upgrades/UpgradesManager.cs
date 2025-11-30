@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +8,10 @@ public class UpgradesManager : Singleton<UpgradesManager>
     private List<IUpgradable> upgrades = new List<IUpgradable>();
 
     private int purchasedUpgradesCount = 0;
+
     public int PurchasedUpgradesCount => purchasedUpgradesCount;
+    public bool AllUpgradesPurchased => purchasedUpgradesCount >= upgrades.Count;
+    public bool reachedMoneyToPurchase => !AllUpgradesPurchased && MoneyManager.instance.CurrentMoney >= upgrades[purchasedUpgradesCount].UpgradesData.Cost;
     void Awake()
     {
         CreateSingleton(false);
