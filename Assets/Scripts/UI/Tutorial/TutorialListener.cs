@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class TutorialListener : Singleton<TutorialListener>
@@ -14,6 +15,10 @@ public class TutorialListener : Singleton<TutorialListener>
     private void OnDestroy()
     {
         UnsubscribeFromTutorialEvents();
+    }
+    public bool AllTutorialsSeen()
+    {
+        return tutorialFlags.Values.All(flag => flag == false);
     }
     private void InitializeFlags()
     {
@@ -52,4 +57,5 @@ public class TutorialListener : Singleton<TutorialListener>
         Debug.Log($"Tutorial triggered: {type}");
         TutorialScreensManager.Instance.SetTutorialType(type);
     }
+    
 }

@@ -10,6 +10,7 @@ public class PauseManager : Singleton<PauseManager>
     [SerializeField] private GameObject pauseOpacity;
     [SerializeField] private GameObject pauseText;
     [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private GameObject tutorialPanel;
 
     [Header("UI Elements")]
     [Tooltip("El GameObject que contiene TODOS los botones principales de pausa (Resume, Settings, etc.)")]
@@ -18,6 +19,7 @@ public class PauseManager : Singleton<PauseManager>
     [SerializeField] private GameObject firstSelectedButton;
     [Tooltip("El botón que debe seleccionarse al volver de Settings (Ej: el botón 'Settings')")]
     [SerializeField] private GameObject settingsSelectedButton;
+    [SerializeField] private GameObject tutorialSelectedButton;
 
     private PlayerModel playerModel;
 
@@ -89,7 +91,12 @@ public class PauseManager : Singleton<PauseManager>
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         ShowSettings();
     }
-
+    public void ButtonTutorial()
+    {
+        if (!tutorialSelectedButton.activeSelf) return;
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        ShowTutorial();
+    }
     public void ButtonMainMenu()
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
@@ -113,6 +120,7 @@ public class PauseManager : Singleton<PauseManager>
         ignoreFirstSelectedSound = true;
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         HideSettings();
+        HideTutorial();
     }
     public void OnPausePanelShowComplete()
     {
@@ -217,9 +225,11 @@ public class PauseManager : Singleton<PauseManager>
                 InteractionManagerUI.instance.MessageAnimator.HideInstantly();
             }
         }
-
         onGamePaused?.Invoke();
             
+        bool allTutorialsSeen = TutorialListener.Instance.AllTutorialsSeen();
+        tutorialSelectedButton.SetActive(allTutorialsSeen);
+        
         AudioManager.Instance.PauseCurrentMusic();
         StartCoroutine(AudioManager.Instance.PlayMusic("Pause"));
         pauseOpacity.SetActive(true);
@@ -277,6 +287,15 @@ public class PauseManager : Singleton<PauseManager>
         pauseText.SetActive(true);
         settingsPanel.SetActive(false);
         EventSystem.current.SetSelectedGameObject(settingsSelectedButton);
+    }
+    private void ShowTutorial()
+    {
+        tutorialPanel.SetActive(true);
+    }
+    private void HideTutorial()
+    {
+        tutorialPanel.SetActive(false);
+        EventSystem.current.SetSelectedGameObject(tutorialSelectedButton);
     }
 
     private void EnabledOrDisabledPausePanel()

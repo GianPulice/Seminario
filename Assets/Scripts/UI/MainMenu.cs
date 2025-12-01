@@ -10,6 +10,7 @@ public class MainMenu : MonoBehaviour
 
     //Cambiar aca despues de hacer el nuevo sistema de tabs.
     [SerializeField] private GameObject panelSettings;
+    [SerializeField] private GameObject panelTutorial;
 
     private static event Action<List<GameObject>> onSendButtonsToEventSystem;
     private static event Action onButtonSettingsClickToShowCorrectPanel;
@@ -88,7 +89,11 @@ public class MainMenu : MonoBehaviour
         panelSettings.SetActive(true);
         onButtonSettingsClickToShowCorrectPanel?.Invoke();
     }
-
+    public void ButtonTutorial()
+    {
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+        panelTutorial.SetActive(true);
+    }
     public void ButtonCredits()
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
@@ -122,6 +127,7 @@ public class MainMenu : MonoBehaviour
         }
 
         panelSettings.SetActive(false);
+        panelTutorial.SetActive(false);
         EventSystem.current.SetSelectedGameObject(buttonsMainMenu[2].gameObject);
     }
 
