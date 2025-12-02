@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -20,6 +21,7 @@ public class ClientModel : MonoBehaviour
 
     private Rigidbody rb;
     private NavMeshAgent navMeshAgent;
+    private List<SkinnedMeshRenderer> skinnedMeshRenderers;
     private AudioSource audioSource3D;
     private CapsuleCollider capsuleCollider;
     private Table currentTable;
@@ -123,6 +125,7 @@ public class ClientModel : MonoBehaviour
 
         rb = GetComponent<Rigidbody>();
         navMeshAgent = GetComponent<NavMeshAgent>();
+        skinnedMeshRenderers = new List<SkinnedMeshRenderer>(GetComponentsInChildren<SkinnedMeshRenderer>(true));
         audioSource3D = GetComponentInChildren<AudioSource>();
         capsuleCollider =  GetComponent<CapsuleCollider>();
     }
@@ -132,14 +135,25 @@ public class ClientModel : MonoBehaviour
         navMeshAgent.speed = clientData.Speed;
     }
 
-    public void InitializeSpawnPosition()
+    private void InitializeSpawnPosition()
     {
         transform.position = clientManager.SpawnPosition.position;
     }
 
-    public void InitializeTablePosition()
+    private void InitializeTablePosition()
     {
         currentTable = TablesManager.Instance.GetRandomAvailableTableForClient();
+    }
+
+    private void SelectRandomSkinnedMeshRenderer()
+    {
+        for (int i = 0; i < skinnedMeshRenderers.Count; i++)
+        {
+            skinnedMeshRenderers[i].gameObject.SetActive(false);
+        }
+
+        int randomNumber = Random.Range(0, skinnedMeshRenderers.Count);
+        skinnedMeshRenderers[randomNumber].gameObject.SetActive(true);
     }
 
     private void InitializeClientForPool()
@@ -148,6 +162,7 @@ public class ClientModel : MonoBehaviour
         {
             InitializeSpawnPosition();
             InitializeTablePosition();
+            SelectRandomSkinnedMeshRenderer();
             return;
         }
 

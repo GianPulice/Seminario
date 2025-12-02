@@ -4,13 +4,19 @@ using UnityEngine;
 
 public class RecipeProgressManager : Singleton<RecipeProgressManager>
 {
+    [Header("Recetas desbloqueadas por defecto")]
     [SerializeField] private List<FoodRecipeData> defaultRecipes;
+
+    [Header("Todas las recetas del juego")]
+    [SerializeField] private List<FoodRecipeData> allRecipes;
 
     private HashSet<FoodType> unlockedRecipes = new HashSet<FoodType>();
     private HashSet<IngredientType> unlockedIngredients = new HashSet<IngredientType>();
 
     private event Action<FoodType> onRecipeUnlocked;
     private event Action<IngredientType> onIngredientUnlocked;
+
+    public IReadOnlyList<FoodRecipeData> AllRecipes => allRecipes;
 
     public Action<FoodType> OnRecipeUnlocked { get => onRecipeUnlocked; set => onRecipeUnlocked = value; }
     public Action<IngredientType> OnIngredientUnlocked { get => onIngredientUnlocked; set => onIngredientUnlocked = value; }

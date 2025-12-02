@@ -123,7 +123,7 @@ public class ClientStateLeave<T> : State<T>
                     // Solamente dar propina si la mesa estaba sucia cuando se sento
                     if (!clientModel.WasTableDirtyWhenSeated)
                     {
-                        GratuityManager.Instance.TryGiveGratuity(paymentAmout);
+                        GratuityManager.Instance.TryGiveGratuity(paymentAmout, clientModel.ClientData);
                     }
                 }
 

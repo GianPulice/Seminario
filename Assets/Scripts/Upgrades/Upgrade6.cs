@@ -6,14 +6,20 @@ public class Upgrade6 : MonoBehaviour, IUpgradable
     [SerializeField] private UpgradesData upgradesData;
 
     [SerializeField] private List<GameObject> newCookingDeskUI;
-    [SerializeField] private List<Table> tablesToActive;
-    [SerializeField] private ClientType newClientTypeToAdd;
+    [SerializeField] private SliderCleanDiirtyTableUIData sliderCleanDiirtyTableUIData;
 
     private bool isUnlocked = false;
 
     public UpgradesData UpgradesData => upgradesData;
 
     public bool CanUpgrade => !isUnlocked;
+
+
+    // Provisorio restaurar el valor del MaxHoldTime porque los scriptable objects no restauran su valor
+    void OnApplicationQuit()
+    {
+        sliderCleanDiirtyTableUIData.MaxHoldTime = 5f;
+    }
 
 
     public void Unlock()
@@ -23,15 +29,7 @@ public class Upgrade6 : MonoBehaviour, IUpgradable
             kitchen.gameObject.SetActive(true);
         }
 
-        if (tablesToActive != null)
-        {
-            foreach (var table in tablesToActive) // Desbloquear mesas
-            {
-                table.gameObject.SetActive(true);
-            }
-        }
-
-        ClientManager.Instance.AvailableClientTypes.Add(newClientTypeToAdd); // Agregar nuevo cliente
+        sliderCleanDiirtyTableUIData.MaxHoldTime *= 0.65f; // Aumentar tiempo de limpieza de las mesas.
 
         isUnlocked = true;
     }

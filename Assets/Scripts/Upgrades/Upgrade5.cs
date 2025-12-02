@@ -5,8 +5,9 @@ public class Upgrade5 : MonoBehaviour, IUpgradable
 {
     [SerializeField] private UpgradesData upgradesData;
 
-    [SerializeField] private List<FoodRecipeData> recipesToUnlock;
-    [SerializeField] private SliderCleanDiirtyTableUIData sliderCleanDiirtyTableUIData;
+    [SerializeField] private List<FoodSupport> foodSuports;
+    [SerializeField] private List<Table> tablesToActive;
+    [SerializeField] private List<GameObject> debris;
 
     private bool isUnlocked = false;
 
@@ -15,27 +16,31 @@ public class Upgrade5 : MonoBehaviour, IUpgradable
     public bool CanUpgrade => !isUnlocked;
 
 
-    // Provisorio restaurar el valor del MaxHoldTime porque los scriptable objects no restauran su valor
-    void OnApplicationQuit()
-    {
-        sliderCleanDiirtyTableUIData.MaxHoldTime = 5f;
-    }
-
-
     public void Unlock()
     {
-        foreach (var recipeData in recipesToUnlock) // Desbloquear nueva receta
+        if (debris != null)
         {
-            RecipeProgressManager.Instance.UnlockRecipe(recipeData.FoodType);
-
-            // Desbloquear automáticamente los ingredientes de esta receta
-            foreach (var ingredientAmount in recipeData.Ingridients)
+            foreach (var debris in debris) // Desbloquear escombros
             {
-                RecipeProgressManager.Instance.UnlockIngredient(ingredientAmount.IngredientType);
+                debris.gameObject.SetActive(false);
             }
         }
 
-        sliderCleanDiirtyTableUIData.MaxHoldTime *= 0.65f; // Aumentar tiempo de limpieza de las mesas.
+        if (tablesToActive != null)
+        {
+            foreach (var table in tablesToActive) // Desbloquear mesas
+            {
+                table.gameObject.SetActive(true);
+            }
+        }
+
+        if (foodSuports != null)
+        {
+            foreach (var foodSupports in foodSuports) // Desbloquear escombros
+            {
+                foodSupports.gameObject.SetActive(true);
+            }
+        }
 
         isUnlocked = true;
     }

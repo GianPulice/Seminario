@@ -232,6 +232,8 @@ public class AdministratingManagerUI : MonoBehaviour
             int next = GetNextAvailableUpgradeIndex();
             if (next != -1)
                 ShowCurrentZoneInformation(next);
+
+            Debug.Log("Yes");
         }
         else
         {
@@ -247,6 +249,7 @@ public class AdministratingManagerUI : MonoBehaviour
         if (!upgrade.CanUpgrade)
             return;
 
+        AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         confirmationText.text = $"Are you sure you want to spend <color=yellow>${data.Cost}</color> to buy this upgrade";
 
         // Mostrar panel de confirmación y asignar la acción a realizar si presiona YES
