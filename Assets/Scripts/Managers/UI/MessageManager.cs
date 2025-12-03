@@ -15,6 +15,7 @@ public class MessageManager : MonoBehaviour
     {
         PlayerView.OnEnterInCookMode += HideMessage;
         PlayerView.OnEnterInAdministrationMode += HideMessage;
+   
         if (UpgradesManager.Exists)
         {
             UpgradesManager.Instance.OnCanPurchaseStatusChanged += HandleUpgradeMessage;
@@ -26,6 +27,7 @@ public class MessageManager : MonoBehaviour
     {
         PlayerView.OnEnterInCookMode -= HideMessage;
         PlayerView.OnEnterInAdministrationMode -= HideMessage;
+
         if (UpgradesManager.Exists)
         {
             UpgradesManager.Instance.OnCanPurchaseStatusChanged -= HandleUpgradeMessage;
@@ -67,7 +69,9 @@ public class MessageManager : MonoBehaviour
             StopCoroutine(autoHideCoroutine);
 
         messagePanel.SetActive(true);
-        LeanTween.scale(messagePanel, Vector3.one, 0.3f).setFrom(Vector3.zero);
+        LeanTween.scale(messagePanel, Vector3.zero, 0.25f)
+             .setIgnoreTimeScale(true)
+             .setEase(LeanTweenType.easeOutQuad);
         StartIdleAnim();
         autoHideCoroutine = StartCoroutine(AutoHide());
     }
@@ -77,8 +81,11 @@ public class MessageManager : MonoBehaviour
         if (!messagePanel.activeSelf) return;
 
         StopIdleAnim();
+        LeanTween.cancel(messagePanel);
         LeanTween.scale(messagePanel, Vector3.zero, 0.25f)
-            .setOnComplete(() => messagePanel.SetActive(false));
+              .setIgnoreTimeScale(true)
+              .setEase(LeanTweenType.easeOutQuad) 
+              .setOnComplete(() => messagePanel.SetActive(false));
 
         if (autoHideCoroutine != null)
             StopCoroutine(autoHideCoroutine);

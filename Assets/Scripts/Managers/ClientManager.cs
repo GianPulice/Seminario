@@ -22,6 +22,9 @@ public class ClientManager : Singleton<ClientManager>
     private float spawnTime = 0f;
     private float nextSpawnTime;
 
+    private bool isTabernOpen = false;
+    private bool canOpenTabern = true;
+
     [SerializeField] private bool spawnDifferentTypeOfClients;
     [SerializeField] private bool spawnTheSameClient;
 
@@ -29,7 +32,15 @@ public class ClientManager : Singleton<ClientManager>
 
     public Transform SpawnPosition { get => spawnPosition; }
     public Transform OutsidePosition { get => outsidePosition; }
+    public bool IsTabernOpen { get => isTabernOpen; }
 
+    public bool CanCloseTabern
+    {
+        get
+        {
+            return OrdersManagerUI.Instance.TotalOrdersBeforeTabernOpen >= clientManagerData.MinimumOrdersServedToCloseTabern;
+        }
+    }
     public List<ClientType> AvailableClientTypes { get => availableClientTypes; set => availableClientTypes = value; }
 
 

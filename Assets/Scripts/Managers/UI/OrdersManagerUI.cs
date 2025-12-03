@@ -14,15 +14,20 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
     [SerializeField] private LeanTweenType easeType = LeanTweenType.easeOutQuad;
 
     [SerializeField] private float orderPrefabWidth = 177f;
-
+    private int totalOrdersBeforeTabernOpen = 0;
     private List<OrderItemUI> activeOrders = new List<OrderItemUI>();
     private Vector2 originalAnchoredPos;
-
+    public int TotalOrdersBeforeTabernOpen { get => totalOrdersBeforeTabernOpen; }
 
     void Awake()
     {
         CreateSingleton(false);
         SubscribeToPlayerViewEvents();
+        if (ClientManager.Instance.IsTabernOpen)
+        {
+            totalOrdersBeforeTabernOpen++;
+        }
+
         originalAnchoredPos = ordersContainer.anchoredPosition;
     }
 
