@@ -47,6 +47,9 @@ public class MoneyManager : Singleton<MoneyManager>
         UpdateMoneyText();
         SaveMoney();
         ShowFloatingMoneyText(amount, true);
+
+        if(UpgradesManager.Exists)
+            UpgradesManager.Instance.RefreshAvailabilityState();
     }
 
     public void SubMoney(float amount)
@@ -60,6 +63,8 @@ public class MoneyManager : Singleton<MoneyManager>
         UpdateMoneyText();
         SaveMoney();
         ShowFloatingMoneyText(amount, false);
+        if (UpgradesManager.Exists)
+            UpgradesManager.Instance.RefreshAvailabilityState();
     }
 
 
@@ -110,6 +115,10 @@ public class MoneyManager : Singleton<MoneyManager>
         {
             currentMoney = moneyManagerData.InitializeCurrentMoneyValue;
             SaveMoney();
+        }
+        if (UpgradesManager.Exists)
+        {
+            UpgradesManager.Instance.RefreshAvailabilityState();
         }
     }
 

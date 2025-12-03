@@ -12,6 +12,9 @@ public class UpgradesManager : Singleton<UpgradesManager>
     public int PurchasedUpgradesCount => purchasedUpgradesCount;
     public bool AllUpgradesPurchased => purchasedUpgradesCount >= upgrades.Count;
     public bool reachedMoneyToPurchase => !AllUpgradesPurchased && MoneyManager.instance.CurrentMoney >= upgrades[purchasedUpgradesCount].UpgradesData.Cost;
+
+    public event Action<bool> OnCanPurchaseStatusChanged;
+    public event Action OnAllUpgradesCompleted;
     void Awake()
     {
         CreateSingleton(false);
@@ -25,11 +28,23 @@ public class UpgradesManager : Singleton<UpgradesManager>
         if (upgrades[index].CanUpgrade)
         {
             upgrades[index].Unlock();
-
             purchasedUpgradesCount++;
 
-            //Debug.Log($"Upgrade desbloqueada. Total compradas: {purchasedUpgradesCount}");
+            // --- NOTIFICAR CAMBIOS ---
+            if (AllUpgradesPurchased)
+            {
+                OnAllUpgradesCompleted?.Invoke();
+            }
+
+            // Verificamos de nuevo si alcanza para la siguiente (o si ya no hay mas)
+            RefreshAvailabilityState();
         }
+    }
+    public void RefreshAvailabilityState()
+    {
+        if (AllUpgradesPurchased) return;
+
+        OnCanPurchaseStatusChanged?.Invoke(reachedMoneyToPurchase);
     }
     public int GetUpgradesCount()
     {
