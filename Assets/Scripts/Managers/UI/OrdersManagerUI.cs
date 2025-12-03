@@ -16,9 +16,8 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
     [SerializeField] private float orderPrefabWidth = 177f;
 
     private List<OrderItemUI> activeOrders = new List<OrderItemUI>();
-    private int totalOrdersBeforeTabernOpen = 0;
     private Vector2 originalAnchoredPos;
-    public int TotalOrdersBeforeTabernOpen { get => totalOrdersBeforeTabernOpen; }
+
 
     void Awake()
     {
@@ -63,11 +62,6 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
 
         uiItem.SetupOrder(newOrderDataUI);
         activeOrders.Add(uiItem);
-
-        if (ClientManager.Instance.IsTabernOpen)
-        {
-            totalOrdersBeforeTabernOpen++;
-        }
 
         le.preferredWidth = 0f;
         cg.alpha = 0f;
@@ -115,10 +109,6 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
         }
     }
 
-    public void RemoveTotalOrdersWhenCloseTabern()
-    {
-        totalOrdersBeforeTabernOpen = 0;
-    }
     private void DissapearIfInAdmin()
     {
         foreach (var order in activeOrders)

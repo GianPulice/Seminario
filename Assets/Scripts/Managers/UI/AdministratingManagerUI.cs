@@ -161,13 +161,13 @@ public class AdministratingManagerUI : MonoBehaviour
             localTavernState = true;
             AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_On"
         }
-        if (!isTavernOn && ClientManager.Instance.CanCloseTabern)
+        /*if (!isTavernOn)
         {
             Debug.Log("¡Taberna CERRADA!");
             onCloseTabern?.Invoke();
             localTavernState = false;
             AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_Off"
-        }
+        }*/
     }
     public void ButtonExit()
     {
@@ -512,10 +512,10 @@ public class AdministratingManagerUI : MonoBehaviour
             Debug.LogWarning("No se encontraron 'GenericTweenButton' en ninguno de los contenedores de upgrades.", this);
         }
 
-        if (startTavernSwitch != null)
+        /*if (startTavernSwitch != null)
         {
             startTavernSwitch.OnTryEnableCondition = () => ClientManager.Instance.CanCloseTabern;
-        }
+        }*/
     }
 
     #endregion

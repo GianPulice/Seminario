@@ -22,9 +22,6 @@ public class ClientManager : Singleton<ClientManager>
     private float spawnTime = 0f;
     private float nextSpawnTime;
 
-    private bool isTabernOpen = false;
-    private bool canOpenTabern = true;
-
     [SerializeField] private bool spawnDifferentTypeOfClients;
     [SerializeField] private bool spawnTheSameClient;
 
@@ -35,30 +32,16 @@ public class ClientManager : Singleton<ClientManager>
 
     public List<ClientType> AvailableClientTypes { get => availableClientTypes; set => availableClientTypes = value; }
 
-    public bool IsTabernOpen { get => isTabernOpen; }
-
-    public bool CanCloseTabern
-    {
-        get
-        {
-            return OrdersManagerUI.Instance.TotalOrdersBeforeTabernOpen >= clientManagerData.MinimumOrdersServedToCloseTabern;
-        }
-    }
 
     void Awake()
     {
         CreateSingleton(false);
         SuscribeToUpdateManagerEvent();
-        SuscribeToOpenTabernButtonEvent();
         InitializeClientPoolDictionary();
         InitializeFoodSpriteDictionary();
         InitializeCurrentClientsThatCanSpawn();
     }
 
-    void Start()
-    {
-        StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
-    }
 
     // Simulacion de Update
     void UpdateClientManager()
@@ -69,7 +52,6 @@ public class ClientManager : Singleton<ClientManager>
     void OnDestroy()
     {
         UnsuscribeToUpdateManagerEvent();
-        UnsuscribeToOpenTabernButtonEvent();
     }
 
 
@@ -125,6 +107,11 @@ public class ClientManager : Singleton<ClientManager>
         }
     }
 
+    public void SetRandomSpawnTime()
+    {
+        nextSpawnTime = UnityEngine.Random.Range(clientManagerData.MinSpawnTime, clientManagerData.MaxSpawnTime);
+    }
+
 
     private void SuscribeToUpdateManagerEvent()
     {
@@ -136,21 +123,9 @@ public class ClientManager : Singleton<ClientManager>
         UpdateManager.OnUpdate -= UpdateClientManager;
     }
 
-    private void SuscribeToOpenTabernButtonEvent()
-    {
-        AdministratingManagerUI.OnStartTabern += SetIsTabernOpen;
-        AdministratingManagerUI.OnCloseTabern += SetIsTabernClosed;
-    }
-
-    private void UnsuscribeToOpenTabernButtonEvent()
-    {
-        AdministratingManagerUI.OnStartTabern -= SetIsTabernOpen;
-        AdministratingManagerUI.OnCloseTabern -= SetIsTabernClosed;
-    }
-
     private void SpawnClients()
     {
-        if (isTabernOpen && GetIfAllWaitingChairPositionsAreOccupied())
+        if (TabernManager.Instance.IsTabernOpen && GetIfAllWaitingChairPositionsAreOccupied())
         {
             if (spawnTheSameClient)
             {
@@ -162,33 +137,6 @@ public class ClientManager : Singleton<ClientManager>
                 GetClientRandomFromPool();
             }
         }
-    }
-
-    private void SetIsTabernOpen()
-    {
-        if (canOpenTabern)
-        {
-            StartCoroutine(PlayCurrentTabernMusic("TabernOpen"));
-            canOpenTabern = false;
-            isTabernOpen = true;
-            SetRandomSpawnTime();
-        }
-    }
-
-    private void SetIsTabernClosed()
-    {
-        if (OrdersManagerUI.Instance.TotalOrdersBeforeTabernOpen >= clientManagerData.MinimumOrdersServedToCloseTabern)
-        {
-            StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
-            isTabernOpen = false;
-            OrdersManagerUI.Instance.RemoveTotalOrdersWhenCloseTabern();
-            StartCoroutine(DelayForOpenTabernAgain());
-        }
-    }
-
-    private void SetRandomSpawnTime()
-    {
-        nextSpawnTime = UnityEngine.Random.Range(clientManagerData.MinSpawnTime, clientManagerData.MaxSpawnTime);
     }
 
     private void GetClientRandomFromPool()
@@ -205,7 +153,7 @@ public class ClientManager : Singleton<ClientManager>
                 {
                     string prefabName = pool.Prefab.name;
                     clientAbstractFactory.CreateObject(prefabName);
-                    StartCoroutine(PlaySoundWhenEnterTabern());
+                    StartCoroutine(PlaySoundWhenClientEnterTabern());
                 }
             }
 
@@ -302,21 +250,7 @@ public class ClientManager : Singleton<ClientManager>
         availableClientTypes.Add(ClientType.Goblin);
     }
 
-    private IEnumerator DelayForOpenTabernAgain()
-    {
-        yield return new WaitForSeconds(clientManagerData.DelayToOpenTabernAgainAfterClose);
-
-        canOpenTabern = true;
-    }
-
-    private IEnumerator PlayCurrentTabernMusic(string musicClipName)
-    {
-        yield return new WaitUntil(() => AudioManager.Instance != null);
-
-        StartCoroutine(AudioManager.Instance.PlayMusic(musicClipName));
-    }
-
-    private IEnumerator PlaySoundWhenEnterTabern()
+    private IEnumerator PlaySoundWhenClientEnterTabern()
     {
         yield return new WaitForSeconds(4);
 
