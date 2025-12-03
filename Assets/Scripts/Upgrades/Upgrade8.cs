@@ -7,6 +7,7 @@ public class Upgrade8 : MonoBehaviour, IUpgradable
 
     [SerializeField] private List<GameObject> debrisSecondFloor;
     [SerializeField] private List<Table> tablesToActive;
+    [SerializeField] private List<FoodSupport> foodSupports;
 
     private bool isUnlocked = false;
 
@@ -30,6 +31,14 @@ public class Upgrade8 : MonoBehaviour, IUpgradable
             foreach (var table in tablesToActive) // Desbloquear mesas
             {
                 table.gameObject.SetActive(true);
+            }
+        }
+
+        if (foodSupports != null)
+        {
+            foreach (var foodSupports in foodSupports) // Desbloquear soportes
+            {
+                foodSupports.gameObject.SetActive(true);
             }
         }
 

@@ -2,9 +2,13 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum FoodType // FrutosDelBosqueOscuro, SopaDeLaLunaPlateada, CarneDeBestia, CarneCuradaDelAbismo, SusurroDelElixir
+public enum FoodType
 {
-    DarkWoodBerries, SoupOfTheSilverMoon, BeastStew, AbyssCuredMeet, LastWhisperElixir
+    // FrutosDelBosqueOscuro, SopaDeLaLunaPlateada, CarneDeBestia, CarneCuradaDelAbismo, SusurroDelElixir
+    DarkWoodBerries, SoupOfTheSilverMoon, BeastStew, AbyssCuredMeet, LastWhisperElixir,
+
+    // PataDeBestia, TartaDeBestia, EnsaladaSacremental, SopaDelBosqueSusurrante, EstofadoDeCraneo
+    BeastPaw, BeastPie, SacramentalSalad, SoupOfTheWhisperingForest, SkullStew 
 }
 
 public enum CookingStates

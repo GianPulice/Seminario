@@ -5,19 +5,19 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "GratuityManagerData", menuName = "ScriptableObjects/Tabern/Create New GratuityManagerData")]
 public class GratuityManagerData : ScriptableObject
 {
-    [SerializeField] private List<GratuityOptions> gratuityOptionsPercentage;
+    //[SerializeField] private List<GratuityOptions> gratuityOptionsPercentage;
 
-    [Range(0, 100)]
-    [SerializeField] private float probabilityToGiveGratuity;
+    //[Range(0, 100)]
+    //[SerializeField] private float probabilityToGiveGratuity;
     //[SerializeField] private float missedClientCost;
 
-    public List<GratuityOptions> GratuityOptionsPercentage { get => gratuityOptionsPercentage; }
+    //public List<GratuityOptions> GratuityOptionsPercentage { get => gratuityOptionsPercentage; }
 
-    public float ProbabilityToGiveGratuity { get => probabilityToGiveGratuity; }
+    //public float ProbabilityToGiveGratuity { get => probabilityToGiveGratuity; }
     //public float MissedClientCost { get => missedClientCost; }
 
 
-    [Serializable]
+    /*[Serializable]
     public class GratuityOptions
     {
         [Range(0, 100)]
@@ -27,5 +27,5 @@ public class GratuityManagerData : ScriptableObject
 
         public int Probability { get => probability; }
         public int GratuityPercentage { get => gratuityPercentage; }
-    }
+    }*/
 }
