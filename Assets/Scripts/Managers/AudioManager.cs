@@ -108,7 +108,7 @@ public class AudioManager : Singleton<AudioManager>
             AudioSource source = activeSFX[sfxName];
             source.Stop();
             source.loop = false;
-            source.pitch = 0f;
+            //source.pitch = 0f;
             source.clip = null;
 
             activeSFX.Remove(sfxName);
@@ -229,6 +229,7 @@ public class AudioManager : Singleton<AudioManager>
 
         if (activeSFX.ContainsKey(sfxName))
         {
+            src.pitch = 1;
             src.clip = null;
             activeSFX.Remove(sfxName);
         }
