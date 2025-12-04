@@ -19,7 +19,7 @@ public class Bed : MonoBehaviour, IInteractable
 
     public void Interact(bool isPressed)
     {
-        if (TabernManager.Instance.TabernCurrentTimeText.text == "24 : 00")
+        if (TabernManagerUI.Instance.TabernCurrentTimeText.text == "24 : 00")
         {
             TabernManager.Instance.SkipCurrentDay();
         }
@@ -27,7 +27,7 @@ public class Bed : MonoBehaviour, IInteractable
 
     public void ShowOutline()
     {
-        if (TabernManager.Instance.TabernCurrentTimeText.text == "24 : 00")
+        if (TabernManagerUI.Instance.TabernCurrentTimeText.text == "24 : 00")
         {
             OutlineManager.Instance.ShowWithDefaultColor(gameObject);
         }
@@ -40,7 +40,7 @@ public class Bed : MonoBehaviour, IInteractable
 
     public bool TryGetInteractionMessage(out string message)
     {
-        if (TabernManager.Instance.TabernCurrentTimeText.text == "24 : 00")
+        if (TabernManagerUI.Instance.TabernCurrentTimeText.text == "24 : 00")
         {
             string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
             message = $"Press {keyText} to skip the day";
