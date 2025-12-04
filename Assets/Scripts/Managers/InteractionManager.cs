@@ -24,8 +24,6 @@ public class InteractionManager : Singleton<InteractionManager>
         DetectTarget();
         InteractWithTarget();
     }
-
-
     private void SuscribeToPlayerViewEvents()
     {
         PlayerView.OnEnterTutorial += HandlePlayerEnterUI;
@@ -86,7 +84,7 @@ public class InteractionManager : Singleton<InteractionManager>
 
         currentTarget.HideOutline();
 
-        if (InteractionManagerUI.Instance != null)
+        if (InteractionManagerUI.Exists)
         {
             InteractionManagerUI.Instance.MessageAnimator.Hide();
         }
@@ -167,7 +165,7 @@ public class InteractionManager : Singleton<InteractionManager>
         if (currentTarget != null)
         {
             currentTarget.HideOutline();
-            if (InteractionManagerUI.Instance != null)
+            if (InteractionManagerUI.Exists)
             {
                 InteractionManagerUI.Instance.MessageAnimator.HideInstantly();
             }
@@ -179,4 +177,5 @@ public class InteractionManager : Singleton<InteractionManager>
     {
         isPlayerInUI = false;
     }
+
 }

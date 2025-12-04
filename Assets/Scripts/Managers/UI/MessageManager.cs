@@ -9,12 +9,28 @@ public class MessageManager : MonoBehaviour
     [SerializeField] private GameObject allUpgradesPanel;
     [SerializeField] private TextMeshProUGUI text;
 
+    [Header("Animation Settings")]
+    [Tooltip("Distancia en píxeles que se moverá hacia arriba")]
+    [SerializeField] private float verticalOffset = 50f;
+    [SerializeField] private float animTime = 0.3f;
+
     private Coroutine autoHideCoroutine;
     private int idleTweenId = -1;
+
+    private RectTransform messageRect;
+    private Vector2 initialPos;
+    void Awake()
+    {
+        messageRect = messagePanel.GetComponent<RectTransform>();
+        initialPos = messageRect.anchoredPosition;
+    }
     void OnEnable()
     {
         PlayerView.OnEnterInCookMode += HideMessage;
         PlayerView.OnEnterInAdministrationMode += HideMessage;
+        PlayerView.OnExitInCookMode += CheckAndShowMessage;
+        PlayerView.OnExitInAdministrationMode += CheckAndShowMessage;
+
         if (UpgradesManager.Exists)
         {
             UpgradesManager.Instance.OnCanPurchaseStatusChanged += HandleUpgradeMessage;
@@ -26,16 +42,27 @@ public class MessageManager : MonoBehaviour
     {
         PlayerView.OnEnterInCookMode -= HideMessage;
         PlayerView.OnEnterInAdministrationMode -= HideMessage;
+        PlayerView.OnExitInCookMode -= CheckAndShowMessage;
+        PlayerView.OnExitInAdministrationMode -= CheckAndShowMessage;
+   
         if (UpgradesManager.Exists)
         {
             UpgradesManager.Instance.OnCanPurchaseStatusChanged -= HandleUpgradeMessage;
             UpgradesManager.Instance.OnAllUpgradesCompleted -= HandleAllUpgradesPanel;
         }
         StopIdleAnim();
+        LeanTween.cancel(messagePanel);
     }
     public void CloseButton()
     {
         HideMessage();
+    }
+    private void CheckAndShowMessage()
+    {
+        if (UpgradesManager.Exists && UpgradesManager.Instance.reachedMoneyToPurchase)
+        {
+            ShowMessage();
+        }
     }
     private void HandleUpgradeMessage(bool canPurchase)
     {
@@ -50,6 +77,7 @@ public class MessageManager : MonoBehaviour
         idleTweenId = LeanTween.scale(text.rectTransform, Vector3.one * 1.05f, 0.6f)
             .setEaseInOutSine()
             .setLoopPingPong()
+            .setIgnoreTimeScale(true)
             .id;
     }
     private void StopIdleAnim()
@@ -63,11 +91,23 @@ public class MessageManager : MonoBehaviour
     }
     private void ShowMessage()
     {
+        if (UpgradesManager.Exists && UpgradesManager.Instance.AllUpgradesPurchased) return;
+       
         if (autoHideCoroutine != null)
             StopCoroutine(autoHideCoroutine);
 
         messagePanel.SetActive(true);
-        LeanTween.scale(messagePanel, Vector3.one, 0.3f).setFrom(Vector3.zero);
+        LeanTween.cancel(messagePanel);
+
+        Vector2 startPos = initialPos + new Vector2(0, verticalOffset);
+        messageRect.anchoredPosition = startPos;
+
+        messagePanel.transform.localScale = Vector3.one;
+
+        LeanTween.move(messageRect, initialPos, animTime)
+            .setEaseOutBack() 
+            .setIgnoreTimeScale(true);
+
         StartIdleAnim();
         autoHideCoroutine = StartCoroutine(AutoHide());
     }
@@ -77,11 +117,21 @@ public class MessageManager : MonoBehaviour
         if (!messagePanel.activeSelf) return;
 
         StopIdleAnim();
-        LeanTween.scale(messagePanel, Vector3.zero, 0.25f)
-            .setOnComplete(() => messagePanel.SetActive(false));
-
         if (autoHideCoroutine != null)
             StopCoroutine(autoHideCoroutine);
+
+        LeanTween.cancel(messagePanel);
+
+        Vector2 targetPos = initialPos + new Vector2(0, verticalOffset);
+
+        LeanTween.move(messageRect, targetPos, 0.25f)
+            .setEaseInBack() 
+            .setIgnoreTimeScale(true)
+            .setOnComplete(() =>
+            {
+                messagePanel.SetActive(false);
+                messageRect.anchoredPosition = initialPos;
+            });
     }
 
     private IEnumerator AutoHide()
@@ -93,6 +143,10 @@ public class MessageManager : MonoBehaviour
     private void HandleAllUpgradesPanel()
     {
         allUpgradesPanel.SetActive(true);
-        LeanTween.scale(allUpgradesPanel, Vector3.one, 0.3f).setFrom(Vector3.zero);
+        LeanTween.cancel(allUpgradesPanel);
+        LeanTween.scale(allUpgradesPanel, Vector3.one, 0.3f)
+            .setFrom(Vector3.zero)
+            .setEaseOutBack()
+            .setIgnoreTimeScale(true);
     }
 }
