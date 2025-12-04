@@ -19,6 +19,8 @@ public class MessageManager : MonoBehaviour
 
     private RectTransform messageRect;
     private Vector2 initialPos;
+
+    private bool isPlayerInUI = false;
     void Awake()
     {
         messageRect = messagePanel.GetComponent<RectTransform>();
@@ -26,10 +28,11 @@ public class MessageManager : MonoBehaviour
     }
     void OnEnable()
     {
-        PlayerView.OnEnterInCookMode += HideMessage;
-        PlayerView.OnEnterInAdministrationMode += HideMessage;
-        PlayerView.OnExitInCookMode += CheckAndShowMessage;
-        PlayerView.OnExitInAdministrationMode += CheckAndShowMessage;
+        PlayerView.OnEnterInCookMode += OnEnterUI;
+        PlayerView.OnEnterInAdministrationMode += OnEnterUI;
+
+        PlayerView.OnExitInCookMode += OnExitUI;
+        PlayerView.OnExitInAdministrationMode += OnExitUI;
 
         if (UpgradesManager.Exists)
         {
@@ -40,11 +43,12 @@ public class MessageManager : MonoBehaviour
 
     void OnDisable()
     {
-        PlayerView.OnEnterInCookMode -= HideMessage;
-        PlayerView.OnEnterInAdministrationMode -= HideMessage;
-        PlayerView.OnExitInCookMode -= CheckAndShowMessage;
-        PlayerView.OnExitInAdministrationMode -= CheckAndShowMessage;
-   
+        PlayerView.OnEnterInCookMode -= OnEnterUI;
+        PlayerView.OnEnterInAdministrationMode -= OnEnterUI;
+
+        PlayerView.OnExitInCookMode -= OnExitUI;
+        PlayerView.OnExitInAdministrationMode -= OnExitUI;
+
         if (UpgradesManager.Exists)
         {
             UpgradesManager.Instance.OnCanPurchaseStatusChanged -= HandleUpgradeMessage;
@@ -64,12 +68,30 @@ public class MessageManager : MonoBehaviour
             ShowMessage();
         }
     }
+    private void OnEnterUI()
+    {
+        isPlayerInUI = true; 
+        HideMessage();       
+    }
+
+    private void OnExitUI()
+    {
+        isPlayerInUI = false; 
+        CheckAndShowMessage(); 
+    }
     private void HandleUpgradeMessage(bool canPurchase)
     {
         if (canPurchase)
-            ShowMessage();
+        {
+            if (!isPlayerInUI)
+            {
+                ShowMessage();
+            }
+        }
         else
+        {
             HideMessage();
+        }
     }
     private void StartIdleAnim()
     {
@@ -92,7 +114,7 @@ public class MessageManager : MonoBehaviour
     private void ShowMessage()
     {
         if (UpgradesManager.Exists && UpgradesManager.Instance.AllUpgradesPurchased) return;
-       
+        if (isPlayerInUI) return;
         if (autoHideCoroutine != null)
             StopCoroutine(autoHideCoroutine);
 
@@ -102,10 +124,14 @@ public class MessageManager : MonoBehaviour
         Vector2 startPos = initialPos + new Vector2(0, verticalOffset);
         messageRect.anchoredPosition = startPos;
 
-        messagePanel.transform.localScale = Vector3.one;
+        messagePanel.transform.localScale = Vector3.zero;
 
         LeanTween.move(messageRect, initialPos, animTime)
             .setEaseOutBack() 
+            .setIgnoreTimeScale(true);
+
+        LeanTween.scale(messagePanel, Vector3.one, animTime)
+            .setEaseOutBack()
             .setIgnoreTimeScale(true);
 
         StartIdleAnim();
@@ -125,12 +151,17 @@ public class MessageManager : MonoBehaviour
         Vector2 targetPos = initialPos + new Vector2(0, verticalOffset);
 
         LeanTween.move(messageRect, targetPos, 0.25f)
-            .setEaseInBack() 
+             .setEaseInBack()
+             .setIgnoreTimeScale(true);
+
+        LeanTween.scale(messagePanel, Vector3.zero, 0.25f)
+            .setEaseInBack()
             .setIgnoreTimeScale(true)
             .setOnComplete(() =>
             {
                 messagePanel.SetActive(false);
                 messageRect.anchoredPosition = initialPos;
+                messagePanel.transform.localScale = Vector3.one;
             });
     }
 
@@ -142,6 +173,7 @@ public class MessageManager : MonoBehaviour
 
     private void HandleAllUpgradesPanel()
     {
+        if (isPlayerInUI) return;
         allUpgradesPanel.SetActive(true);
         LeanTween.cancel(allUpgradesPanel);
         LeanTween.scale(allUpgradesPanel, Vector3.one, 0.3f)

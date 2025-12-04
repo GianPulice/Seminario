@@ -234,6 +234,7 @@ public class PauseManager : Singleton<PauseManager>
         StartCoroutine(AudioManager.Instance.PlayMusic("Pause"));
         pauseOpacity.SetActive(true);
         pauseButtonsContainer.SetActive(true);
+        pauseText.SetActive(true);
 
         Time.timeScale = 0f;
         isGamePaused = true;
@@ -266,7 +267,7 @@ public class PauseManager : Singleton<PauseManager>
         
         AudioManager.Instance.StopMusic("Pause");
         AudioManager.Instance.ResumeLastMusic();
-        
+        pauseText.SetActive(false);
         if (settingsPanel.activeSelf)
         {
             settingsPanel.SetActive(false);
