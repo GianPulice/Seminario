@@ -6,6 +6,10 @@ using TMPro;
 
 public class Table : MonoBehaviour, IInteractable
 {
+    /// <summary>
+    /// Agregar que si presiona pausa mientras esta limpiando, que se frene el sonido
+    /// </summary>
+
     private PlayerController playerController;
 
     private Table auxiliarTable;
@@ -160,6 +164,9 @@ public class Table : MonoBehaviour, IInteractable
             auxiliarClientView = null;
             return;
         }
+
+        AudioManager.Instance.StopLoopSFX("CleanDirtyTable");
+        isCleaningSoundPlaying = false;
     }
 
     public bool TryGetInteractionMessage(out string message)

@@ -26,7 +26,7 @@ public class GratuityManager : Singleton<GratuityManager>
             if (randomGratuityRoll < cumulative)
             {
                 int gratuity = Mathf.RoundToInt(paymentAmount * option.GratuityPercentage / 100f);
-                MoneyManager.Instance.AddMoney(gratuity);
+                MoneyManager.Instance.AddMoney(gratuity, true);
                 break;
             }
         }

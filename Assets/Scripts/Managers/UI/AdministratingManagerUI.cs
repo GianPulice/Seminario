@@ -26,6 +26,7 @@ public class AdministratingManagerUI : MonoBehaviour
     [SerializeField] private GameObject ingredientButtonContainer;
     [SerializeField] private GameObject firstUpgradeButtonContainer;
     [SerializeField] private GameObject secondUpgradeButtonContainer;
+    [SerializeField] private GameObject thirdUpgradeButtonContainer;
 
     [Header("Referencias (Panel Upgrades)")]
     [SerializeField] private ConfirmationPanel confirmationPanel;
@@ -250,7 +251,7 @@ public class AdministratingManagerUI : MonoBehaviour
             return;
 
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
-        confirmationText.text = $"Are you sure you want to spend <color=yellow>${data.Cost}</color> to buy this upgrade";
+        if(confirmationText != null) confirmationText.text = $"Are you sure you want to spend <color=yellow>${data.Cost}</color> to buy this upgrade";
 
         // Mostrar panel de confirmación y asignar la acción a realizar si presiona YES
         if (confirmationPanel != null)
@@ -506,16 +507,21 @@ public class AdministratingManagerUI : MonoBehaviour
         {
             Debug.LogError("'Second Upgrade Button Container' no está asignado.", this);
         }
+        if (thirdUpgradeButtonContainer != null)
+        {
+            var thirdBatch = thirdUpgradeButtonContainer.GetComponentsInChildren<GenericTweenButton>(true);
+            upgradeButtons.AddRange(thirdBatch);
+        }
+        else
+        {
+            Debug.LogWarning("'Third Upgrade Button Container' no está asignado (o no es requerido).", this);
+        }
 
         if (upgradeButtons.Count == 0)
         {
             Debug.LogWarning("No se encontraron 'GenericTweenButton' en ninguno de los contenedores de upgrades.", this);
         }
 
-        /*if (startTavernSwitch != null)
-        {
-            startTavernSwitch.OnTryEnableCondition = () => ClientManager.Instance.CanCloseTabern;
-        }*/
     }
 
     #endregion
