@@ -55,7 +55,7 @@ public class PlayerCamera : MonoBehaviour
     {
         if (PauseManager.Instance == null) return;
         if (PauseManager.Instance.IsGamePaused) return;
-        if (playerModel.IsCooking || playerModel.IsAdministrating || playerModel.IsInTeleportPanel || playerModel.IsInTrashPanel|| playerModel.IsInTutorial) return;
+        if (playerModel.IsCooking || playerModel.IsAdministrating || playerModel.IsInTeleportPanel || playerModel.IsInTrashPanel|| playerModel.IsInTutorial || playerModel.IsInResumeDayPanel) return;
 
         cameraOffset = new Vector3(0f, offSetY, 0.3f);
 

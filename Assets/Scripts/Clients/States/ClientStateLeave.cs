@@ -118,12 +118,12 @@ public class ClientStateLeave<T> : State<T>
                     AudioManager.Instance.PlaySFX("ClientHappy");
                     clientView.SetSpriteTypeName("SpriteHappy");
                     int paymentAmout = ClientManager.Instance.ClientManagerData.GetPayment(clientModel.CurrentTable.CurrentFoods[0].FoodType);
-                    clientModel.StartCoroutine(AddGratutityAfterSomeSeconeds(paymentAmout));
+                    MoneyManager.Instance.AddMoney(paymentAmout);
 
-                    // Solamente dar propina si la mesa estaba sucia cuando se sento
+                    // Solamente dar propina si la mesa no estaba sucia cuando se sento
                     if (!clientModel.WasTableDirtyWhenSeated)
                     {
-                        GratuityManager.Instance.TryGiveGratuity(paymentAmout, clientModel.ClientData);
+                        clientModel.StartCoroutine(AddGratutityAfterSomeSeconeds(paymentAmout));
                     }
                 }
 
@@ -152,6 +152,6 @@ public class ClientStateLeave<T> : State<T>
     {
         yield return new WaitForSeconds(3);
 
-        MoneyManager.Instance.AddMoney(paymentAmout, true);
+        GratuityManager.Instance.TryGiveGratuity(paymentAmout, clientModel.ClientData);
     }
 }

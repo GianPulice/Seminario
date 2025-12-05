@@ -156,6 +156,9 @@ public class PauseManager : Singleton<PauseManager>
         PlayerView.OnEnterTutorial += OnEnterInUIMode;
         PlayerView.OnExitTutorial += OnExitInUIMode;
 
+        PlayerView.OnEnterInResumeDay += OnEnterInUIMode;
+        PlayerView.OnExitInResumeDay += OnExitInUIMode;
+
         Trash.OnShowPanelTrash += OnEnterInUIMode;
         Trash.OnHidePanelTrash += OnExitInUIMode;
     }
@@ -171,6 +174,9 @@ public class PauseManager : Singleton<PauseManager>
         PlayerView.OnEnterTutorial -= OnEnterInUIMode;
         PlayerView.OnExitTutorial -= OnExitInUIMode;
 
+        PlayerView.OnEnterInResumeDay -= OnEnterInUIMode;
+        PlayerView.OnExitInResumeDay -= OnExitInUIMode;
+
         Trash.OnShowPanelTrash -= OnEnterInUIMode;
         Trash.OnHidePanelTrash -= OnExitInUIMode;
     }
@@ -184,7 +190,7 @@ public class PauseManager : Singleton<PauseManager>
     {
         //if (!isGamePaused) return;
         
-        if (playerModel.IsAdministrating || playerModel.IsCooking || playerModel.IsInTrashPanel || playerModel.IsInTutorial) return;
+        if (playerModel.IsAdministrating || playerModel.IsCooking || playerModel.IsInTrashPanel || playerModel.IsInTutorial || playerModel.IsInResumeDayPanel) return;
 
         StartCoroutine(ExitUIMode());
     }
@@ -208,6 +214,7 @@ public class PauseManager : Singleton<PauseManager>
         if (playerModel.IsCooking) return true;
         if (playerModel.IsInTrashPanel) return true;
         if (playerModel.IsInTutorial) return true;
+        if (playerModel.IsInResumeDayPanel) return true;
        // if (IngredientInventoryManagerUI.OnInventoryOpen) return true;
         
 

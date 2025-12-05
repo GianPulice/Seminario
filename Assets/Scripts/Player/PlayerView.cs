@@ -7,6 +7,9 @@ public class PlayerView : MonoBehaviour
 
     private static event Action<bool> onEnabledDishForced;
 
+    private static Action onEnterInResumeDay;
+    private static Action onExitInResumeDay;
+
     private static Action onEnterTutorial;
     private static Action onExitTutorial;
 
@@ -22,6 +25,9 @@ public class PlayerView : MonoBehaviour
     public GameObject Dish { get => dish; }
 
     public static Action<bool> OnEnabledDishForced { get => onEnabledDishForced; set => onEnabledDishForced = value; }  
+
+    public static Action OnEnterInResumeDay { get => onEnterInResumeDay; set => onEnterInResumeDay = value; }
+    public static Action OnExitInResumeDay { get => onExitInResumeDay; set => onExitInResumeDay = value; }
 
     public static Action OnEnterTutorial { get => onEnterTutorial; set => onEnterTutorial = value; }
     public static Action OnExitTutorial { get => onExitTutorial; set => onExitTutorial = value; }
@@ -67,7 +73,6 @@ public class PlayerView : MonoBehaviour
     private void GetComponents()
     {
         dish = GetComponentInChildren<MeshCollider>().gameObject;
-
         //dish = transform.Find("Dish").gameObject;
     }
 }

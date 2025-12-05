@@ -3,8 +3,20 @@ using UnityEngine;
 
 public class TabernManager : Singleton<TabernManager>
 {
+    private float orderPaymentsAmount = 0f;
+    private float tipsEarnedAmount = 0f;
+    private float maintenanceAmount = 0f;
+    private float taxesAmount = 0f;
+    private float purchasedUpgrades = 0f;
+    private float purchasedIngredients = 0f;
+
     private bool isTabernOpen = false;
     private bool canOpenTabern = true;
+
+    public float OrderPaymentsAmount { get => orderPaymentsAmount; set => orderPaymentsAmount = value; }
+    public float TipsEarnedAmount { get => tipsEarnedAmount; set => tipsEarnedAmount = value; }
+    public float MaintenanceAmount { get => maintenanceAmount; set => maintenanceAmount = value; }
+    public float TaxesAmount { get => taxesAmount; set => taxesAmount = value; }
 
     public bool IsTabernOpen { get => isTabernOpen; }
 
@@ -29,6 +41,18 @@ public class TabernManager : Singleton<TabernManager>
     public void SkipCurrentDay()
     {
         // Aca se podria agregar algun evento que heche a la mierda a los clientes que estan en la taberna y que elimine las ordenes en la UI
+        TabernManagerUI.instance.PanelResumeDay.gameObject.SetActive(true);
+        PlayerView.OnEnterInResumeDay?.Invoke();
+        DeviceManager.Instance.IsUIModeActive = true;
+        TabernManagerUI.Instance.OrderPaymentsText.text = "Order Payments: " + orderPaymentsAmount.ToString();
+        TabernManagerUI.Instance.TipsEarnedText.text = "Tips Earned: " + tipsEarnedAmount.ToString();
+
+        float incomes = orderPaymentsAmount + tipsEarnedAmount;
+        float expenses = maintenanceAmount + taxesAmount + purchasedUpgrades + purchasedIngredients;
+        float finalAmount = incomes - expenses;
+        TabernManagerUI.Instance.NetProfitText.text = "Net Profit: " + "total incomes(" + incomes.ToString() + ") - total expenses(" + expenses.ToString() + ") = " + finalAmount.ToString();
+
+
         canOpenTabern = true;
         TabernManagerUI.instance.CurrentDay++;
         TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";

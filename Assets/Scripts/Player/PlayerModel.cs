@@ -35,6 +35,7 @@ public class PlayerModel : MonoBehaviour
     private bool isInTeleportPanel = false;
     private bool isInTrashPanel = false;
     private bool isInTutorial = false;
+    private bool isInResumeDayPanel = false;
 
     private bool readyToJump = true;
     private bool exitingSlope = false;
@@ -57,11 +58,13 @@ public class PlayerModel : MonoBehaviour
     public bool IsInTeleportPanel { get => isInTeleportPanel; set => isInTeleportPanel = value; }
     public bool IsInTrashPanel { get => isInTrashPanel; set => isInTrashPanel = value; }
     public bool IsInTutorial { get => isInTutorial; set => isInTutorial = value; }
+    public bool IsInResumeDayPanel { get => isInResumeDayPanel; }
     public bool ReadyToJump { get => readyToJump; set => readyToJump = value; }
 
     void Awake()
     {
         SuscribeToTutorialEvents();
+        SuscribeToResumeDayEvents();
         GetComponents();
         Initialize();
         SpawnPlayerPosition();
@@ -70,12 +73,13 @@ public class PlayerModel : MonoBehaviour
     void OnDestroy()
     {
         UnsuscribeToTutorialEvents();
+        UnsuscribeToTutorialEvents();
     }
 
     public void HandleMovement()
     {
         if (PlayerInputs.Instance == null) return;
-        if (isCooking || isAdministrating || isInTeleportPanel || isInTrashPanel || isInTutorial) return;
+        if (isCooking || isAdministrating || isInTeleportPanel || isInTrashPanel || isInTutorial || isInResumeDayPanel) return;
 
         Vector2 input = PlayerInputs.Instance.GetMoveAxis();
 
@@ -186,6 +190,18 @@ public class PlayerModel : MonoBehaviour
         TutorialScreensManager.OnExitTutorial += OnExitInTutorial;
     }
 
+    private void SuscribeToResumeDayEvents()
+    {
+        PlayerView.OnEnterInResumeDay += OnEnterInResumeDay;
+        PlayerView.OnExitInResumeDay += OnExitInResumeDay;
+    }
+
+    private void UnsuscribeToResumeDayEvents()
+    {
+        PlayerView.OnEnterInResumeDay -= OnEnterInResumeDay;
+        PlayerView.OnExitInResumeDay -= OnExitInResumeDay;
+    }
+
     private void UnsuscribeToTutorialEvents()
     {
         TutorialScreensManager.OnEnterTutorial -= OnEnterInTutorial;
@@ -226,5 +242,15 @@ public class PlayerModel : MonoBehaviour
     private void OnExitInTutorial()
     {
         isInTutorial = false;
+    }
+
+    private void OnEnterInResumeDay()
+    {
+        isInResumeDayPanel = true;
+    }
+
+    private void OnExitInResumeDay()
+    {
+        isInResumeDayPanel = false;
     }
 }
