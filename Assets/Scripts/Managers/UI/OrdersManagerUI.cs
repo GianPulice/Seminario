@@ -113,7 +113,10 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
                 });
         }
     }
-
+    public void RemoveTotalOrdersWhenCloseTabern()
+    {
+        totalOrdersBeforeTabernOpen = 0;
+    }
     private void DissapearIfInAdmin()
     {
         foreach (var order in activeOrders)

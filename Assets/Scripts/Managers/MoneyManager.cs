@@ -36,13 +36,13 @@ public class MoneyManager : Singleton<MoneyManager>
         if (isFromGratuity)
         {
             AudioManager.Instance.PlayOneShotSFX("Gratuity");
-            TabernManager.Instance.TipsEarnedAmount += amount;
+           // TabernManager.Instance.TipsEarnedAmount += amount;
         }
 
         else
         {
             AudioManager.Instance.PlayOneShotSFX("AddMoney");
-            TabernManager.Instance.OrderPaymentsAmount += amount;
+           // TabernManager.Instance.OrderPaymentsAmount += amount;
         }
 
         currentMoney += amount;

@@ -26,8 +26,8 @@ public class PlayerView : MonoBehaviour
 
     public static Action<bool> OnEnabledDishForced { get => onEnabledDishForced; set => onEnabledDishForced = value; }  
 
-    public static Action OnEnterInResumeDay { get => onEnterInResumeDay; set => onEnterInResumeDay = value; }
-    public static Action OnExitInResumeDay { get => onExitInResumeDay; set => onExitInResumeDay = value; }
+    //public static Action OnEnterInResumeDay { get => onEnterInResumeDay; set => onEnterInResumeDay = value; }
+    //public static Action OnExitInResumeDay { get => onExitInResumeDay; set => onExitInResumeDay = value; }
 
     public static Action OnEnterTutorial { get => onEnterTutorial; set => onEnterTutorial = value; }
     public static Action OnExitTutorial { get => onExitTutorial; set => onExitTutorial = value; }

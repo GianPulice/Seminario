@@ -50,7 +50,7 @@ public class PlayerStateRun<T> : State<T>
             }
         }
 
-        if (PlayerInputs.Instance.GetMoveAxis() == Vector2.zero || playerModel.IsInTutorial || playerModel.IsInResumeDayPanel)
+        if (PlayerInputs.Instance.GetMoveAxis() == Vector2.zero || playerModel.IsInTutorial )
         {
             Fsm.TransitionTo(inputToIdle);
         }
@@ -60,7 +60,7 @@ public class PlayerStateRun<T> : State<T>
             Fsm.TransitionTo(inputToWalk);
         }
 
-        if (PlayerInputs.Instance.Jump() && playerModel.IsGrounded && playerModel.ReadyToJump && !playerModel.IsInTeleportPanel && !playerModel.IsInTrashPanel && !playerModel.IsInTutorial && !playerModel.IsInResumeDayPanel)
+        if (PlayerInputs.Instance.Jump() && playerModel.IsGrounded && playerModel.ReadyToJump && !playerModel.IsInTeleportPanel && !playerModel.IsInTrashPanel && !playerModel.IsInTutorial )
         {
             Fsm.TransitionTo(inputToJump);
         }

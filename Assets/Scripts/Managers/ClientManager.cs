@@ -136,7 +136,7 @@ public class ClientManager : Singleton<ClientManager>
 
     private void SpawnClients()
     {
-        if (TabernManager.Instance.IsTabernOpen && GetIfAllWaitingChairPositionsAreOccupied())
+        if (isTabernOpen && GetIfAllWaitingChairPositionsAreOccupied())
         {
             if (spawnTheSameClient)
             {
@@ -149,7 +149,26 @@ public class ClientManager : Singleton<ClientManager>
             }
         }
     }
-
+    private void SetIsTabernOpen()
+    {
+        if (canOpenTabern)
+        {
+            StartCoroutine(PlayCurrentTabernMusic("TabernOpen"));
+            canOpenTabern = false;
+            isTabernOpen = true;
+            SetRandomSpawnTime();
+        }
+    }
+    private void SetIsTabernClosed()
+    {
+        if (OrdersManagerUI.Instance.TotalOrdersBeforeTabernOpen >= clientManagerData.MinimumOrdersServedToCloseTabern)
+        {
+            StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
+            isTabernOpen = false;
+            OrdersManagerUI.Instance.RemoveTotalOrdersWhenCloseTabern();
+            StartCoroutine(DelayForOpenTabernAgain());
+        }
+    }
     private void GetClientRandomFromPool()
     {
         spawnTime += Time.deltaTime;
@@ -260,13 +279,25 @@ public class ClientManager : Singleton<ClientManager>
         availableClientTypes.Clear();
         availableClientTypes.Add(ClientType.Goblin);
     }
+    private IEnumerator PlayCurrentTabernMusic(string musicClipName)
+    {
+        yield return new WaitUntil(() => AudioManager.Instance != null);
 
+        StartCoroutine(AudioManager.Instance.PlayMusic(musicClipName));
+    }
     private IEnumerator PlaySoundWhenClientEnterTabern()
     {
         yield return new WaitForSeconds(4);
 
         AudioManager.Instance.PlayOneShotSFX("ClientEnterTabern");
     }
+    private IEnumerator DelayForOpenTabernAgain()
+    {
+        yield return new WaitForSeconds(clientManagerData.DelayToOpenTabernAgainAfterClose);
+
+        canOpenTabern = true;
+    }
+
 }
 
 [Serializable]

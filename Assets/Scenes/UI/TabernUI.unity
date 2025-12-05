@@ -130,6 +130,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &15541790 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 942538888525864179, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+  m_PrefabInstance: {fileID: 1945898060514863356}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &194344318
 GameObject:
   m_ObjectHideFlags: 0
@@ -1936,7 +1941,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1036640589
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2336,7 +2341,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1181989508
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2888,7 +2893,7 @@ MonoBehaviour:
   ingredientButtonContainer: {fileID: 1945898060514863361}
   firstUpgradeButtonContainer: {fileID: 1668153075}
   secondUpgradeButtonContainer: {fileID: 682852234}
-  thirdUpgradeButtonContainer: {fileID: 0}
+  thirdUpgradeButtonContainer: {fileID: 15541790}
   confirmationPanel: {fileID: 792667762}
   confirmationText: {fileID: 792667761}
   currentImageUpgrade: {fileID: 1945898060514863358}
@@ -2928,7 +2933,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1474658620
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5185,6 +5190,30 @@ PrefabInstance:
       propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 1463775456}
+    - target: {fileID: 1852147427091572566, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 1852147427091572566, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnUpgradeButtonClicked
+      objectReference: {fileID: 0}
+    - target: {fileID: 1852147427091572566, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 1852147427091572566, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 1852147427091572566, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 1852147427091572566, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 2021018064575796366, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
       propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -5301,6 +5330,30 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 3557955739829514764, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 3557955739829514764, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnUpgradeButtonClicked
+      objectReference: {fileID: 0}
+    - target: {fileID: 3557955739829514764, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 3557955739829514764, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 3557955739829514764, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 3557955739829514764, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 13
+      objectReference: {fileID: 0}
     - target: {fileID: 3750250513228426187, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -5349,6 +5402,30 @@ PrefabInstance:
       propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1463775456}
+    - target: {fileID: 4436969137470159291, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 4436969137470159291, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnUpgradeButtonClicked
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436969137470159291, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 4436969137470159291, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 4436969137470159291, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436969137470159291, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 14
+      objectReference: {fileID: 0}
     - target: {fileID: 5085236143833817096, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -5416,6 +5493,30 @@ PrefabInstance:
     - target: {fileID: 5942888559126762883, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
       propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6284040153983712864, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 6284040153983712864, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnUpgradeButtonClicked
+      objectReference: {fileID: 0}
+    - target: {fileID: 6284040153983712864, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 6284040153983712864, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 6284040153983712864, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 6284040153983712864, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 6461306938480588875, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
       propertyPath: onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -5557,6 +5658,30 @@ PrefabInstance:
       propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1463775456}
+    - target: {fileID: 9107024748971566642, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 9107024748971566642, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnUpgradeButtonClicked
+      objectReference: {fileID: 0}
+    - target: {fileID: 9107024748971566642, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 9107024748971566642, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1463775456}
+    - target: {fileID: 9107024748971566642, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 9107024748971566642, guid: 76fc1e6694f702147a715065e9b633ed, type: 3}
+      propertyPath: OnPointerEnterEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 12
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

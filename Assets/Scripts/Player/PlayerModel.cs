@@ -58,13 +58,13 @@ public class PlayerModel : MonoBehaviour
     public bool IsInTeleportPanel { get => isInTeleportPanel; set => isInTeleportPanel = value; }
     public bool IsInTrashPanel { get => isInTrashPanel; set => isInTrashPanel = value; }
     public bool IsInTutorial { get => isInTutorial; set => isInTutorial = value; }
-    public bool IsInResumeDayPanel { get => isInResumeDayPanel; }
+   // public bool IsInResumeDayPanel { get => isInResumeDayPanel; }
     public bool ReadyToJump { get => readyToJump; set => readyToJump = value; }
 
     void Awake()
     {
         SuscribeToTutorialEvents();
-        SuscribeToResumeDayEvents();
+       // SuscribeToResumeDayEvents();
         GetComponents();
         Initialize();
         SpawnPlayerPosition();
@@ -72,7 +72,6 @@ public class PlayerModel : MonoBehaviour
 
     void OnDestroy()
     {
-        UnsuscribeToTutorialEvents();
         UnsuscribeToTutorialEvents();
     }
 
@@ -190,17 +189,17 @@ public class PlayerModel : MonoBehaviour
         TutorialScreensManager.OnExitTutorial += OnExitInTutorial;
     }
 
-    private void SuscribeToResumeDayEvents()
-    {
-        PlayerView.OnEnterInResumeDay += OnEnterInResumeDay;
-        PlayerView.OnExitInResumeDay += OnExitInResumeDay;
-    }
+    //private void SuscribeToResumeDayEvents()
+    //{
+    //    PlayerView.OnEnterInResumeDay += OnEnterInResumeDay;
+    //    PlayerView.OnExitInResumeDay += OnExitInResumeDay;
+    //}
 
-    private void UnsuscribeToResumeDayEvents()
-    {
-        PlayerView.OnEnterInResumeDay -= OnEnterInResumeDay;
-        PlayerView.OnExitInResumeDay -= OnExitInResumeDay;
-    }
+    //private void UnsuscribeToResumeDayEvents()
+    //{
+    //    PlayerView.OnEnterInResumeDay -= OnEnterInResumeDay;
+    //    PlayerView.OnExitInResumeDay -= OnExitInResumeDay;
+    //}
 
     private void UnsuscribeToTutorialEvents()
     {
