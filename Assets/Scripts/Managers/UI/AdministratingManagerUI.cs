@@ -66,18 +66,18 @@ public class AdministratingManagerUI : MonoBehaviour
     {
         GetComponents();
         InitializeAnimatorEventBindings();
-        SuscribeToPlayerViewEvents();
+        SubscribeToPlayerViewEvents();
         SuscribeToUpdateManagerEvent();
         SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
-        SuscribeToRecipeProgressEvents();
+        SubscribeToRecipeProgressEvents();
     }
 
     void OnDestroy()
     {
-        UnsuscribeToPlayerViewEvents();
+        UnsubscribeToPlayerViewEvents();
         UnsuscribeToUpdateManagerEvent();
         UnsuscribeToPauseManagerRestoreSelectedGameObjectEvent();
-        UnSuscribeToRecipeProgressEvents();
+        UnsubscribeToRecipeProgressEvents();
 
         if (panelAnimator != null)
         {
@@ -440,24 +440,24 @@ public class AdministratingManagerUI : MonoBehaviour
         });
     }
 
-    private void SuscribeToPlayerViewEvents()
+    private void SubscribeToPlayerViewEvents()
     {
         PlayerView.OnEnterInAdministrationMode += OnEnterInAdminMode;
         PlayerView.OnExitInAdministrationMode += OnExitAdminMode;
     }
 
-    private void UnsuscribeToPlayerViewEvents()
+    private void UnsubscribeToPlayerViewEvents()
     {
         PlayerView.OnEnterInAdministrationMode -= OnEnterInAdminMode;
         PlayerView.OnExitInAdministrationMode -= OnExitAdminMode;
     }
 
-    private void SuscribeToRecipeProgressEvents()
+    private void SubscribeToRecipeProgressEvents()
     {
         RecipeProgressManager.Instance.OnIngredientUnlocked += OnIngredientUnlocked;
     }
 
-    private void UnSuscribeToRecipeProgressEvents()
+    private void UnsubscribeToRecipeProgressEvents()
     {
         if (RecipeProgressManager.Instance == null) return;
 

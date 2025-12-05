@@ -279,6 +279,10 @@ public class PauseManager : Singleton<PauseManager>
         {
             settingsPanel.SetActive(false);
         }
+        if(tutorialPanel.activeSelf)
+        {
+            tutorialPanel.SetActive(false);
+        }
     }
 
     private void ShowSettings()

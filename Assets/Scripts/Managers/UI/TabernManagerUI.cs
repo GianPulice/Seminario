@@ -11,6 +11,9 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
     /// Agregar en los layers del canvas, que el canvas de la plata se pueda ver mientras estoy en el Resumen paraque cuando descuente la plata de los gastos se vea la animacion
     /// </summary>
 
+    [Header("Animation")]
+    [SerializeField] private DailyCostAnim dailyCostAnim;
+
     [Header("GaneralContainers:")]
     [SerializeField] private GameObject tabernStatusContainer;
     [SerializeField] private GameObject tabernCurrentTimeContainer;
@@ -34,7 +37,7 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
     private int currentDay = 1;
 
     private float currentMinute = 0f;
-    private float timeSpeed = 20f;
+    private float timeSpeed = 20f; //20f original
 
     private const int OPEN_HOUR = 8;
     private const float DAY_DURATION_MINUTES = 16f * 60f;
@@ -54,7 +57,6 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
     public TextMeshProUGUI NetProfitText { get => netProfitText; }
 
     public int CurrentDay { get => currentDay; set => currentDay = value; }
-
     public float CurrentMinute { get => currentMinute; set => currentMinute = value; }
     public float DAY_DURATION_MINUTES_ { get => DAY_DURATION_MINUTES; }
 
@@ -71,7 +73,7 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
     void UpdateTabernManagerUI()
     {
         UpdateTimer();
-        ChekcInputs();
+        CheckInputs();
     }
 
     void OnDestroy()
@@ -80,14 +82,19 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
         UnsuscribeToPlayerViewEvents();
     }
 
+    public void PlayResumeDayAnimation()
+    {
+        containerResumeDay.SetActive(true);
 
+        if (dailyCostAnim != null)
+            dailyCostAnim.ShowPanel();
+    }
     // Metodo agregado a boton en la UI
     public void ButtonClose()
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         CloseResumeDayPanel();
     }
-
 
     private void SuscribeToUpdateManagerEvent()
     {
@@ -160,7 +167,7 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
         tabernCurrentTimeText.text = $"{hours:00} : {minutes:00}";
     }
 
-    private void ChekcInputs()
+    private void CheckInputs()
     {
         if (!containerResumeDay.activeSelf) return;
 

@@ -55,7 +55,6 @@ public class MessageManager : MonoBehaviour
             UpgradesManager.Instance.OnAllUpgradesCompleted -= HandleAllUpgradesPanel;
         }
         StopIdleAnim();
-        LeanTween.cancel(messagePanel);
     }
     public void CloseButton()
     {
@@ -70,14 +69,14 @@ public class MessageManager : MonoBehaviour
     }
     private void OnEnterUI()
     {
-        isPlayerInUI = true; 
-        HideMessage();       
+        isPlayerInUI = true;
+        HideMessage();
     }
 
     private void OnExitUI()
     {
-        isPlayerInUI = false; 
-        CheckAndShowMessage(); 
+        isPlayerInUI = false;
+        CheckAndShowMessage();
     }
     private void HandleUpgradeMessage(bool canPurchase)
     {
@@ -127,7 +126,7 @@ public class MessageManager : MonoBehaviour
         messagePanel.transform.localScale = Vector3.zero;
 
         LeanTween.move(messageRect, initialPos, animTime)
-            .setEaseOutBack() 
+            .setEaseOutBack()
             .setIgnoreTimeScale(true);
 
         LeanTween.scale(messagePanel, Vector3.one, animTime)

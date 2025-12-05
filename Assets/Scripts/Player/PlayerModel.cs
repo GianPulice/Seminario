@@ -73,7 +73,7 @@ public class PlayerModel : MonoBehaviour
     void OnDestroy()
     {
         UnsuscribeToTutorialEvents();
-        UnsuscribeToTutorialEvents();
+        UnsuscribeToResumeDayEvents();
     }
 
     public void HandleMovement()

@@ -40,18 +40,19 @@ public class TabernManager : Singleton<TabernManager>
 
     public void SkipCurrentDay()
     {
-        // Aca se podria agregar algun evento que heche a la mierda a los clientes que estan en la taberna y que elimine las ordenes en la UI
-        TabernManagerUI.instance.PanelResumeDay.gameObject.SetActive(true);
         PlayerView.OnEnterInResumeDay?.Invoke();
         DeviceManager.Instance.IsUIModeActive = true;
+
+        TabernManagerUI.Instance.PlayResumeDayAnimation();
+
         TabernManagerUI.Instance.OrderPaymentsText.text = "Order Payments: " + orderPaymentsAmount.ToString();
         TabernManagerUI.Instance.TipsEarnedText.text = "Tips Earned: " + tipsEarnedAmount.ToString();
 
         float incomes = orderPaymentsAmount + tipsEarnedAmount;
         float expenses = maintenanceAmount + taxesAmount + purchasedUpgrades + purchasedIngredients;
         float finalAmount = incomes - expenses;
-        TabernManagerUI.Instance.NetProfitText.text = "Net Profit: " + "total incomes(" + incomes.ToString() + ") - total expenses(" + expenses.ToString() + ") = " + finalAmount.ToString();
 
+        TabernManagerUI.Instance.NetProfitText.text = "Net Profit: " + "total incomes(" + incomes.ToString() + ") - total expenses(" + expenses.ToString() + ") = " + finalAmount.ToString();
 
         canOpenTabern = true;
         TabernManagerUI.instance.CurrentDay++;
@@ -79,8 +80,10 @@ public class TabernManager : Singleton<TabernManager>
             StartCoroutine(PlayCurrentTabernMusic("TabernOpen"));
             canOpenTabern = false;
             isTabernOpen = true;
+
             TabernManagerUI.instance.CurrentMinute = 0f;
             TabernManagerUI.instance.TabernStatusText.text = "Tabern is open";
+
             ClientManager.Instance.SetRandomSpawnTime();
         }
     }
@@ -91,13 +94,13 @@ public class TabernManager : Singleton<TabernManager>
         TabernManagerUI.instance.CurrentMinute = TabernManagerUI.instance.DAY_DURATION_MINUTES_;
         TabernManagerUI.instance.TabernCurrentTimeText.text = "24 : 00";
         TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";
+
         StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
     }
 
     private IEnumerator PlayCurrentTabernMusic(string musicClipName)
     {
         yield return new WaitUntil(() => AudioManager.Instance != null);
-
         StartCoroutine(AudioManager.Instance.PlayMusic(musicClipName));
     }
 }
