@@ -51,6 +51,7 @@ public class ClientManager : Singleton<ClientManager>
         InitializeClientPoolDictionary();
         InitializeFoodSpriteDictionary();
         InitializeCurrentClientsThatCanSpawn();
+        SuscribeToOpenTabernButtonEvent();
     }
 
 
@@ -63,6 +64,7 @@ public class ClientManager : Singleton<ClientManager>
     void OnDestroy()
     {
         UnsuscribeToUpdateManagerEvent();
+        UnsuscribeToOpenTabernButtonEvent();
     }
 
 
@@ -133,7 +135,17 @@ public class ClientManager : Singleton<ClientManager>
     {
         UpdateManager.OnUpdate -= UpdateClientManager;
     }
+    private void SuscribeToOpenTabernButtonEvent()
+    {
+        AdministratingManagerUI.OnStartTabern += SetIsTabernOpen;
+        AdministratingManagerUI.OnCloseTabern += SetIsTabernClosed;
+    }
 
+    private void UnsuscribeToOpenTabernButtonEvent()
+    {
+        AdministratingManagerUI.OnStartTabern -= SetIsTabernOpen;
+        AdministratingManagerUI.OnCloseTabern -= SetIsTabernClosed;
+    }
     private void SpawnClients()
     {
         if (isTabernOpen && GetIfAllWaitingChairPositionsAreOccupied())
