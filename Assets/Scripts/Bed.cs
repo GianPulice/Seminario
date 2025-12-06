@@ -43,7 +43,7 @@ public class Bed : MonoBehaviour, IInteractable
         if (TabernManagerUI.Instance.TabernCurrentTimeText.text == "24 : 00")
         {
             string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
-            message = $"Press {keyText} to skip the day";
+            message = $"Press {keyText} to fo to next day";
             return true;
         }
 
