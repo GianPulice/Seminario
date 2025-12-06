@@ -3,20 +3,35 @@ using UnityEngine;
 
 public class TabernManager : Singleton<TabernManager>
 {
+    [SerializeField] private TabernManagerData tabernManagerData;
+
+    private int currentDay = 1;
+
+    private float currentMinute = 0f;
+
     private float orderPaymentsAmount = 0f;
     private float tipsEarnedAmount = 0f;
     private float maintenanceAmount = 0f;
     private float taxesAmount = 0f;
-    private float purchasedUpgrades = 0f;
-    private float purchasedIngredients = 0f;
+    private float burntDishesAmonut = 0f;
+    private float brokenThingsAmount = 0f;
+    private float purchasedIngredientsAmount = 0f;
 
     private bool isTabernOpen = false;
     private bool canOpenTabern = true;
+
+    private const int OPEN_HOUR = 8;
+    private const float DAY_DURATION_MINUTES = 16f * 60f;
+
+    public int CurrentDay { get => currentDay; set => currentDay = value; }
 
     public float OrderPaymentsAmount { get => orderPaymentsAmount; set => orderPaymentsAmount = value; }
     public float TipsEarnedAmount { get => tipsEarnedAmount; set => tipsEarnedAmount = value; }
     public float MaintenanceAmount { get => maintenanceAmount; set => maintenanceAmount = value; }
     public float TaxesAmount { get => taxesAmount; set => taxesAmount = value; }
+    public float BurntDishesAmount { get => burntDishesAmonut; set => burntDishesAmonut = value; }
+    public float BrokenThingsAmount { get => brokenThingsAmount; set => brokenThingsAmount = value; }
+    public float PurchasedIngredientsAmount { get => purchasedIngredientsAmount; set => purchasedIngredientsAmount = value; }
 
     public bool IsTabernOpen { get => isTabernOpen; }
 
@@ -24,7 +39,14 @@ public class TabernManager : Singleton<TabernManager>
     void Awake()
     {
         CreateSingleton(false);
+        SuscribeToUpdateManagerEvent();
         SuscribeToOpenTabernButtonEvent();
+    }
+
+    // Simulacion de Update
+    void UpdateTabernManager()
+    {
+        UpdateTimer();
     }
 
     void Start()
@@ -35,6 +57,7 @@ public class TabernManager : Singleton<TabernManager>
     void OnDestroy()
     {
         UnsuscribeToOpenTabernButtonEvent();
+        UnsuscribeToOpenTabernButtonEvent();
     }
 
 
@@ -42,23 +65,41 @@ public class TabernManager : Singleton<TabernManager>
     {
         PlayerView.OnEnterInResumeDay?.Invoke();
         DeviceManager.Instance.IsUIModeActive = true;
+        CalculetaDifferentTypesOfCosts();
 
         TabernManagerUI.Instance.PlayResumeDayAnimation();
 
         TabernManagerUI.Instance.OrderPaymentsText.text = "Order Payments: " + orderPaymentsAmount.ToString();
         TabernManagerUI.Instance.TipsEarnedText.text = "Tips Earned: " + tipsEarnedAmount.ToString();
 
-        float incomes = orderPaymentsAmount + tipsEarnedAmount;
-        float expenses = maintenanceAmount + taxesAmount + purchasedUpgrades + purchasedIngredients;
-        float finalAmount = incomes - expenses;
+        TabernManagerUI.Instance.MaintenanceText.text = "Maintenance: " + maintenanceAmount.ToString();
+        TabernManagerUI.Instance.TaxesText.text = "Taxes: " + taxesAmount.ToString();
 
-        TabernManagerUI.Instance.NetProfitText.text = "Net Profit: " + "total incomes(" + incomes.ToString() + ") - total expenses(" + expenses.ToString() + ") = " + finalAmount.ToString();
+        TabernManagerUI.Instance.BurntDishesText.text = "Burnt Dishes: " + burntDishesAmonut.ToString();
+        TabernManagerUI.Instance.BrokenThingsText.text = "Broken Things: " + brokenThingsAmount.ToString();
+        TabernManagerUI.Instance.PurchasedIngredientsText.text = "Purchased Ingredients: " + purchasedIngredientsAmount.ToString();
+
+        float totalInncomes = orderPaymentsAmount + tipsEarnedAmount;
+        float totalExpenses = maintenanceAmount + taxesAmount + burntDishesAmonut +brokenThingsAmount + purchasedIngredientsAmount;
+        float finalAmount = totalInncomes - totalExpenses;
+        TabernManagerUI.Instance.NetProfitText.text = "Net Profit: " + "total incomes(" + totalInncomes.ToString() + ") - total expenses(" + totalExpenses.ToString() + ") = " + finalAmount.ToString();
 
         canOpenTabern = true;
-        TabernManagerUI.instance.CurrentDay++;
+        currentDay++;
         TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";
         TabernManagerUI.instance.TabernCurrentTimeText.text = "08 : 00";
-        TabernManagerUI.instance.CurrentDayText.text = "Day " + TabernManagerUI.instance.CurrentDay.ToString();
+        TabernManagerUI.instance.CurrentDayText.text = "Day " + currentDay.ToString();
+    }
+
+
+    private void SuscribeToUpdateManagerEvent()
+    {
+        UpdateManager.OnUpdate += UpdateTabernManager;
+    }
+
+    private void UnsuscribeToUpdateManagerEvent()
+    {
+        UpdateManager.OnUpdate -= UpdateTabernManager;
     }
 
     private void SuscribeToOpenTabernButtonEvent()
@@ -81,7 +122,7 @@ public class TabernManager : Singleton<TabernManager>
             canOpenTabern = false;
             isTabernOpen = true;
 
-            TabernManagerUI.instance.CurrentMinute = 0f;
+            currentMinute = 0f;
             TabernManagerUI.instance.TabernStatusText.text = "Tabern is open";
 
             ClientManager.Instance.SetRandomSpawnTime();
@@ -91,11 +132,38 @@ public class TabernManager : Singleton<TabernManager>
     public void SetIsTabernClosed()
     {
         isTabernOpen = false;
-        TabernManagerUI.instance.CurrentMinute = TabernManagerUI.instance.DAY_DURATION_MINUTES_;
+        currentMinute = DAY_DURATION_MINUTES;
         TabernManagerUI.instance.TabernCurrentTimeText.text = "24 : 00";
         TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";
 
         StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
+    }
+
+    private void UpdateTimer()
+    {
+        if (!isTabernOpen) return;
+        if (currentMinute >= DAY_DURATION_MINUTES)
+        {
+            SetIsTabernClosed();
+            return;
+        }
+
+        currentMinute += Time.deltaTime * tabernManagerData.TimeSpeed;
+
+        float totalMinutes = currentMinute;
+
+        int hours = OPEN_HOUR + Mathf.FloorToInt(totalMinutes / 60f);
+        int minutes = Mathf.FloorToInt(totalMinutes % 60f);
+
+        if (hours >= 24) hours = 0;
+
+        TabernManagerUI.Instance.TabernCurrentTimeText.text = $"{hours:00} : {minutes:00}";
+    }
+
+    private void CalculetaDifferentTypesOfCosts()
+    {
+        maintenanceAmount = tabernManagerData.MaintenanceCostPerDay + TablesManager.Instance.Tables.Count * tabernManagerData.MaintenanceCostPerTable;
+        taxesAmount = (orderPaymentsAmount + tipsEarnedAmount) * (tabernManagerData.TaxesPorcentajeFromIncomes / 100f);
     }
 
     private IEnumerator PlayCurrentTabernMusic(string musicClipName)
