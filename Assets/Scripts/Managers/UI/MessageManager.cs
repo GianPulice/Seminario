@@ -21,11 +21,16 @@ public class MessageManager : MonoBehaviour
     private Vector2 initialPos;
 
     private bool isPlayerInUI = false;
+
     void Awake()
     {
-        messageRect = messagePanel.GetComponent<RectTransform>();
-        initialPos = messageRect.anchoredPosition;
+        if (messagePanel != null)
+        {
+            messageRect = messagePanel.GetComponent<RectTransform>();
+            initialPos = messageRect.anchoredPosition;
+        }
     }
+
     void OnEnable()
     {
         PlayerView.OnEnterInCookMode += OnEnterUI;
@@ -56,10 +61,12 @@ public class MessageManager : MonoBehaviour
         }
         StopIdleAnim();
     }
+
     public void CloseButton()
     {
         HideMessage();
     }
+
     private void CheckAndShowMessage()
     {
         if (UpgradesManager.Exists && UpgradesManager.Instance.reachedMoneyToPurchase)
@@ -67,6 +74,7 @@ public class MessageManager : MonoBehaviour
             ShowMessage();
         }
     }
+
     private void OnEnterUI()
     {
         isPlayerInUI = true;
@@ -78,6 +86,7 @@ public class MessageManager : MonoBehaviour
         isPlayerInUI = false;
         CheckAndShowMessage();
     }
+
     private void HandleUpgradeMessage(bool canPurchase)
     {
         if (canPurchase)
@@ -92,28 +101,44 @@ public class MessageManager : MonoBehaviour
             HideMessage();
         }
     }
+
     private void StartIdleAnim()
     {
         StopIdleAnim();
-        idleTweenId = LeanTween.scale(text.rectTransform, Vector3.one * 1.05f, 0.6f)
-            .setEaseInOutSine()
-            .setLoopPingPong()
-            .setIgnoreTimeScale(true)
-            .id;
+        if (text != null)
+        {
+            idleTweenId = LeanTween.scale(text.rectTransform, Vector3.one * 1.05f, 0.6f)
+                .setEaseInOutSine()
+                .setLoopPingPong()
+                .setIgnoreTimeScale(true)
+                .id;
+        }
     }
+
+    // --- FIX IS APPLIED HERE ---
     private void StopIdleAnim()
     {
         if (idleTweenId != -1)
         {
             LeanTween.cancel(idleTweenId);
-            text.rectTransform.localScale = Vector3.one;
+
+            if (text != null)
+            {
+                text.rectTransform.localScale = Vector3.one;
+            }
+
             idleTweenId = -1;
         }
     }
+    // ---------------------------
+
     private void ShowMessage()
     {
         if (UpgradesManager.Exists && UpgradesManager.Instance.AllUpgradesPurchased) return;
         if (isPlayerInUI) return;
+
+        if (messagePanel == null) return;
+
         if (autoHideCoroutine != null)
             StopCoroutine(autoHideCoroutine);
 
@@ -139,7 +164,7 @@ public class MessageManager : MonoBehaviour
 
     private void HideMessage()
     {
-        if (!messagePanel.activeSelf) return;
+       if (messagePanel == null || !messagePanel.activeSelf) return;
 
         StopIdleAnim();
         if (autoHideCoroutine != null)
@@ -158,9 +183,12 @@ public class MessageManager : MonoBehaviour
             .setIgnoreTimeScale(true)
             .setOnComplete(() =>
             {
-                messagePanel.SetActive(false);
-                messageRect.anchoredPosition = initialPos;
-                messagePanel.transform.localScale = Vector3.one;
+                if (messagePanel != null)
+                {
+                    messagePanel.SetActive(false);
+                    messageRect.anchoredPosition = initialPos;
+                    messagePanel.transform.localScale = Vector3.one;
+                }
             });
     }
 
@@ -173,6 +201,8 @@ public class MessageManager : MonoBehaviour
     private void HandleAllUpgradesPanel()
     {
         if (isPlayerInUI) return;
+        if (allUpgradesPanel == null) return;
+
         allUpgradesPanel.SetActive(true);
         LeanTween.cancel(allUpgradesPanel);
         LeanTween.scale(allUpgradesPanel, Vector3.one, 0.3f)

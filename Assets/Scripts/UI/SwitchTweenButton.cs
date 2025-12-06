@@ -19,7 +19,7 @@ public class SwitchTweenButton : GenericTweenButton
     [SerializeField] private LeanTweenType handleEaseType = LeanTweenType.easeOutCirc;
 
     public Func<bool> OnTryEnableCondition;
-
+    public bool IsLocked { get;private set; } = false;
     protected override void Awake()
     {
         base.Awake();
@@ -63,13 +63,32 @@ public class SwitchTweenButton : GenericTweenButton
     }
     public override void OnPointerClick(PointerEventData eventData)
     {
-        if(isSelected && OnTryEnableCondition != null && !OnTryEnableCondition.Invoke())
+        if (IsLocked)
+        {
+            PlayRejectAnimation();
+            AudioManager.Instance?.PlayOneShotSFX("ButtonClickWrong");
+            MessagePopUp.Show("Tavern is closed. You need to go to Bed");
+            return;
+        }
+
+        if (isSelected && OnTryEnableCondition != null && !OnTryEnableCondition.Invoke())
         {
             PlayRejectAnimation();
             AudioManager.Instance?.PlayOneShotSFX("ButtonClickWrong"); 
             return;
         }
         base.OnPointerClick(eventData);
+    }
+    public void LockSwitch()
+    {
+        IsLocked = true;
+        SetSelected(false);
+        SetInteractable(false);
+    }
+    public void UnlockSwitch()
+    {
+        IsLocked = false;
+        SetInteractable(true);
     }
     private void PlayRejectAnimation()
     {

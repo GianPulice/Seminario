@@ -160,15 +160,8 @@ public class AdministratingManagerUI : MonoBehaviour
             Debug.Log("¡Taberna ABIERTA!");
             onStartTabern?.Invoke();
             localTavernState = true;
-            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_On"
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         }
-        /*if (!isTavernOn)
-        {
-            Debug.Log("¡Taberna CERRADA!");
-            onCloseTabern?.Invoke();
-            localTavernState = false;
-            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell"); // sonido "Switch_Off"
-        }*/
     }
     public void ButtonExit()
     {
