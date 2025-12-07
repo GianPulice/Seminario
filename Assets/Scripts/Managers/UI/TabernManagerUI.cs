@@ -3,10 +3,6 @@ using UnityEngine;
 
 public class TabernManagerUI : Singleton<TabernManagerUI>
 {
-    /// <summary>
-    /// Agregar que si hay clientes dentro de la taberna y termino el tiempo, que no te puedas ir a dormir todavia hasta que se vayan todos
-    /// </summary>
-
     [Header("Animation")]
     [SerializeField] private DailyCostAnim dailyCostAnim;
 

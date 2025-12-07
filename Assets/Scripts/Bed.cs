@@ -19,6 +19,11 @@ public class Bed : MonoBehaviour, IInteractable
 
     public void Interact(bool isPressed)
     {
+        if (TabernManagerUI.Instance.TabernCurrentTimeText.text == "24 : 00" && ClientManager.Instance.ClientsInsideTabern.Count > 0)
+        {
+            return;
+        }
+
         if (TabernManagerUI.Instance.TabernCurrentTimeText.text == "24 : 00")
         {
             TabernManager.Instance.SkipCurrentDay();
@@ -27,6 +32,12 @@ public class Bed : MonoBehaviour, IInteractable
 
     public void ShowOutline()
     {
+        if (TabernManagerUI.Instance.TabernCurrentTimeText.text == "24 : 00" && ClientManager.Instance.ClientsInsideTabern.Count > 0)
+        {
+            OutlineManager.Instance.ShowWithCustomColor(gameObject, Color.red);
+            return;
+        }
+
         if (TabernManagerUI.Instance.TabernCurrentTimeText.text == "24 : 00")
         {
             OutlineManager.Instance.ShowWithDefaultColor(gameObject);
@@ -40,10 +51,16 @@ public class Bed : MonoBehaviour, IInteractable
 
     public bool TryGetInteractionMessage(out string message)
     {
+        if (TabernManagerUI.Instance.TabernCurrentTimeText.text == "24 : 00" && ClientManager.Instance.ClientsInsideTabern.Count > 0)
+        {
+            message = $"Can´t sleep yet, clients are inside tabern";
+            return true;
+        }
+
         if (TabernManagerUI.Instance.TabernCurrentTimeText.text == "24 : 00")
         {
             string keyText = $"<color=yellow> {PlayerInputs.Instance.GetInteractInput()} </color>";
-            message = $"Press {keyText} to fo to next day";
+            message = $"Prees {keyText} to sleep";
             return true;
         }
 

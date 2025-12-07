@@ -3,11 +3,14 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "TabernManagerData", menuName = "ScriptableObjects/Create New TabernManagerData")]
 public class TabernManagerData : ScriptableObject
 {
-    [Tooltip("Poner el valor en 1 representa el tiempo de vida real")]
+    [Header("Poner el valor en 1 en la velocidad representa el tiempo de vida real")]
     [SerializeField] private float timeSpeed;
 
     [SerializeField] private float maintenanceCostPerDay;
     [SerializeField] private float maintenanceCostPerTable;
+    [SerializeField] private float costPerBurntDish;
+    [SerializeField] private float costPerBrokenThings;
+
     [Range(0f, 100f)]
     [SerializeField] private float taxesPorcentajeFromIncomes;
     
@@ -15,5 +18,8 @@ public class TabernManagerData : ScriptableObject
 
     public float MaintenanceCostPerDay { get => maintenanceCostPerDay; }
     public float MaintenanceCostPerTable { get => maintenanceCostPerTable; }
+    public float CostPerBurntDish { get => costPerBurntDish; }
+    public float CostPerBrokenThings { get => costPerBrokenThings; }
+
     public float TaxesPorcentajeFromIncomes { get => taxesPorcentajeFromIncomes; }
 }

@@ -23,6 +23,8 @@ public class TabernManager : Singleton<TabernManager>
     private const int OPEN_HOUR = 8;
     private const float DAY_DURATION_MINUTES = 16f * 60f;
 
+    public TabernManagerData TabernManagerData { get => tabernManagerData; }
+
     public int CurrentDay { get => currentDay; set => currentDay = value; }
 
     public float OrderPaymentsAmount { get => orderPaymentsAmount; set => orderPaymentsAmount = value; }

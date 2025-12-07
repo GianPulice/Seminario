@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ public class ClientManager : Singleton<ClientManager>
     [SerializeField] private List<ObjectPooler> clientPools;
     [SerializeField] private List<FoodTypeSpritePair> foodSpritePairs;
 
+    private List<GameObject> clientsInsideTabern = new List<GameObject>();    
     private List<ClientType> availableClientTypes = new List<ClientType>();
 
     private Dictionary<ClientType, ObjectPooler> clientPoolDictionary = new();
@@ -30,6 +32,7 @@ public class ClientManager : Singleton<ClientManager>
     public Transform SpawnPosition { get => spawnPosition; }
     public Transform OutsidePosition { get => outsidePosition; }
 
+    public List<GameObject> ClientsInsideTabern { get => clientsInsideTabern; }
     public List<ClientType> AvailableClientTypes { get => availableClientTypes; set => availableClientTypes = value; }
 
 
@@ -47,6 +50,7 @@ public class ClientManager : Singleton<ClientManager>
     void UpdateClientManager()
     {
         SpawnClients();
+        Debug.Log(clientsInsideTabern.Count);
     }
 
     void OnDestroy()
@@ -152,7 +156,8 @@ public class ClientManager : Singleton<ClientManager>
                 if (clientPoolDictionary.TryGetValue(selectedType.Value, out ObjectPooler pool))
                 {
                     string prefabName = pool.Prefab.name;
-                    clientAbstractFactory.CreateObject(prefabName);
+                    GameObject newClient = clientAbstractFactory.CreateObject(prefabName);
+                    clientsInsideTabern.Add(newClient);
                     StartCoroutine(PlaySoundWhenClientEnterTabern());
                 }
             }

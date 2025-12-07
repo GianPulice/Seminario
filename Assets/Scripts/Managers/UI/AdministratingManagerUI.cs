@@ -201,7 +201,7 @@ public class AdministratingManagerUI : MonoBehaviour
                 AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
                 IngredientInventoryManager.Instance.IncreaseIngredientStock(ingredient);
                 MoneyManager.Instance.SubMoney(price);
-
+                TabernManager.Instance.PurchasedIngredientsAmount += price;
                 UpdateAllIngredientButtons();
             }
             else
