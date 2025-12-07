@@ -82,7 +82,6 @@ public class SwitchTweenButton : GenericTweenButton
     public void LockSwitch()
     {
         IsLocked = true;
-        SetSelected(false);
         SetInteractable(false);
     }
     public void UnlockSwitch()

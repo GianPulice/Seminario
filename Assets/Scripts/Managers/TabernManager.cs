@@ -39,8 +39,8 @@ public class TabernManager : Singleton<TabernManager>
     void Awake()
     {
         CreateSingleton(false);
-        SuscribeToUpdateManagerEvent();
-        SuscribeToOpenTabernButtonEvent();
+        SubscribeToUpdateManagerEvent();
+        SubscribeToOpenTabernButtonEvent();
     }
 
     // Simulacion de Update
@@ -56,8 +56,8 @@ public class TabernManager : Singleton<TabernManager>
 
     void OnDestroy()
     {
-        UnsuscribeToOpenTabernButtonEvent();
-        UnsuscribeToOpenTabernButtonEvent();
+        UnsubscribeToUpdateManagerEvent();
+        UnsubscribeToOpenTabernButtonEvent();
     }
 
 
@@ -86,32 +86,30 @@ public class TabernManager : Singleton<TabernManager>
 
         canOpenTabern = true;
         currentDay++;
-        TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";
+       // TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";
         TabernManagerUI.instance.TabernCurrentTimeText.text = "08 : 00";
         TabernManagerUI.instance.CurrentDayText.text = "Day " + currentDay.ToString();
+        AdministratingManagerUI.OnCloseTabern?.Invoke();
     }
 
 
-    private void SuscribeToUpdateManagerEvent()
+    private void SubscribeToUpdateManagerEvent()
     {
         UpdateManager.OnUpdate += UpdateTabernManager;
     }
 
-    private void UnsuscribeToUpdateManagerEvent()
+    private void UnsubscribeToUpdateManagerEvent()
     {
         UpdateManager.OnUpdate -= UpdateTabernManager;
     }
-
-    private void SuscribeToOpenTabernButtonEvent()
+    private void SubscribeToOpenTabernButtonEvent()
     {
-        AdministratingManagerUI.OnStartTabern += SetIsTabernOpen;
-        //AdministratingManagerUI.OnCloseTabern += SetIsTabernClosed;
+        AdministratingManagerUI.OnStartTabern += SetIsTabernOpen;       
     }
 
-    private void UnsuscribeToOpenTabernButtonEvent()
+    private void UnsubscribeToOpenTabernButtonEvent()
     {
         AdministratingManagerUI.OnStartTabern -= SetIsTabernOpen;
-        //AdministratingManagerUI.OnCloseTabern -= SetIsTabernClosed;
     }
 
     private void SetIsTabernOpen()
@@ -123,7 +121,7 @@ public class TabernManager : Singleton<TabernManager>
             isTabernOpen = true;
 
             currentMinute = 0f;
-            TabernManagerUI.instance.TabernStatusText.text = "Tabern is open";
+           // TabernManagerUI.instance.TabernStatusText.text = "Tabern is open";
 
             ClientManager.Instance.SetRandomSpawnTime();
         }
@@ -134,9 +132,11 @@ public class TabernManager : Singleton<TabernManager>
         isTabernOpen = false;
         currentMinute = DAY_DURATION_MINUTES;
         TabernManagerUI.instance.TabernCurrentTimeText.text = "24 : 00";
-        TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";
+       // TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";
 
         StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
+        AdministratingManagerUI.OnSetSelectedCurrentGameObject?.Invoke(null);
+        AdministratingManagerUI.OnStartTabern?.Invoke();
     }
 
     private void UpdateTimer()

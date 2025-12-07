@@ -34,8 +34,8 @@ public class PauseManager : Singleton<PauseManager>
 
     private bool isGamePaused = false;
     private bool ignoreFirstSelectedSound = false;
-    private bool wasUiActiveOnPause = false;
     private bool ignorePauseThisFrame = false;
+    private bool ignorePauseInput = false;
 
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
@@ -44,15 +44,14 @@ public class PauseManager : Singleton<PauseManager>
 
     public static Action OnGamePaused { get => onGamePaused; set => onGamePaused = value; }
     public static Action OnGameUnPaused { get => onGameUnPaused; set => onGameUnPaused = value; }
-
     public bool IsGamePaused { get => isGamePaused; }
-    
-    
+
     void Awake()
     {
         CreateSingleton(false);
         SuscribeToUpdateManagerEvent();
         SuscribeToPlayerViewEvents();
+        SubscribeToVictoryEvent();
         GetComponents();
     }
 
@@ -65,6 +64,7 @@ public class PauseManager : Singleton<PauseManager>
     {
         UnsuscribeToUpdateManagerEvent();
         UnsuscribeToPlayerViewEvents();
+        UnsubscribeToVictoryEvent();
     }
 
     // Funcion asignada a botones en la UI para reproducir el sonido selected
@@ -144,7 +144,18 @@ public class PauseManager : Singleton<PauseManager>
     {
         UpdateManager.OnUpdate -= UpdatePauseManager;
     }
-
+    private void SubscribeToVictoryEvent()
+    {
+        VictoryScreen.OnMenuPressed += ButtonMainMenu;
+        VictoryScreen.OnVictory += OnVictory;
+        VictoryScreen.OnVictoryClosed += OnVictoryClosed;
+    }
+    private void UnsubscribeToVictoryEvent()
+    {
+        VictoryScreen.OnMenuPressed -= ButtonMainMenu;
+        VictoryScreen.OnVictory -= OnVictory;
+        VictoryScreen.OnVictoryClosed -= OnVictoryClosed;
+    }
     private void SuscribeToPlayerViewEvents()
     {
         PlayerView.OnEnterInAdministrationMode += OnEnterInUIMode;
@@ -185,7 +196,14 @@ public class PauseManager : Singleton<PauseManager>
     {
         ignorePauseThisFrame = true;
     }
-
+    private void OnVictory()
+    {
+        ignorePauseInput = true;
+    }
+    private void OnVictoryClosed()
+    {
+        ignorePauseInput = false;
+    }
     private void OnExitInUIMode()
     {
         //if (!isGamePaused) return;
@@ -312,6 +330,7 @@ public class PauseManager : Singleton<PauseManager>
 
     private void EnabledOrDisabledPausePanel()
     {
+        if(ignorePauseInput) return;
         if (isGamePaused)
         {
             if (PlayerInputs.Instance.Pause())

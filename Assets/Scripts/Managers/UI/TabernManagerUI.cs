@@ -11,13 +11,13 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
     [SerializeField] private DailyCostAnim dailyCostAnim;
 
     [Header("GaneralContainers:")]
-    [SerializeField] private GameObject tabernStatusContainer;
+  //  [SerializeField] private GameObject tabernStatusContainer;
     [SerializeField] private GameObject tabernCurrentTimeContainer;
     [SerializeField] private GameObject currentDayContainer;
     [SerializeField] private GameObject containerResumeDay;
 
     [Header("TabernStatus:")]
-    [SerializeField] private TextMeshProUGUI tabernStatusText;
+ //   [SerializeField] private TextMeshProUGUI tabernStatusText;
     [SerializeField] private TextMeshProUGUI tabernCurrentTimeText;
     [SerializeField] private TextMeshProUGUI currentDayText;
 
@@ -33,7 +33,7 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
 
     public GameObject PanelResumeDay { get => containerResumeDay; }
 
-    public TextMeshProUGUI TabernStatusText { get => tabernStatusText; }
+  //  public TextMeshProUGUI TabernStatusText { get => tabernStatusText; }
     public TextMeshProUGUI TabernCurrentTimeText { get => tabernCurrentTimeText; }
     public TextMeshProUGUI CurrentDayText { get => currentDayText; }
 
@@ -104,14 +104,14 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
 
     private void OnDisableUI()
     {
-        tabernStatusContainer.SetActive(false);
+      //  tabernStatusContainer.SetActive(false);
         tabernCurrentTimeContainer.SetActive(false);
         currentDayContainer.SetActive(false);
     }
 
     private void OnEnabledUI()
     {
-        tabernStatusContainer.SetActive(true);
+     //   tabernStatusContainer.SetActive(true);
         tabernCurrentTimeContainer.SetActive(true);
         currentDayContainer.SetActive(true);
     }
@@ -135,7 +135,7 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
 
     private void InitializeTabernTexts()
     {
-        tabernStatusText.text = "Tabern is closed";
+        //tabernStatusText.text = "Tabern is closed";
         tabernCurrentTimeText.text = "08 : 00";
         currentDayText.text = "Day " + TabernManager.Instance.CurrentDay.ToString();
     }

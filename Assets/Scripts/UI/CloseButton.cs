@@ -17,6 +17,7 @@ public class CloseButton : MonoBehaviour,IPointerEnterHandler,IPointerExitHandle
     private Vector3 originalScale;
     private bool isPressed = false; // Para saber si el botón está presionado
     private bool isHovering = false; // Para saber si el mouse está encima
+    public UnityEvent OnClickEvent => onClick;
 
     private void Awake()
     {

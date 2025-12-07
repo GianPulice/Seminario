@@ -47,7 +47,6 @@ public class AdministratingManagerUI : MonoBehaviour
     private static event Action<GameObject> onSetSelectedCurrentGameObject;
     private static event Action onClearSelectedCurrentGameObject;
     private static event Action onStartTabern, onCloseTabern;
-
     public static Action OnExitAdmin { get => onExitAdmin; set => onExitAdmin = value; }
     public static Action<GameObject> OnSetSelectedCurrentGameObject { get => onSetSelectedCurrentGameObject; set => onSetSelectedCurrentGameObject = value; }
     public static Action OnClearSelectedCurrentGameObject { get => onClearSelectedCurrentGameObject; set => onClearSelectedCurrentGameObject = value; }
@@ -70,6 +69,7 @@ public class AdministratingManagerUI : MonoBehaviour
         SuscribeToUpdateManagerEvent();
         SuscribeToPauseManagerRestoreSelectedGameObjectEvent();
         SubscribeToRecipeProgressEvents();
+        SubscribeToTabernStateEvents();
     }
 
     void OnDestroy()
@@ -78,6 +78,7 @@ public class AdministratingManagerUI : MonoBehaviour
         UnsuscribeToUpdateManagerEvent();
         UnsuscribeToPauseManagerRestoreSelectedGameObjectEvent();
         UnsubscribeToRecipeProgressEvents();
+        UnsubscribeToTabernStateEvents();
 
         if (panelAnimator != null)
         {
@@ -153,15 +154,37 @@ public class AdministratingManagerUI : MonoBehaviour
     {
         if (startTavernSwitch == null) return;
 
-        bool isTavernOn = startTavernSwitch.GetSelectedState();
-
-        if (isTavernOn)
+        bool selected = startTavernSwitch.GetSelectedState();
+        if (selected)
         {
-            Debug.Log("¡Taberna ABIERTA!");
-            onStartTabern?.Invoke();
-            localTavernState = true;
-            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
+            OnStartTabern?.Invoke();
+            return;
         }
+        if (TabernManager.Instance.IsTabernOpen)
+        {
+            // Cancel the visual change
+            startTavernSwitch.SetSelected(true);
+
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWrong");
+
+            MessagePopUp.Show("You can't close the tavern right now.");
+
+            return;
+        }
+
+        OnCloseTabern?.Invoke();
+    }
+    private void HandleTavernOpened()
+    {
+        localTavernState = true;
+        startTavernSwitch.SetSelected(true);  
+        startTavernSwitch.LockSwitch();        
+    }
+    private void HandleTavernClosed()
+    {
+        localTavernState = false;
+        startTavernSwitch.SetSelected(false);  
+        startTavernSwitch.UnlockSwitch();      
     }
     public void ButtonExit()
     {
@@ -402,6 +425,7 @@ public class AdministratingManagerUI : MonoBehaviour
         }
         if (startTavernSwitch != null)
         {
+            localTavernState = TabernManager.Instance.IsTabernOpen;
             startTavernSwitch.SetSelected(localTavernState);
         }
 
@@ -457,6 +481,16 @@ public class AdministratingManagerUI : MonoBehaviour
         RecipeProgressManager.Instance.OnIngredientUnlocked -= OnIngredientUnlocked;
     }
 
+    private void SubscribeToTabernStateEvents()
+    {
+        OnStartTabern += HandleTavernOpened;
+        OnCloseTabern += HandleTavernClosed;
+    }
+    private void UnsubscribeToTabernStateEvents()
+    {
+        OnStartTabern -= HandleTavernOpened;
+        OnCloseTabern -= HandleTavernClosed;
+    }
     private void GetComponents()
     {
         if (panelAnimator == null)

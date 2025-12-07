@@ -34,6 +34,7 @@ public class UpgradesManager : Singleton<UpgradesManager>
             if (AllUpgradesPurchased)
             {
                 OnAllUpgradesCompleted?.Invoke();
+                
             }
 
             // Verificamos de nuevo si alcanza para la siguiente (o si ya no hay mas)
