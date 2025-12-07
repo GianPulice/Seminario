@@ -8,7 +8,7 @@ public class PlayerInputs : Singleton<PlayerInputs>
 
     private PlayerInputActions inputActions; // Representa la clase creada por default del nuevo Inputsystem
     private Vector2 joystick = Vector2.zero;
-
+    private bool hasWon = false;
     [SerializeField] private bool testJoystickButtonsInDebugger;
 
     public InputsData KeyboardInputs { get => keyboardInputs; }
@@ -44,7 +44,10 @@ public class PlayerInputs : Singleton<PlayerInputs>
         return new Vector2(joystick.x * joystickInputs.SensitivityX, joystick.y * joystickInputs.SensitivityY);
     }
 
-
+    public void HasWon(bool value)
+    {
+        hasWon = value;
+    }
     /* -------------------------------------------TABERN----------------------------------------- */
 
     public bool ShowOrHideDish() => Input.GetKeyDown(keyboardInputs.ShowOrHideDish) || Input.GetKeyDown(joystickInputs.ShowOrHideDish);
@@ -70,8 +73,11 @@ public class PlayerInputs : Singleton<PlayerInputs>
     /* -------------------------------------------UI----------------------------------------- */
 
     public KeyCode GetInteractInput() => DeviceManager.Instance.CurrentDevice == Device.Joystick ? instance.joystickInputs.Interact : instance.keyboardInputs.Interact;
-    public bool BackPanelsUI() => Input.GetKeyDown(KeyCode.Escape);
-
+    public bool BackPanelsUI()
+    {
+        if(hasWon) return false;
+        return Input.GetKeyDown(KeyCode.Escape);
+    }
     // No es necesario desuscribirse porque es singleton
     private void SuscribeToUpdateManagerEvent()
     {

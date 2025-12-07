@@ -40,8 +40,8 @@ public class VictoryScreen : MonoBehaviour
 
     public void Show()
     {
+        PlayerInputs.Instance.HasWon(true);
         gameObject.SetActive(true);
-
         // INITIAL VALUES
         rootGroup.alpha = 0f;
         panelGroup.alpha = 0f;
@@ -120,6 +120,7 @@ public class VictoryScreen : MonoBehaviour
         rootGroup.alpha = 0f;
         panelGroup.alpha = 0f;
         gameObject.SetActive(false);
+        PlayerInputs.Instance.HasWon(false);
     }
 
     public static void RaiseContinue() => OnContinuePressed?.Invoke();
