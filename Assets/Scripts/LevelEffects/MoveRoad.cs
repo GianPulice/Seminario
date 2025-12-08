@@ -62,7 +62,7 @@ public class MoveRoad : MonoBehaviour
     // Simulacion de Update
     void UpdateMoveRoad()
     {
-        if (!isMoving || waypoints == null || waypoints.Length == 0)
+        /*if (!isMoving || waypoints == null || waypoints.Length == 0)
             return;
             
         if (isRotating)
@@ -72,7 +72,7 @@ public class MoveRoad : MonoBehaviour
         else
         {
             MoveToWaypoint();
-        }
+        }*/
     }
 
     void OnDestroy()

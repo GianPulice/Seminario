@@ -6,7 +6,6 @@ public class Upgrade10 : MonoBehaviour, IUpgradable
     [SerializeField] private UpgradesData upgradesData;
 
     [SerializeField] private List<FoodRecipeData> recipesToUnlock;
-    //[SerializeField] private ClientType clientToAdd;
 
     private bool isUnlocked = false;
 
@@ -27,8 +26,6 @@ public class Upgrade10 : MonoBehaviour, IUpgradable
                 RecipeProgressManager.Instance.UnlockIngredient(ingredientAmount.IngredientType);
             }
         }
-
-        //ClientManager.Instance.AvailableClientTypes.Add(clientToAdd); // Agregar nuevo cliente
 
         isUnlocked = true;
     }

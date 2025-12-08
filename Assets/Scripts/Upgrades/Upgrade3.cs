@@ -7,7 +7,6 @@ public class Upgrades3 : MonoBehaviour, IUpgradable
 
     [SerializeField] private List<Table> tablesToActive;
     [SerializeField] private List<GameObject> debris;
-    //[SerializeField] private List<FoodSupport> foodSupportsToActive;
     [SerializeField] private ClientType newClientTypeToAdd;
 
     private bool isUnlocked = false;
@@ -19,14 +18,6 @@ public class Upgrades3 : MonoBehaviour, IUpgradable
 
     public void Unlock()
     {
-        /*if (foodSupportsToActive != null)
-        {
-            foreach (var table in foodSupportsToActive) // Desbloquear soportes de comida
-            {
-                table.gameObject.SetActive(true);
-            }
-        }*/
-
         if (debris != null)
         {
             foreach (var debris in debris) // Desbloquear escombros

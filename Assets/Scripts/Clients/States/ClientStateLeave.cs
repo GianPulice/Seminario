@@ -105,6 +105,7 @@ public class ClientStateLeave<T> : State<T>
                     clientView.SetSpriteTypeName("SpriteHungry");
                     TabernManager.Instance.BrokenThingsAmount += TabernManager.Instance.TabernManagerData.CostPerBrokenThings;
                     MoneyManager.Instance.AddMoney(ClientManager.Instance.ClientManagerData.MinimumPaymentAmount);
+                    MoneyManager.Instance.SubMoney(TabernManager.Instance.TabernManagerData.CostPerBrokenThings);
                 }
 
                 // Si la comida no es la que pidio
@@ -113,7 +114,10 @@ public class ClientStateLeave<T> : State<T>
                     AudioManager.Instance.PlaySFX("ClientHungry");
                     clientView.SetSpriteTypeName("SpriteHungry");
                     TabernManager.Instance.BrokenThingsAmount += TabernManager.Instance.TabernManagerData.CostPerBrokenThings;
+                    MoneyManager.Instance.SubMoney(TabernManager.Instance.TabernManagerData.CostPerBrokenThings);
                 }
+
+                // Si la comida es correcta y esta en buen estado
                 else if (clientModel.CurrentTable.CurrentFoods[0].FoodType == clientView.CurrentSelectedFood)
                 {
                     AudioManager.Instance.PlaySFX("ClientHappy");
@@ -138,6 +142,7 @@ public class ClientStateLeave<T> : State<T>
                 AudioManager.Instance.PlaySFX("ClientHungry");
                 clientView.SetSpriteTypeName("SpriteHungry");
                 TabernManager.Instance.BrokenThingsAmount += TabernManager.Instance.TabernManagerData.CostPerBrokenThings;
+                MoneyManager.Instance.SubMoney(TabernManager.Instance.TabernManagerData.CostPerBrokenThings);
                 //MoneyManager.Instance.SubMoney(GratuityManager.Instance.GratuityManagerData.MissedClientCost);
             }
         }
@@ -146,7 +151,6 @@ public class ClientStateLeave<T> : State<T>
         else
         {
             AudioManager.Instance.PlaySFX("ClientWasWaitingOutsideTooMuchTime");
-            TabernManager.Instance.BrokenThingsAmount += TabernManager.Instance.TabernManagerData.CostPerBrokenThings;
             //MoneyManager.Instance.SubMoney(GratuityManager.Instance.GratuityManagerData.MissedClientCost);
         }
     }

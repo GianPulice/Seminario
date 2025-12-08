@@ -9,14 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a8f57bb81a823954291f18807b30f8a3, type: 3}
-  m_Name: FoodRecipeSacrementalSalad
+  m_Script: {fileID: 11500000, guid: a65b0eec8463c5a47b28281b39376a6c, type: 3}
+  m_Name: DwarfFoodPreferences
   m_EditorClassIdentifier: 
-  foodType: 7
-  ingridients:
-  - ingredientType: 3
-    amount: 1
-  - ingredientType: 15
-    amount: 1
-  - ingredientType: 16
-    amount: 1
+  foodChances:
+  - foodType: 2
+    probability: 45
+  - foodType: 3
+    probability: 35
+  - foodType: 4
+    probability: 20
+  chanceToRequestLockedRecipes: 1

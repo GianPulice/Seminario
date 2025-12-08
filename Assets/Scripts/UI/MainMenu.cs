@@ -149,18 +149,8 @@ public class MainMenu : MonoBehaviour
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
 
-        if (GameManager.Instance.GameSessionType == GameSessionType.Load && SaveSystemManager.SaveExists())
-        {
-            SaveData data = SaveSystemManager.LoadGame();
-            string[] additiveScenes = { data.lastSceneName + "UI", "CompartidoUI" };
-            yield return StartCoroutine(ScenesManager.Instance.LoadScene(data.lastSceneName, additiveScenes));
-        }
-
-        else
-        {
-            string[] additiveScenes = { "TabernUI", "CompartidoUI" };
-            yield return StartCoroutine(ScenesManager.Instance.LoadScene("Tabern", additiveScenes));
-        }
+        string[] additiveScenes = { "TabernUI", "CompartidoUI" };
+        yield return StartCoroutine(ScenesManager.Instance.LoadScene("Tabern", additiveScenes));
     }
 
     private IEnumerator CloseGameAfterClickButton()

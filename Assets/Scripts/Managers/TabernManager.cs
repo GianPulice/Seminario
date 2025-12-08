@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -41,6 +42,12 @@ public class TabernManager : Singleton<TabernManager>
     void Awake()
     {
         CreateSingleton(false);
+
+        if (SaveSystemManager.SaveExists())
+        {
+            SaveSystemManager.OnSavOrLoadAllGame?.Invoke();
+        }
+
         SubscribeToUpdateManagerEvent();
         SubscribeToOpenTabernButtonEvent();
     }
@@ -70,25 +77,43 @@ public class TabernManager : Singleton<TabernManager>
         CalculetaDifferentTypesOfCosts();
 
         TabernManagerUI.Instance.PlayResumeDayAnimation();
+        StartCoroutine(DiscountCostAfterSeconds());
 
-        TabernManagerUI.Instance.OrderPaymentsText.text = "Order Payments: " + orderPaymentsAmount.ToString();
-        TabernManagerUI.Instance.TipsEarnedText.text = "Tips Earned: " + tipsEarnedAmount.ToString();
+        TabernManagerUI.Instance.OrderPaymentsText.text =
+            "Order Payments: <color=#00FF00>$" + orderPaymentsAmount.ToString() + "</color>";
 
-        TabernManagerUI.Instance.MaintenanceText.text = "Maintenance: " + maintenanceAmount.ToString();
-        TabernManagerUI.Instance.TaxesText.text = "Taxes: " + taxesAmount.ToString();
+        TabernManagerUI.Instance.TipsEarnedText.text =
+            "Tips Earned: <color=#00FF00>$" + tipsEarnedAmount.ToString() + "</color>";
 
-        TabernManagerUI.Instance.BurntDishesText.text = "Burnt Dishes: " + burntDishesAmonut.ToString();
-        TabernManagerUI.Instance.BrokenThingsText.text = "Broken Things: " + brokenThingsAmount.ToString();
-        TabernManagerUI.Instance.PurchasedIngredientsText.text = "Purchased Ingredients: " + purchasedIngredientsAmount.ToString();
+        TabernManagerUI.Instance.MaintenanceText.text =
+            "Maintenance: <color=#FF0000>$" + maintenanceAmount.ToString() + "</color>";
+
+        TabernManagerUI.Instance.TaxesText.text =
+            "Taxes: <color=#FF0000>$" + taxesAmount.ToString() + "</color>";
+
+        TabernManagerUI.Instance.BurntDishesText.text =
+            "Burnt Dishes: <color=#FF0000>$" + burntDishesAmonut.ToString() + "</color>";
+
+        TabernManagerUI.Instance.BrokenThingsText.text =
+            "Broken Things: <color=#FF0000>$" + brokenThingsAmount.ToString() + "</color>";
+
+        TabernManagerUI.Instance.PurchasedIngredientsText.text =
+            "Purchased Ingredients: <color=#FF0000>$" + purchasedIngredientsAmount.ToString() + "</color>";
 
         float totalInncomes = orderPaymentsAmount + tipsEarnedAmount;
-        float totalExpenses = maintenanceAmount + taxesAmount + burntDishesAmonut +brokenThingsAmount + purchasedIngredientsAmount;
+        float totalExpenses = maintenanceAmount + taxesAmount + burntDishesAmonut + brokenThingsAmount + purchasedIngredientsAmount;
         float finalAmount = totalInncomes - totalExpenses;
-        TabernManagerUI.Instance.NetProfitText.text = "Net Profit: " + "total incomes(" + totalInncomes.ToString() + ") - total expenses(" + totalExpenses.ToString() + ") = " + finalAmount.ToString();
+
+        string netColor = finalAmount >= 0 ? "#00FF00" : "#FF0000";
+
+        TabernManagerUI.Instance.NetProfitText.text =
+            "Net Profit: total incomes(<color=#00FF00>$" + totalInncomes.ToString() +
+            "</color>) - total expenses(<color=#FF0000>$" + totalExpenses.ToString() +
+            "</color>) = <color=" + netColor + ">$" + finalAmount.ToString() + "</color>";
 
         canOpenTabern = true;
         currentDay++;
-       // TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";
+        TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";
         TabernManagerUI.instance.TabernCurrentTimeText.text = "08 : 00";
         TabernManagerUI.instance.CurrentDayText.text = "Day " + currentDay.ToString();
         AdministratingManagerUI.OnCloseTabern?.Invoke();
@@ -123,8 +148,9 @@ public class TabernManager : Singleton<TabernManager>
             isTabernOpen = true;
 
             currentMinute = 0f;
-           // TabernManagerUI.instance.TabernStatusText.text = "Tabern is open";
+            TabernManagerUI.instance.TabernStatusText.text = "Tabern is open";
 
+            ClientManager.Instance.SpawnTime = 0f;
             ClientManager.Instance.SetRandomSpawnTime();
         }
     }
@@ -134,7 +160,7 @@ public class TabernManager : Singleton<TabernManager>
         isTabernOpen = false;
         currentMinute = DAY_DURATION_MINUTES;
         TabernManagerUI.instance.TabernCurrentTimeText.text = "24 : 00";
-       // TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";
+        TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";
 
         StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
         AdministratingManagerUI.OnSetSelectedCurrentGameObject?.Invoke(null);
@@ -172,5 +198,13 @@ public class TabernManager : Singleton<TabernManager>
     {
         yield return new WaitUntil(() => AudioManager.Instance != null);
         StartCoroutine(AudioManager.Instance.PlayMusic(musicClipName));
+    }
+
+    private IEnumerator DiscountCostAfterSeconds()
+    {
+        yield return new WaitForSeconds(1.5f);
+
+        float fixedExpensesAmount = maintenanceAmount + taxesAmount;
+        MoneyManager.Instance.SubMoney(fixedExpensesAmount);
     }
 }

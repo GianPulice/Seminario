@@ -5,6 +5,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "ClientsFoodPreferencesData", menuName = "ScriptableObjects/Tabern/Create New ClientsFoodPreferencesData")]
 public class ClientsFoodPreferencesData : ScriptableObject
 {
+    [Header("Funciona de tal manera que cada cliente puede pedir unicamente las recetas que se agregan a la lista FoodChances.")]
+    [Header("Pero si esas recetas no estan desbloqueadas el cliente no las puede pedir hasta que esten desbloqueadas.")]
+    [Header("A menos que caiga en la posibilidad de pedir una receta bloqueada, en ese caso elije una bloqueada de todas las recetas del juego, sin importar si las tiene agregada en foodChances de forma aleatoria.")]
     [SerializeField] private List<FoodChances> foodChances;
 
     [Range(0, 100)]
@@ -87,38 +90,5 @@ public class ClientsFoodPreferencesData : ScriptableObject
         }
 
         return highest.FoodType;
-
-        /*var availableFoods = foodChances.FindAll(f => RecipeProgressManager.Instance.IsRecipeUnlocked(f.FoodType));
-
-        if (availableFoods.Count == 0)
-            return null;
-
-        int totalProbability = 0;
-        foreach (var food in availableFoods)
-            totalProbability += food.Probability;
-
-        int roll = UnityEngine.Random.Range(0, totalProbability);
-        int cumulative = 0;
-
-        foreach (var option in availableFoods)
-        {
-            cumulative += option.Probability;
-            if (roll < cumulative)
-                return option.FoodType;
-        }
-
-        // Si por alguna razón no salió en el roll, devolver el que tiene mayor probabilidad
-        FoodChances highestProbabilityFood = null;
-        int highestProb = int.MinValue;
-        foreach (var food in availableFoods)
-        {
-            if (food.Probability > highestProb)
-            {
-                highestProb = food.Probability;
-                highestProbabilityFood = food;
-            }
-        }
-
-        return highestProbabilityFood.FoodType;*/
     }
 }

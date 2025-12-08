@@ -35,6 +35,8 @@ public class ClientManager : Singleton<ClientManager>
     public List<GameObject> ClientsInsideTabern { get => clientsInsideTabern; }
     public List<ClientType> AvailableClientTypes { get => availableClientTypes; set => availableClientTypes = value; }
 
+    public float SpawnTime { get => spawnTime; set => spawnTime = value; }
+
 
     void Awake()
     {
@@ -50,7 +52,6 @@ public class ClientManager : Singleton<ClientManager>
     void UpdateClientManager()
     {
         SpawnClients();
-        Debug.Log(clientsInsideTabern.Count);
     }
 
     void OnDestroy()

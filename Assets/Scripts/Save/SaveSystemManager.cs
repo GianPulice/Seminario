@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEngine;
 
@@ -5,14 +6,19 @@ public class SaveSystemManager : Singleton<SaveSystemManager>
 {
     [SerializeField] private SaveSystemData saveSystemData;
 
+    private static event Action onSaveOrLoadAllGame;
+
     private string path => Application.persistentDataPath + "/save.json";
 
     public SaveSystemData SaveSystemData { get => saveSystemData; }
+
+    public static Action OnSavOrLoadAllGame { get => onSaveOrLoadAllGame; set => onSaveOrLoadAllGame = value; }
 
 
     void Awake()
     {
         CreateSingleton(true);
+        //DeleteAllData();
     }
 
 

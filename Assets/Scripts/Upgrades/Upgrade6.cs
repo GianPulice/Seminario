@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,20 +7,16 @@ public class Upgrade6 : MonoBehaviour, IUpgradable
     [SerializeField] private UpgradesData upgradesData;
 
     [SerializeField] private List<GameObject> newCookingDeskUI;
-    [SerializeField] private SliderCleanDiirtyTableUIData sliderCleanDiirtyTableUIData;
+
+    private static event Action onDecreaseCleanTableMaxHoldTime;
 
     private bool isUnlocked = false;
 
     public UpgradesData UpgradesData => upgradesData;
 
+    public static Action OnDecreaseCleanTableMaxHoldTime { get => onDecreaseCleanTableMaxHoldTime; set => onDecreaseCleanTableMaxHoldTime = value; }
+
     public bool CanUpgrade => !isUnlocked;
-
-
-    // Provisorio restaurar el valor del MaxHoldTime porque los scriptable objects no restauran su valor
-    void OnApplicationQuit()
-    {
-        sliderCleanDiirtyTableUIData.MaxHoldTime = 5f;
-    }
 
 
     public void Unlock()
@@ -29,7 +26,7 @@ public class Upgrade6 : MonoBehaviour, IUpgradable
             kitchen.gameObject.SetActive(true);
         }
 
-        sliderCleanDiirtyTableUIData.MaxHoldTime *= 0.65f; // Aumentar tiempo de limpieza de las mesas.
+        onDecreaseCleanTableMaxHoldTime?.Invoke(); // Aumentar tiempo de limpieza de las mesas.
 
         isUnlocked = true;
     }

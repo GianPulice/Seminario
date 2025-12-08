@@ -12,6 +12,7 @@ public class MoneyManager : Singleton<MoneyManager>
     [SerializeField] private Color deductionColor = Color.red;
 
     private TextMeshProUGUI moneyText;
+
     private bool isInAdminMode = false;
     private float currentMoney;
 
@@ -24,11 +25,9 @@ public class MoneyManager : Singleton<MoneyManager>
         SuscribeToMoneyTextEvent();
         SuscribeToGameManagerEvent();
         SuscribeToPlayerViewEvents();
+        InitializeMoneyDefault();
     }
-    private void OnDisable()
-    {
-        UnsuscribeToPlayerViewEvents();
-    }
+
 
     public void AddMoney(float amount, bool isFromGratuity = false)
     {
@@ -46,7 +45,6 @@ public class MoneyManager : Singleton<MoneyManager>
 
         currentMoney += amount;
         UpdateMoneyText();
-        SaveMoney();
         ShowFloatingMoneyText(amount, true);
 
         if(UpgradesManager.Exists)
@@ -62,7 +60,6 @@ public class MoneyManager : Singleton<MoneyManager>
         }
 
         UpdateMoneyText();
-        SaveMoney();
         ShowFloatingMoneyText(amount, false);
         if (UpgradesManager.Exists)
             UpgradesManager.Instance.RefreshAvailabilityState();
@@ -76,26 +73,26 @@ public class MoneyManager : Singleton<MoneyManager>
 
     private void SuscribeToGameManagerEvent()
     {
-        GameManager.Instance.OnGameSessionStarted += OnInitializeCurrentMoney;
+        //GameManager.Instance.OnGameSessionStarted += OnInitializeCurrentMoney;
+        SaveSystemManager.OnSavOrLoadAllGame += OnInitializeCurrentMoneyWithSaveSystem;
     }
+
     private void SuscribeToPlayerViewEvents()
     {
         PlayerView.OnEnterInAdministrationMode += HandleEnterAdminMode;
         PlayerView.OnExitInAdministrationMode += HandleExitAdminMode;
     }
-    private void UnsuscribeToPlayerViewEvents()
-    {
-        PlayerView.OnEnterInAdministrationMode -= HandleEnterAdminMode;
-        PlayerView.OnExitInAdministrationMode -= HandleExitAdminMode;
-    }
+
     private void HandleEnterAdminMode()
     {
         isInAdminMode = true;
     }
+
     private void HandleExitAdminMode()
     {
         isInAdminMode = false;
     }
+
     private void GetComponentFromEvent(TextMeshProUGUI moneyText)
     {
         this.moneyText = moneyText;
@@ -103,23 +100,33 @@ public class MoneyManager : Singleton<MoneyManager>
         UpdateMoneyText();
     }
 
-    private void OnInitializeCurrentMoney()
+    private void OnInitializeCurrentMoneyWithSaveSystem()
     {
-        if (GameManager.Instance.GameSessionType == GameSessionType.Load && SaveSystemManager.SaveExists())
+        if (!SaveSystemManager.SaveExists())
+        {
+            SaveMoney();
+            return;
+        }
+
+        if (SaveSystemManager.SaveExists())
         {
             SaveData data = SaveSystemManager.LoadGame();
             currentMoney = data.money;
             SaveMoney();
+            return;
         }
 
-        else
-        {
-            currentMoney = moneyManagerData.InitializeCurrentMoneyValue;
-            SaveMoney();
-        }
         if (UpgradesManager.Exists)
         {
             UpgradesManager.Instance.RefreshAvailabilityState();
+        }
+    }
+
+    private void InitializeMoneyDefault()
+    {
+        if (!SaveSystemManager.SaveExists())
+        {
+            currentMoney = moneyManagerData.InitializeCurrentMoneyValue;
         }
     }
 
@@ -136,8 +143,7 @@ public class MoneyManager : Singleton<MoneyManager>
     }
 
     private void ShowFloatingMoneyText(float amount, bool positive)
-    {
-        
+    {   
         FloatingMoneyText go = Instantiate(floatingMoneyText, moneyText.transform.position, Quaternion.identity);
 
         if (positive)

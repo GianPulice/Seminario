@@ -383,6 +383,7 @@ public class Food : MonoBehaviour, IInteractable
                     currentAudioSource3D.Play();
                     smoke.gameObject.SetActive(true);
                     TabernManager.Instance.BurntDishesAmount += TabernManager.Instance.TabernManagerData.CostPerBurntDish;
+                    MoneyManager.Instance.SubMoney(TabernManager.Instance.TabernManagerData.CostPerBurntDish);
                 }
 
                 if (isInPlayerDishPosition)

@@ -102,7 +102,7 @@ public class PauseManager : Singleton<PauseManager>
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         Time.timeScale = 1f;
 
-        SaveLastSceneName();
+        //SaveLastSceneName();
         GameManager.Instance.GameSessionType = GameSessionType.None;
         string[] additiveScenes = { "MainMenuUI" };
         StartCoroutine(loadSceneAfterSeconds("MainMenu", additiveScenes));
@@ -110,7 +110,7 @@ public class PauseManager : Singleton<PauseManager>
 
     public void ButtonExit()
     {
-        SaveLastSceneName();
+        //SaveLastSceneName();
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         StartCoroutine(ExitGameAfterSeconds());
     }
@@ -168,7 +168,7 @@ public class PauseManager : Singleton<PauseManager>
         PlayerView.OnExitTutorial += OnExitInUIMode;
 
         PlayerView.OnEnterInResumeDay += OnEnterInUIMode;
-        PlayerView.OnExitInResumeDay += OnExitInUIMode;
+       PlayerView.OnExitInResumeDay += OnExitInUIMode;
 
         Trash.OnShowPanelTrash += OnEnterInUIMode;
         Trash.OnHidePanelTrash += OnExitInUIMode;
@@ -357,12 +357,12 @@ public class PauseManager : Singleton<PauseManager>
         }
     }
 
-    private void SaveLastSceneName()
+    /*private void SaveLastSceneName()
     {
         SaveData data = SaveSystemManager.LoadGame();
         data.lastSceneName = ScenesManager.Instance.CurrentSceneName;
         SaveSystemManager.SaveGame(data);
-    }
+    }*/
 
     private IEnumerator loadSceneAfterSeconds(string sceneName, string[] sceneNameAdditive)
     {

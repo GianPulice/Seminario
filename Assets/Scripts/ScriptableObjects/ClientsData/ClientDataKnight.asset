@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afdfd4dde2f8a80478663ff496377515, type: 3}
+  m_Name: ClientDataKnight
+  m_EditorClassIdentifier: 
+  clientImage: {fileID: 21300000, guid: d4713fb85f931714fbc23546e3ff6e89, type: 3}
+  speed: 3
+  maxTimeWaitingForChair: 30
+  maxTimeWaitingToBeAttended: 35
+  maxTimeWaitingFood: 40
+  maxTimeEating: 10
+  gratuityOptionsPercentage:
+  - probability: 40
+    gratuityPercentage: 4
+  - probability: 36
+    gratuityPercentage: 5
+  - probability: 29
+    gratuityPercentage: 7
+  - probability: 18
+    gratuityPercentage: 11
+  - probability: 12
+    gratuityPercentage: 16
+  - probability: 6
+    gratuityPercentage: 20
+  probabilityToGiveGratuity: 35

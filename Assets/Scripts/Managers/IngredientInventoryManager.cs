@@ -104,7 +104,7 @@ public class IngredientInventoryManager : Singleton<IngredientInventoryManager>
 
     private void OnInitializeInventory()
     {
-        if (GameManager.Instance.GameSessionType == GameSessionType.Load && SaveSystemManager.SaveExists())
+        /*if (GameManager.Instance.GameSessionType == GameSessionType.Load && SaveSystemManager.SaveExists())
         {
             SaveData data = SaveSystemManager.LoadGame();
 
@@ -137,14 +137,14 @@ public class IngredientInventoryManager : Singleton<IngredientInventoryManager>
                     ingredientInventory[ingredient] = ingredientInventoryManagerData.InitializeStockForAllIngredients;
                 }
             }
-        }
+        }*/
 
-        SaveInventory();
+        //SaveInventory();
     }
 
     private void SaveInventory()
     {
-        SaveData data = SaveSystemManager.LoadGame();
+        /*SaveData data = SaveSystemManager.LoadGame();
 
         data.ingredientInventory.Clear();
 
@@ -157,7 +157,7 @@ public class IngredientInventoryManager : Singleton<IngredientInventoryManager>
             });
         }
 
-        SaveSystemManager.SaveGame(data);
+        SaveSystemManager.SaveGame(data);*/
     }
 
     private void InitializeIngredientData()

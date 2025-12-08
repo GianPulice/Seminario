@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -7,13 +8,15 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
     [SerializeField] private DailyCostAnim dailyCostAnim;
 
     [Header("GaneralContainers:")]
-  //  [SerializeField] private GameObject tabernStatusContainer;
+    [SerializeField] private GameObject tabernStatusContainer;
     [SerializeField] private GameObject tabernCurrentTimeContainer;
     [SerializeField] private GameObject currentDayContainer;
+    [SerializeField] private GameObject blackBackground;
+    [SerializeField] private CanvasGroup blackBackgroundCanvasGroup;
     [SerializeField] private GameObject containerResumeDay;
 
     [Header("TabernStatus:")]
- //   [SerializeField] private TextMeshProUGUI tabernStatusText;
+    [SerializeField] private TextMeshProUGUI tabernStatusText;
     [SerializeField] private TextMeshProUGUI tabernCurrentTimeText;
     [SerializeField] private TextMeshProUGUI currentDayText;
 
@@ -27,9 +30,13 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
     [SerializeField] private TextMeshProUGUI purchasedIngredientsText;
     [SerializeField] private TextMeshProUGUI netProfitText;
 
+    private Coroutine fadeRoutine;
+
+    private float fadeDuration = 1f;
+
     public GameObject PanelResumeDay { get => containerResumeDay; }
 
-  //  public TextMeshProUGUI TabernStatusText { get => tabernStatusText; }
+    public TextMeshProUGUI TabernStatusText { get => tabernStatusText; }
     public TextMeshProUGUI TabernCurrentTimeText { get => tabernCurrentTimeText; }
     public TextMeshProUGUI CurrentDayText { get => currentDayText; }
 
@@ -61,14 +68,12 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         CloseResumeDayPanel();
+        SaveSystemManager.OnSavOrLoadAllGame?.Invoke();
     }
 
     public void PlayResumeDayAnimation()
     {
-        containerResumeDay.SetActive(true);
-
-        if (dailyCostAnim != null)
-            dailyCostAnim.ShowPanel();
+        FadeBlackBackground(true);
     }
 
 
@@ -100,14 +105,14 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
 
     private void OnDisableUI()
     {
-      //  tabernStatusContainer.SetActive(false);
+        tabernStatusContainer.SetActive(false);
         tabernCurrentTimeContainer.SetActive(false);
         currentDayContainer.SetActive(false);
     }
 
     private void OnEnabledUI()
     {
-     //   tabernStatusContainer.SetActive(true);
+        tabernStatusContainer.SetActive(true);
         tabernCurrentTimeContainer.SetActive(true);
         currentDayContainer.SetActive(true);
     }
@@ -115,6 +120,7 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
     private void CloseResumeDayPanel()
     {
         containerResumeDay.gameObject.SetActive(false);
+        FadeBlackBackground(false);
         PlayerView.OnExitInResumeDay?.Invoke();
         DeviceManager.Instance.IsUIModeActive = false;
 
@@ -131,8 +137,46 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
 
     private void InitializeTabernTexts()
     {
-        //tabernStatusText.text = "Tabern is closed";
+        tabernStatusText.text = "Tabern is closed";
         tabernCurrentTimeText.text = "08 : 00";
         currentDayText.text = "Day " + TabernManager.Instance.CurrentDay.ToString();
+    }
+
+    private void FadeBlackBackground(bool fadeIn)
+    {
+        if (fadeRoutine != null)
+            StopCoroutine(fadeRoutine);
+
+        blackBackground.SetActive(true);
+        fadeRoutine = StartCoroutine(FadeRoutine(fadeIn));
+    }
+
+    private IEnumerator FadeRoutine(bool fadeIn)
+    {
+        float start = blackBackgroundCanvasGroup.alpha;
+        float end = fadeIn ? 1f : 0f;
+        float t = 0f;
+
+        while (t < fadeDuration)
+        {
+            t += Time.deltaTime;
+            blackBackgroundCanvasGroup.alpha = Mathf.Lerp(start, end, t / fadeDuration);
+            yield return null;
+        }
+
+        blackBackgroundCanvasGroup.alpha = end;
+
+        blackBackground.SetActive(fadeIn);
+        containerResumeDay.SetActive(fadeIn);
+
+        if (fadeIn)
+        {
+            dailyCostAnim.ShowPanel();
+        }
+
+        else
+        {
+            dailyCostAnim.HidePanel();
+        }
     }
 }

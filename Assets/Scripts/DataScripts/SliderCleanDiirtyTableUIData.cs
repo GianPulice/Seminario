@@ -10,9 +10,9 @@ public class SliderCleanDiirtyTableUIData : ScriptableObject
 {
     [SerializeField] private SliderCleanDirtyTableType sliderType;
 
-    [SerializeField] private float maxHoldTime;
+    [SerializeField] private float initializeMaxHoldTime;
 
     public SliderCleanDirtyTableType SliderType { get => sliderType; }
 
-    public float MaxHoldTime { get => maxHoldTime; set => maxHoldTime = value; }
+    public float InitializeMaxHoldTime { get => initializeMaxHoldTime; }
 }

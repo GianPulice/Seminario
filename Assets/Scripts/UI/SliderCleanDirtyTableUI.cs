@@ -15,6 +15,8 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
 
     private Action onActiveSlider, onDeactivateSlider;
 
+    private float maxHoldTime = 0f;
+
 
     void Awake()
     {
@@ -22,7 +24,9 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
         SuscribeToLamdaEvents();
         SuscribeToPlayerViewEvents();
         SuscribeToPlayerControllerEvents();
+        SuscribeToUpgradeMaxHoldTime();
         ChooseCurrentSliderType();
+        InitializeMaxHoldTime();
     }
 
     // Simulacion de Update
@@ -37,6 +41,7 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
         UnsuscribeToLamdaEvents();
         UnuscribeToPlayerViewEvents();
         UnsuscribeToPlayerControllerEvents();
+        UnsuscribeToUpgradeMaxHoldTime();
     }
 
 
@@ -86,6 +91,16 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
         PlayerController.OnCleanDirtyTableDecreaseSlider -= DecreaseSliderFromCurrentTable;
     }
 
+    private void SuscribeToUpgradeMaxHoldTime()
+    {
+        Upgrade6.OnDecreaseCleanTableMaxHoldTime += DecreaseMaxHoldTime;
+    }
+
+    private void UnsuscribeToUpgradeMaxHoldTime()
+    {
+        Upgrade6.OnDecreaseCleanTableMaxHoldTime -= DecreaseMaxHoldTime;
+    }
+
     private void ActivateOrDeactivateSlider(bool current)
     {
         if (!current)
@@ -104,11 +119,11 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
         }
 
         currentTable.CurrentCleanProgress += Time.deltaTime;
-        currentTable.CurrentCleanProgress = Mathf.Min(currentTable.CurrentCleanProgress, sliderCleanDiirtyTableUIData.MaxHoldTime);
+        currentTable.CurrentCleanProgress = Mathf.Min(currentTable.CurrentCleanProgress, maxHoldTime);
 
         UpdateSliderValueFromCurrentTable(currentTable);
 
-        if (currentTable.CurrentCleanProgress >= sliderCleanDiirtyTableUIData.MaxHoldTime)
+        if (currentTable.CurrentCleanProgress >= maxHoldTime)
         {
             currentTable.CurrentCleanProgress = 0;
             currentSlider.value = currentSlider.minValue;
@@ -135,7 +150,7 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
 
     private void UpdateSliderValueFromCurrentTable(Table table)
     {
-        currentSlider.value = table.CurrentCleanProgress / sliderCleanDiirtyTableUIData.MaxHoldTime;
+        currentSlider.value = table.CurrentCleanProgress / maxHoldTime;
     }
 
     private void DecreaseAllSliderValuesExceptCurrentTable()
@@ -154,6 +169,11 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
         }
     }
 
+    private void DecreaseMaxHoldTime()
+    {
+        maxHoldTime *= 0.65f;
+    }
+
     private void ChooseCurrentSliderType()
     {
         if (sliderCleanDiirtyTableUIData.SliderType == SliderCleanDirtyTableType.SliderBar)
@@ -165,5 +185,10 @@ public class SliderCleanDirtyTableUI : MonoBehaviour
         {
             currentSlider = sliderRadial;
         }
+    }
+
+    private void InitializeMaxHoldTime()
+    {
+        maxHoldTime = sliderCleanDiirtyTableUIData.InitializeMaxHoldTime;
     }
 }

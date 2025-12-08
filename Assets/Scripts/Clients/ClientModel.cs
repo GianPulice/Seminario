@@ -9,7 +9,7 @@ public enum ClientStates
 
 public enum ClientType
 {
-    Ogre, Orc, Goblin 
+    Ogre, Orc, Goblin, Knight, BigOrc, Dwarf
 }
 
 public class ClientModel : MonoBehaviour
