@@ -50,6 +50,7 @@ public class TabernManager : Singleton<TabernManager>
 
         SubscribeToUpdateManagerEvent();
         SubscribeToOpenTabernButtonEvent();
+        VictoryScreen.OnVictory += ApplyDailyCosts;
     }
 
     // Simulacion de Update
@@ -67,6 +68,7 @@ public class TabernManager : Singleton<TabernManager>
     {
         UnsubscribeToUpdateManagerEvent();
         UnsubscribeToOpenTabernButtonEvent();
+        VictoryScreen.OnVictory -= ApplyDailyCosts;
     }
 
 
@@ -77,7 +79,6 @@ public class TabernManager : Singleton<TabernManager>
         CalculetaDifferentTypesOfCosts();
 
         TabernManagerUI.Instance.PlayResumeDayAnimation();
-        StartCoroutine(DiscountCostAfterSeconds());
 
         TabernManagerUI.Instance.OrderPaymentsText.text =
             "Order Payments: <color=#00FF00>$" + orderPaymentsAmount.ToString() + "</color>";
@@ -197,18 +198,14 @@ public class TabernManager : Singleton<TabernManager>
         maintenanceAmount = tabernManagerData.MaintenanceCostPerDay + TablesManager.Instance.Tables.Count * tabernManagerData.MaintenanceCostPerTable;
         taxesAmount = (orderPaymentsAmount + tipsEarnedAmount) * (tabernManagerData.TaxesPorcentajeFromIncomes / 100f);
     }
-
+    private void ApplyDailyCosts()
+    {
+        float fixedExpensesAmount = maintenanceAmount + taxesAmount;
+        MoneyManager.Instance.SubMoney(fixedExpensesAmount);
+    }
     private IEnumerator PlayCurrentTabernMusic(string musicClipName)
     {
         yield return new WaitUntil(() => AudioManager.Instance != null);
         StartCoroutine(AudioManager.Instance.PlayMusic(musicClipName));
-    }
-
-    private IEnumerator DiscountCostAfterSeconds()
-    {
-        yield return new WaitForSeconds(1.5f);
-
-        float fixedExpensesAmount = maintenanceAmount + taxesAmount;
-        MoneyManager.Instance.SubMoney(fixedExpensesAmount);
     }
 }

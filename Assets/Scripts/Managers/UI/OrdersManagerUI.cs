@@ -9,7 +9,7 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
     [SerializeField] private GameObject orderUIPrefab;
     [Header("UI Effect")]
     [SerializeField] private Vector3 cookingScale = new Vector3(0.8f, 0.8f, 0.8f);
-    [SerializeField] private float cookingOffsetY = -50f;
+    [SerializeField] private Vector2 cookingOffset = new Vector2(15,75);
     [SerializeField] private float animTime = 0.4f;
     [SerializeField] private LeanTweenType easeType = LeanTweenType.easeOutQuad;
 
@@ -145,7 +145,7 @@ public class OrdersManagerUI : Singleton<OrdersManagerUI>
             }
         }
 
-        Vector2 target = originalAnchoredPos + new Vector2(0f, cookingOffsetY);
+        Vector2 target = originalAnchoredPos + cookingOffset;
 
         LeanTween.move(ordersContainer, target, animTime)
             .setEase(easeType)
