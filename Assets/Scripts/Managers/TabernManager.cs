@@ -165,6 +165,10 @@ public class TabernManager : Singleton<TabernManager>
         StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
         AdministratingManagerUI.OnSetSelectedCurrentGameObject?.Invoke(null);
         AdministratingManagerUI.OnStartTabern?.Invoke();
+
+        bool canTrigger = TutorialListener.Instance != null && TutorialListener.instance.TryTriggerManualTutorial(TutorialType.Bed);
+        if (canTrigger)
+            TutorialScreensManager.instance.SetTutorialType(TutorialType.Bed);
     }
 
     private void UpdateTimer()

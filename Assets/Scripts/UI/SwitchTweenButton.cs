@@ -74,7 +74,8 @@ public class SwitchTweenButton : GenericTweenButton
         if (isSelected && OnTryEnableCondition != null && !OnTryEnableCondition.Invoke())
         {
             PlayRejectAnimation();
-            AudioManager.Instance?.PlayOneShotSFX("ButtonClickWrong"); 
+            AudioManager.Instance?.PlayOneShotSFX("ButtonClickWrong");
+            MessagePopUp.Show("Can't close until 24:00");
             return;
         }
         base.OnPointerClick(eventData);

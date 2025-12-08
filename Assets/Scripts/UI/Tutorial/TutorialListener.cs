@@ -20,6 +20,19 @@ public class TutorialListener : Singleton<TutorialListener>
     {
         return tutorialFlags.Values.All(flag => flag == false);
     }
+    public bool TryTriggerManualTutorial(TutorialType type)
+    {
+        if (!tutorialFlags.ContainsKey(type))
+            return false;
+
+        if (tutorialFlags[type])
+        {
+            tutorialFlags[type] = false;        // marcar como mostrado
+            return true;                        // permitir tutorial
+        }
+
+        return false; // ya fue visto
+    }
     private void InitializeFlags()
     {
         foreach (TutorialType type in Enum.GetValues(typeof(TutorialType)))

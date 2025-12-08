@@ -7,7 +7,8 @@ public enum TutorialType
 {
     Admin,
     Cooking,
-    Clients
+    Clients,
+    Bed
 }
 
 public class TutorialScreensManager : Singleton<TutorialScreensManager>

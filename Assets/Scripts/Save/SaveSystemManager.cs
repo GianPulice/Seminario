@@ -45,6 +45,8 @@ public class SaveSystemManager : Singleton<SaveSystemManager>
 
     public static bool SaveExists()
     {
+        if(instance == null) return false;
+        if(instance.saveSystemData == null) return false;
         if (!instance.saveSystemData.UseSaveSystem) return false;
 
         return File.Exists(instance.path);
