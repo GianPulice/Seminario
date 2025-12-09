@@ -18,5 +18,11 @@ MonoBehaviour:
   maxTimeWaitingToBeAttended: 45
   maxTimeWaitingFood: 35
   maxTimeEating: 9
-  gratuityOptionsPercentage: []
-  probabilityToGiveGratuity: 0
+  gratuityOptionsPercentage:
+  - probability: 35
+    gratuityPercentage: 15
+  - probability: 35
+    gratuityPercentage: 20
+  - probability: 30
+    gratuityPercentage: 25
+  probabilityToGiveGratuity: 30
