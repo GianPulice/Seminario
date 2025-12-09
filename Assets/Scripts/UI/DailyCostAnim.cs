@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,10 @@ public class DailyCostAnim : MonoBehaviour
     [Header("References")]
     [SerializeField] private RectTransform bigObject;
     [SerializeField] private GameObject button;
+
+    public GameObject Button {  get => button; set => button = value; }
+
+    public static event Action onFinishedAnim;
 
     private Vector3 originalScale;
 
@@ -52,7 +57,7 @@ public class DailyCostAnim : MonoBehaviour
         // Pop panel
         LeanTween.scale(bigObject, originalScale, scaleTime)
             .setEase(scaleEase)
-            .setIgnoreTimeScale(true)
+            .setIgnoreTimeScale(false)
             .setOnComplete(() =>
             {
                 StartTextTimeline();
@@ -69,14 +74,14 @@ public class DailyCostAnim : MonoBehaviour
 
             LeanTween.alphaCanvas(cg, 1f, textFadeTime)
                 .setDelay(delay)
-                .setIgnoreTimeScale(true);
+                .setIgnoreTimeScale(false);
 
             delay += textFadeTime + delayBetweenLines;
         }
 
         // After all lines finish: Show button
         LeanTween.delayedCall(delay, ShowButton)
-            .setIgnoreTimeScale(true);
+            .setIgnoreTimeScale(false);
     }
 
     private void ShowButton()
@@ -87,7 +92,8 @@ public class DailyCostAnim : MonoBehaviour
 
         LeanTween.scale(button, Vector3.one, 0.25f)
             .setEase(LeanTweenType.easeOutBack)
-            .setIgnoreTimeScale(true);
+            .setIgnoreTimeScale(false);
+        onFinishedAnim?.Invoke();
     }
 
     public void HidePanel()
@@ -103,7 +109,7 @@ public class DailyCostAnim : MonoBehaviour
         // Shrink panel
         LeanTween.scale(bigObject, initialScale, 0.3f)
             .setEase(LeanTweenType.easeInBack)
-            .setIgnoreTimeScale(true)
+            .setIgnoreTimeScale(false)
             .setOnComplete(() =>
             {
                 gameObject.SetActive(false);

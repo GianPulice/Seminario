@@ -14,6 +14,7 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
     [SerializeField] private GameObject blackBackground;
     [SerializeField] private CanvasGroup blackBackgroundCanvasGroup;
     [SerializeField] private GameObject containerResumeDay;
+    [SerializeField] private GameObject loadingCircle;
 
     [Header("TabernStatus:")]
     [SerializeField] private TextMeshProUGUI tabernStatusText;
@@ -33,8 +34,6 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
     private Coroutine fadeRoutine;
 
     private float fadeDuration = 1f;
-
-    public GameObject PanelResumeDay { get => containerResumeDay; }
 
     public TextMeshProUGUI TabernStatusText { get => tabernStatusText; }
     public TextMeshProUGUI TabernCurrentTimeText { get => tabernCurrentTimeText; }
@@ -68,7 +67,7 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
     {
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         CloseResumeDayPanel();
-        SaveSystemManager.OnSavOrLoadAllGame?.Invoke();
+        SaveSystemManager.OnSaveAllGameData?.Invoke();
     }
 
     public void PlayResumeDayAnimation()
@@ -119,6 +118,7 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
 
     private void CloseResumeDayPanel()
     {
+        StartCoroutine(LoadingDataEffect());
         containerResumeDay.gameObject.SetActive(false);
         FadeBlackBackground(false);
         PlayerView.OnExitInResumeDay?.Invoke();
@@ -133,6 +133,13 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
 
         TabernManager.Instance.BrokenThingsAmount = 0;
         TabernManager.Instance.PurchasedIngredientsAmount = 0;
+
+        TabernManager.Instance.CanOpenTabern = true;
+        TabernManager.Instance.CurrentDay++;
+        tabernStatusText.text = "Tabern is closed";
+        tabernCurrentTimeText.text = "08 : 00";
+        currentDayText.text = "Day " + TabernManager.Instance.CurrentDay.ToString();
+        AdministratingManagerUI.OnCloseTabern?.Invoke();
     }
 
     private void InitializeTabernTexts()
@@ -178,5 +185,14 @@ public class TabernManagerUI : Singleton<TabernManagerUI>
         {
             dailyCostAnim.HidePanel();
         }
+    }
+
+    private IEnumerator LoadingDataEffect()
+    {
+        loadingCircle.gameObject.SetActive(true);
+
+        yield return new WaitForSeconds(3f);
+
+        loadingCircle.gameObject.SetActive(false);
     }
 }

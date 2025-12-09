@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+
 public enum TutorialType
 {
     Admin,
@@ -35,17 +36,24 @@ public class TutorialScreensManager : Singleton<TutorialScreensManager>
     void Awake()
     {
         CreateSingleton(false);
+        SuscribeToUpdateManagerEvent();
         BuildDictionary();
-
     }
 
-    void Update()
+    // Simulacion de Update
+    void UpdateTutorialScreensManager()
     {
         if (PlayerInputs.Instance.BackPanelsUI() && isInTutorial)
         {
             Close();
         }
     }
+
+    void OnDestroy()
+    {
+        UnsuscribeToUpdateManagerEvent();
+    }
+
 
     public void SetTutorialType(TutorialType tutorialType)
     {
@@ -75,6 +83,17 @@ public class TutorialScreensManager : Singleton<TutorialScreensManager>
             Debug.LogError($"Índice de tutorial '{tutorialTypeIndex}' no es válido.", this);
     }
 
+
+    private void SuscribeToUpdateManagerEvent()
+    {
+        UpdateManager.OnUpdate += UpdateTutorialScreensManager;
+    }
+
+    private void UnsuscribeToUpdateManagerEvent()
+    {
+        UpdateManager.OnUpdate -= UpdateTutorialScreensManager;
+    }
+
     private void UpdateTutorialImage()
     {
         if (tutorialData.ActivateTutorial == false) return;
@@ -93,6 +112,7 @@ public class TutorialScreensManager : Singleton<TutorialScreensManager>
         }
         appearAnim?.ShowPannel();
     }
+
     private void BuildDictionary()
     {
         tutorialImageDictionary = tutorialImages

@@ -52,6 +52,7 @@ public class PauseManager : Singleton<PauseManager>
         SuscribeToUpdateManagerEvent();
         SuscribeToPlayerViewEvents();
         SubscribeToVictoryEvent();
+        SuscribeToLooseScreenEvent();
         GetComponents();
     }
 
@@ -65,6 +66,7 @@ public class PauseManager : Singleton<PauseManager>
         UnsuscribeToUpdateManagerEvent();
         UnsuscribeToPlayerViewEvents();
         UnsubscribeToVictoryEvent();
+        UnsuscribeToLooseScreenEvent();
     }
 
     // Funcion asignada a botones en la UI para reproducir el sonido selected
@@ -102,7 +104,6 @@ public class PauseManager : Singleton<PauseManager>
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         Time.timeScale = 1f;
 
-        //SaveLastSceneName();
         GameManager.Instance.GameSessionType = GameSessionType.None;
         string[] additiveScenes = { "MainMenuUI" };
         StartCoroutine(loadSceneAfterSeconds("MainMenu", additiveScenes));
@@ -110,7 +111,6 @@ public class PauseManager : Singleton<PauseManager>
 
     public void ButtonExit()
     {
-        //SaveLastSceneName();
         AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
         StartCoroutine(ExitGameAfterSeconds());
     }
@@ -144,18 +144,35 @@ public class PauseManager : Singleton<PauseManager>
     {
         UpdateManager.OnUpdate -= UpdatePauseManager;
     }
+
     private void SubscribeToVictoryEvent()
     {
         VictoryScreen.OnMenuPressed += ButtonMainMenu;
         VictoryScreen.OnVictory += OnVictory;
         VictoryScreen.OnVictoryClosed += OnVictoryClosed;
     }
+
     private void UnsubscribeToVictoryEvent()
     {
         VictoryScreen.OnMenuPressed -= ButtonMainMenu;
         VictoryScreen.OnVictory -= OnVictory;
         VictoryScreen.OnVictoryClosed -= OnVictoryClosed;
     }
+
+    private void SuscribeToLooseScreenEvent()
+    {
+        LooseScreen.OnMenuPressed += ButtonMainMenu;
+        LooseScreen.OnDefeat += OnDefeated;
+        LooseScreen.OnDefeatClosed += OnLooseClosed;
+    }
+
+    private void UnsuscribeToLooseScreenEvent()
+    {
+        LooseScreen.OnMenuPressed -= ButtonMainMenu;
+        LooseScreen.OnDefeat -= OnDefeated;
+        LooseScreen.OnDefeatClosed -= OnLooseClosed;
+    }
+
     private void SuscribeToPlayerViewEvents()
     {
         PlayerView.OnEnterInAdministrationMode += OnEnterInUIMode;
@@ -196,14 +213,27 @@ public class PauseManager : Singleton<PauseManager>
     {
         ignorePauseThisFrame = true;
     }
+
     private void OnVictory()
     {
         ignorePauseInput = true;
     }
+
     private void OnVictoryClosed()
     {
         ignorePauseInput = false;
     }
+
+    private void OnDefeated()
+    {
+        ignorePauseInput = true;
+    }
+
+    private void OnLooseClosed()
+    {
+        ignorePauseInput = false;
+    }
+
     private void OnExitInUIMode()
     {
         //if (!isGamePaused) return;
@@ -356,13 +386,6 @@ public class PauseManager : Singleton<PauseManager>
             (isGamePaused ? (Action)HidePause : ShowPause)();
         }
     }
-
-    /*private void SaveLastSceneName()
-    {
-        SaveData data = SaveSystemManager.LoadGame();
-        data.lastSceneName = ScenesManager.Instance.CurrentSceneName;
-        SaveSystemManager.SaveGame(data);
-    }*/
 
     private IEnumerator loadSceneAfterSeconds(string sceneName, string[] sceneNameAdditive)
     {

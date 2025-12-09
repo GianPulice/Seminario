@@ -22,7 +22,8 @@ public class LoadingObjectUI : MonoBehaviour
   //  [SerializeField] private float triangleShiftTime = 0.25f; // Tiempo que toma hacer el shift
     [SerializeField] private float triangleLoopDuration = 3f;
     [SerializeField] private LeanTweenType triangleShiftEase = LeanTweenType.easeOutQuad;
-    void Start()
+    
+    void OnEnable()
     {
         AnimateOutsideRing();
         AnimateInsideSquare();
@@ -38,7 +39,7 @@ public class LoadingObjectUI : MonoBehaviour
 
         LeanTween.rotateAroundLocal(outsideRing.gameObject, Vector3.forward, 360f, timeToCompleteLoop)
             .setEase(outsideRingEase)
-            .setIgnoreTimeScale(true)
+            .setIgnoreTimeScale(false)
             .setLoopCount(-1); // -1 para bucle infinito
     }
 
@@ -51,7 +52,7 @@ public class LoadingObjectUI : MonoBehaviour
 
         LeanTween.rotateAroundLocal(insideSquare.gameObject, Vector3.forward, -360f, timeToCompleteLoop)
             .setEase(insideSquareEase)
-            .setIgnoreTimeScale(true)
+            .setIgnoreTimeScale(false)
             .setLoopCount(-1);
     }
 
@@ -61,7 +62,7 @@ public class LoadingObjectUI : MonoBehaviour
 
         LeanTween.rotateAroundLocal(gameObject, Vector3.forward, triangleShiftRotateDegrees, triangleLoopDuration)
              .setEase(triangleShiftEase) // El ease de un timer no importa
-             .setIgnoreTimeScale(true)
+             .setIgnoreTimeScale(false)
              .setLoopCount(-1); // Repetir infinitamente
     }
    

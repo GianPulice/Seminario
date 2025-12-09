@@ -1,10 +1,11 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
 public class TabernManager : Singleton<TabernManager>
 {
     [SerializeField] private TabernManagerData tabernManagerData;
+
+    private DailyCostAnim dailyCostAnim;
 
     private int currentDay = 1;
 
@@ -37,20 +38,18 @@ public class TabernManager : Singleton<TabernManager>
     public float PurchasedIngredientsAmount { get => purchasedIngredientsAmount; set => purchasedIngredientsAmount = value; }
 
     public bool IsTabernOpen { get => isTabernOpen; }
+    public bool CanOpenTabern { get => canOpenTabern; set => canOpenTabern = value; }
 
 
     void Awake()
     {
         CreateSingleton(false);
-
-        if (SaveSystemManager.SaveExists())
-        {
-            SaveSystemManager.OnSavOrLoadAllGame?.Invoke();
-        }
-
         SubscribeToUpdateManagerEvent();
         SubscribeToOpenTabernButtonEvent();
-        VictoryScreen.OnVictory += ApplyDailyCosts;
+        SuscribeToDailyCostAnimFinished();
+        SuscribeToSaveSystemManagerEvents();
+        StartCoroutine(InitializeDayText());
+        StartCoroutine(FindDailyCostAnim());
     }
 
     // Simulacion de Update
@@ -62,13 +61,15 @@ public class TabernManager : Singleton<TabernManager>
     void Start()
     {
         StartCoroutine(PlayCurrentTabernMusic("TabernClose"));
+        StartCoroutine(InvokeSaveSystemManagerLoadAllGameDataEvent());
     }
 
     void OnDestroy()
     {
         UnsubscribeToUpdateManagerEvent();
         UnsubscribeToOpenTabernButtonEvent();
-        VictoryScreen.OnVictory -= ApplyDailyCosts;
+        UnsuscribeToDailyCostAnimFinished();
+        UnsuscribeToSaveSystemManagerEvents();
     }
 
 
@@ -81,43 +82,37 @@ public class TabernManager : Singleton<TabernManager>
         TabernManagerUI.Instance.PlayResumeDayAnimation();
 
         TabernManagerUI.Instance.OrderPaymentsText.text =
-            "Order Payments: <color=#00FF00>$" + orderPaymentsAmount.ToString() + "</color>";
+            "Order Payments: <color=#00FF00>$" + orderPaymentsAmount.ToString("0") + "</color>";
 
         TabernManagerUI.Instance.TipsEarnedText.text =
-            "Tips Earned: <color=#00FF00>$" + tipsEarnedAmount.ToString() + "</color>";
+            "Tips Earned: <color=#00FF00>$" + tipsEarnedAmount.ToString("0") + "</color>";
 
         TabernManagerUI.Instance.MaintenanceText.text =
-            "Maintenance: <color=#FF0000>$" + maintenanceAmount.ToString() + "</color>";
+            "Maintenance: <color=#FF0000>$" + maintenanceAmount.ToString("0") + "</color>";
 
         TabernManagerUI.Instance.TaxesText.text =
-            "Taxes: <color=#FF0000>$" + taxesAmount.ToString() + "</color>";
+            "Taxes: <color=#FF0000>$" + taxesAmount.ToString("0") + "</color>";
 
         TabernManagerUI.Instance.BurntDishesText.text =
-            "Burnt Dishes: <color=#FF0000>$" + burntDishesAmonut.ToString() + "</color>";
+            "Burnt Dishes: <color=#FF0000>$" + burntDishesAmonut.ToString("0") + "</color>";
 
         TabernManagerUI.Instance.BrokenThingsText.text =
-            "Broken Things: <color=#FF0000>$" + brokenThingsAmount.ToString() + "</color>";
+            "Broken Things: <color=#FF0000>$" + brokenThingsAmount.ToString("0") + "</color>";
 
         TabernManagerUI.Instance.PurchasedIngredientsText.text =
-            "Purchased Ingredients: <color=#FF0000>$" + purchasedIngredientsAmount.ToString() + "</color>";
+            "Purchased Ingredients: <color=#FF0000>$" + purchasedIngredientsAmount.ToString("0") + "</color>";
 
         float totalInncomes = orderPaymentsAmount + tipsEarnedAmount;
         float totalExpenses = maintenanceAmount + taxesAmount + burntDishesAmonut + brokenThingsAmount + purchasedIngredientsAmount;
         float finalAmount = totalInncomes - totalExpenses;
+        int roundedFinalAmount = Mathf.RoundToInt(finalAmount);
 
         string netColor = finalAmount >= 0 ? "#00FF00" : "#FF0000";
 
         TabernManagerUI.Instance.NetProfitText.text =
-            "Net Profit: total incomes(<color=#00FF00>$" + totalInncomes.ToString() +
-            "</color>) - total expenses(<color=#FF0000>$" + totalExpenses.ToString() +
-            "</color>) = <color=" + netColor + ">$" + finalAmount.ToString() + "</color>";
-
-        canOpenTabern = true;
-        currentDay++;
-        TabernManagerUI.instance.TabernStatusText.text = "Tabern is closed";
-        TabernManagerUI.instance.TabernCurrentTimeText.text = "08 : 00";
-        TabernManagerUI.instance.CurrentDayText.text = "Day " + currentDay.ToString();
-        AdministratingManagerUI.OnCloseTabern?.Invoke();
+            "Net Profit: total incomes(<color=#00FF00>$" + totalInncomes.ToString("0") +
+            "</color>) - total expenses(<color=#FF0000>$" + totalExpenses.ToString("0") +
+            "</color>) = <color=" + netColor + ">$" + finalAmount.ToString("0") + "</color>";
     }
 
 
@@ -130,6 +125,7 @@ public class TabernManager : Singleton<TabernManager>
     {
         UpdateManager.OnUpdate -= UpdateTabernManager;
     }
+
     private void SubscribeToOpenTabernButtonEvent()
     {
         AdministratingManagerUI.OnStartTabern += SetIsTabernOpen;       
@@ -138,6 +134,42 @@ public class TabernManager : Singleton<TabernManager>
     private void UnsubscribeToOpenTabernButtonEvent()
     {
         AdministratingManagerUI.OnStartTabern -= SetIsTabernOpen;
+    }
+
+    private void SuscribeToDailyCostAnimFinished()
+    {
+        DailyCostAnim.onFinishedAnim += ApplyDailyCosts;
+    }
+
+    private void UnsuscribeToDailyCostAnimFinished()
+    {
+        DailyCostAnim.onFinishedAnim -= ApplyDailyCosts;
+    }
+
+    private void SuscribeToSaveSystemManagerEvents()
+    {
+        SaveSystemManager.OnSaveAllGameData += OnSaveDay;
+        SaveSystemManager.OnLoadAllGameData += OnLoadDay;
+    }
+
+    private void UnsuscribeToSaveSystemManagerEvents()
+    {
+        SaveSystemManager.OnSaveAllGameData -= OnSaveDay;
+        SaveSystemManager.OnLoadAllGameData -= OnLoadDay;
+    }
+
+    private void OnSaveDay()
+    {
+        SaveData data = SaveSystemManager.LoadGame();
+        data.currentDay = currentDay;
+        SaveSystemManager.SaveGame(data);
+    }
+
+    private void OnLoadDay()
+    {
+        SaveData data = SaveSystemManager.LoadGame();
+        currentDay = data.currentDay;
+        StartCoroutine(InitializeDayText());
     }
 
     private void SetIsTabernOpen()
@@ -196,16 +228,51 @@ public class TabernManager : Singleton<TabernManager>
     private void CalculetaDifferentTypesOfCosts()
     {
         maintenanceAmount = tabernManagerData.MaintenanceCostPerDay + TablesManager.Instance.Tables.Count * tabernManagerData.MaintenanceCostPerTable;
-        taxesAmount = (orderPaymentsAmount + tipsEarnedAmount) * (tabernManagerData.TaxesPorcentajeFromIncomes / 100f);
+        taxesAmount = Mathf.RoundToInt((orderPaymentsAmount + tipsEarnedAmount) * (tabernManagerData.TaxesPorcentajeFromIncomes / 100f));
     }
+
     private void ApplyDailyCosts()
     {
         float fixedExpensesAmount = maintenanceAmount + taxesAmount;
+
+        if (MoneyManager.Instance.CurrentMoney < fixedExpensesAmount)
+        {
+            dailyCostAnim.Button.gameObject.SetActive(false);
+            LooseScreen.Instance.LooseText.text =
+                "The tavern was permanently closed because you ran out of money to pay fixed expenses (<color=#FF0000>$"
+                + fixedExpensesAmount.ToString("0")
+                + "</color>)"; LooseScreen.Instance.Show();
+            return;
+        }
+
         MoneyManager.Instance.SubMoney(fixedExpensesAmount);
     }
+
+    private IEnumerator InvokeSaveSystemManagerLoadAllGameDataEvent()
+    {
+        yield return new WaitUntil(() => SaveSystemManager.Instance != null);
+
+        if (SaveSystemManager.SaveExists())
+        {
+            SaveSystemManager.OnLoadAllGameData?.Invoke();
+        }
+    }
+
     private IEnumerator PlayCurrentTabernMusic(string musicClipName)
     {
         yield return new WaitUntil(() => AudioManager.Instance != null);
         StartCoroutine(AudioManager.Instance.PlayMusic(musicClipName));
+    }
+
+    private IEnumerator InitializeDayText()
+    {
+        yield return new WaitUntil(() => TabernManagerUI.Instance != null);
+        TabernManagerUI.Instance.CurrentDayText.text = "Day " + currentDay.ToString();
+    }
+
+    private IEnumerator FindDailyCostAnim()
+    {
+        yield return new WaitUntil(() => TabernManagerUI.Instance != null);
+        dailyCostAnim = GameObject.Find("CanvasTabernManager").GetComponentInChildren<DailyCostAnim>(true);
     }
 }

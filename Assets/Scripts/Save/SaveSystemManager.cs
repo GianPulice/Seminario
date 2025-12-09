@@ -6,19 +6,22 @@ public class SaveSystemManager : Singleton<SaveSystemManager>
 {
     [SerializeField] private SaveSystemData saveSystemData;
 
-    private static event Action onSaveOrLoadAllGame;
+    private static event Action onSaveAllGameData; // Este evento se invoca cada vez que se pasa el dia
+    private static event Action onLoadAllGameData; // Este evento se invoca cada vez que se presiona el boton LoadGame
+    private static event Action onDeleteAllGameData; // Este evento borra todos los datos del juego
 
     private string path => Application.persistentDataPath + "/save.json";
 
     public SaveSystemData SaveSystemData { get => saveSystemData; }
 
-    public static Action OnSavOrLoadAllGame { get => onSaveOrLoadAllGame; set => onSaveOrLoadAllGame = value; }
+    public static Action OnSaveAllGameData { get => onSaveAllGameData; set => onSaveAllGameData = value; }
+    public static Action OnLoadAllGameData { get => onLoadAllGameData; set => onLoadAllGameData = value; }
+    public static Action OnDeleteAllGameData { get => onDeleteAllGameData; set => onDeleteAllGameData = value; }
 
 
     void Awake()
     {
         CreateSingleton(true);
-        //DeleteAllData();
     }
 
 
@@ -45,8 +48,6 @@ public class SaveSystemManager : Singleton<SaveSystemManager>
 
     public static bool SaveExists()
     {
-        if(instance == null) return false;
-        if(instance.saveSystemData == null) return false;
         if (!instance.saveSystemData.UseSaveSystem) return false;
 
         return File.Exists(instance.path);
@@ -59,6 +60,7 @@ public class SaveSystemManager : Singleton<SaveSystemManager>
         if (File.Exists(instance.path))
         {
             File.Delete(instance.path);
+            onDeleteAllGameData?.Invoke();
             Debug.Log("Save eliminado en: " + instance.path);
         }   
     }

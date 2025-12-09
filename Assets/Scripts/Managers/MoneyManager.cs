@@ -23,7 +23,7 @@ public class MoneyManager : Singleton<MoneyManager>
     {
         CreateSingleton(true);
         SuscribeToMoneyTextEvent();
-        SuscribeToGameManagerEvent();
+        SuscribeToSaveSystemManagerEvent();
         SuscribeToPlayerViewEvents();
         InitializeMoneyDefault();
     }
@@ -71,10 +71,11 @@ public class MoneyManager : Singleton<MoneyManager>
         MoneyManagerUI.OnTextGetComponent += GetComponentFromEvent;
     }
 
-    private void SuscribeToGameManagerEvent()
+    private void SuscribeToSaveSystemManagerEvent()
     {
-        //GameManager.Instance.OnGameSessionStarted += OnInitializeCurrentMoney;
-        SaveSystemManager.OnSavOrLoadAllGame += OnInitializeCurrentMoneyWithSaveSystem;
+        SaveSystemManager.OnSaveAllGameData += OnSaveMoney;
+        SaveSystemManager.OnLoadAllGameData += OnLoadMoney;
+        SaveSystemManager.OnDeleteAllGameData += InitializeMoneyDefault;
     }
 
     private void SuscribeToPlayerViewEvents()
@@ -100,41 +101,22 @@ public class MoneyManager : Singleton<MoneyManager>
         UpdateMoneyText();
     }
 
-    private void OnInitializeCurrentMoneyWithSaveSystem()
-    {
-        if (!SaveSystemManager.SaveExists())
-        {
-            SaveMoney();
-            return;
-        }
-
-        if (SaveSystemManager.SaveExists())
-        {
-            SaveData data = SaveSystemManager.LoadGame();
-            currentMoney = data.money;
-            SaveMoney();
-            return;
-        }
-
-        if (UpgradesManager.Exists)
-        {
-            UpgradesManager.Instance.RefreshAvailabilityState();
-        }
-    }
-
-    private void InitializeMoneyDefault()
-    {
-        if (!SaveSystemManager.SaveExists())
-        {
-            currentMoney = moneyManagerData.InitializeCurrentMoneyValue;
-        }
-    }
-
-    private void SaveMoney()
+    private void OnSaveMoney()
     {
         SaveData data = SaveSystemManager.LoadGame();
         data.money = currentMoney;
         SaveSystemManager.SaveGame(data);
+    }
+
+    private void OnLoadMoney()
+    {
+        SaveData data = SaveSystemManager.LoadGame();
+        currentMoney = data.money;
+    }
+
+    private void InitializeMoneyDefault()
+    {
+        currentMoney = moneyManagerData.InitializeCurrentMoneyValue;
     }
 
     private void UpdateMoneyText()

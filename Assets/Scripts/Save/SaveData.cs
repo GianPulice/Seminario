@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 [Serializable]
 public class SaveData
 {
+    public int currentDay;
+    public int purchasedUpgradesCount;
+    
     public float money;
 
-    public string lastSceneName;
-
     public List<IngredientStock> ingredientInventory = new List<IngredientStock>();
-
-    public CheckpointData lastHallwayCheckpoint = new();
-    public SessionFlags session = new();
+    public List<TutorialFlagData> tutorialFlags = new List<TutorialFlagData>();
+    public List<TableSaveData> tablesData = new List<TableSaveData>();
 }
 
 //-------------------------TAVERN----------------------------
@@ -24,8 +23,95 @@ public class IngredientStock
     public int amount;
 }
 
-//-------------------------DUNGEON----------------------------
 [Serializable]
+public class TutorialFlagData
+{
+    public TutorialType type;
+    public bool flag;   // true = puede mostrarse, false = ya mostrado
+}
+
+[Serializable]
+public class TableSaveData
+{
+    public int tableNumber;
+    public bool isDirty;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//-------------------------DUNGEON----------------------------
+/*[Serializable]
 public class CheckpointData
 {
     public string hallwayId;                 // e.g., "Hallway_3" from DungeonManager
@@ -73,4 +159,4 @@ public struct SerializableVector3
     public float x, y, z;
     public SerializableVector3(Vector3 v) { x = v.x; y = v.y; z = v.z; }
     public Vector3 ToVector3() => new Vector3(x, y, z);
-}
+}*/

@@ -79,7 +79,7 @@ public class HallwaySaveCoordinator : Singleton<HallwaySaveCoordinator>
     /// <summary>
     /// Creates a Memento checkpoint containing the complete game state
     /// </summary>
-    private CheckpointData CreateHallwayMemento(string hallwayId, int layer, Vector3 hallwaySpawn, 
+    /*private CheckpointData CreateHallwayMemento(string hallwayId, int layer, Vector3 hallwaySpawn, 
         List<string> roomsSinceLast, List<string> hallwaysSinceLast, SaveData currentData)
     {
         var checkpoint = new CheckpointData
@@ -105,12 +105,12 @@ public class HallwaySaveCoordinator : Singleton<HallwaySaveCoordinator>
         AddEventToHistory(checkpoint.runHistory, "Hallway", hallwayId, layer, true);
 
         return checkpoint;
-    }
+    }*/
 
     /// <summary>
     /// Adds an event to the dungeon run history
     /// </summary>
-    private void AddEventToHistory(DungeonRunHistory history, string eventType, string eventId, int layer, bool wasCompleted)
+    /*private void AddEventToHistory(DungeonRunHistory history, string eventType, string eventId, int layer, bool wasCompleted)
     {
         var dungeonEvent = new DungeonEvent
         {
@@ -129,7 +129,7 @@ public class HallwaySaveCoordinator : Singleton<HallwaySaveCoordinator>
         {
             history.totalRoomsCompleted++;
         }
-    }
+    }*/
 
     /// <summary>
     /// Mark leaving hallway into room, but do not save a checkpoint here

@@ -22,9 +22,10 @@ public class IngredientInventoryManager : Singleton<IngredientInventoryManager>
     void Awake()
     {
         CreateSingleton(true);
-        SuscribeToGameManagerEvent();
+        SuscribeToSaveSystemManagerEvent();
         InitializeIngredientData();
         InitializeRecipes();
+        InitializeInventoryDefault();
     }
 
 
@@ -34,13 +35,11 @@ public class IngredientInventoryManager : Singleton<IngredientInventoryManager>
             ingredientInventory[ingredient] = 0;
 
         ingredientInventory[ingredient] += amount;
-        SaveInventory();
     }
 
     public void IncreaseIngredientStock(IngredientType ingredient)
     {
         IncreaseIngredientStock(ingredient, 1);
-        SaveInventory();
     }
 
     public bool TryCraftFood(FoodType foodType)
@@ -62,8 +61,6 @@ public class IngredientInventoryManager : Singleton<IngredientInventoryManager>
             ingredientInventory[ing.IngredientType] -= ing.Amount;
         }
 
-        SaveInventory();
-
         return true;
     }
 
@@ -81,7 +78,6 @@ public class IngredientInventoryManager : Singleton<IngredientInventoryManager>
     {
         if (amount < 0) amount = 0;
         ingredientInventory[ingredient] = amount;
-        SaveInventory();
     }
 
     public FoodRecipeData GetRecipe(FoodType foodType)
@@ -97,55 +93,16 @@ public class IngredientInventoryManager : Singleton<IngredientInventoryManager>
     }
 
 
-    private void SuscribeToGameManagerEvent()
+    private void SuscribeToSaveSystemManagerEvent()
     {
-        GameManager.Instance.OnGameSessionStarted += OnInitializeInventory;
+        SaveSystemManager.OnSaveAllGameData += OnSaveInventory;
+        SaveSystemManager.OnLoadAllGameData += OnLoadInventory;
+        SaveSystemManager.OnDeleteAllGameData += InitializeInventoryDefault;
     }
 
-    private void OnInitializeInventory()
+    private void OnSaveInventory()
     {
-        /*if (GameManager.Instance.GameSessionType == GameSessionType.Load && SaveSystemManager.SaveExists())
-        {
-            SaveData data = SaveSystemManager.LoadGame();
-
-            ingredientInventory.Clear();
-
-            foreach (var stock in data.ingredientInventory)
-            {
-                ingredientInventory[stock.ingredientType] = stock.amount;
-            }
-        }
-
-        else
-        {
-            if (ingredientInventoryManagerData.IngredientsUseOwnStock)
-            {
-                foreach (var ingredientData in ingredientsData)
-                {
-                    var type = ingredientData.IngredientType;
-                    var stock = ingredientData.InitializeStock;
-                    ingredientInventory[type] = stock;
-                }
-            }
-
-            else
-            {
-                availableIngredients = Enum.GetValues(typeof(IngredientType)).Cast<IngredientType>().ToList();
-
-                foreach (IngredientType ingredient in availableIngredients)
-                {
-                    ingredientInventory[ingredient] = ingredientInventoryManagerData.InitializeStockForAllIngredients;
-                }
-            }
-        }*/
-
-        //SaveInventory();
-    }
-
-    private void SaveInventory()
-    {
-        /*SaveData data = SaveSystemManager.LoadGame();
-
+        SaveData data = SaveSystemManager.LoadGame();
         data.ingredientInventory.Clear();
 
         foreach (var kvp in ingredientInventory)
@@ -157,7 +114,41 @@ public class IngredientInventoryManager : Singleton<IngredientInventoryManager>
             });
         }
 
-        SaveSystemManager.SaveGame(data);*/
+        SaveSystemManager.SaveGame(data);
+    }
+
+    private void OnLoadInventory()
+    {
+        SaveData data = SaveSystemManager.LoadGame();
+        ingredientInventory.Clear();
+
+        foreach (var stock in data.ingredientInventory)
+        {
+            ingredientInventory[stock.ingredientType] = stock.amount;
+        }
+    }
+
+    private void InitializeInventoryDefault()
+    {
+        if (ingredientInventoryManagerData.IngredientsUseOwnStock)
+        {
+            foreach (var ingredientData in ingredientsData)
+            {
+                var type = ingredientData.IngredientType;
+                var stock = ingredientData.InitializeStock;
+                ingredientInventory[type] = stock;
+            }
+        }
+
+        else
+        {
+            availableIngredients = Enum.GetValues(typeof(IngredientType)).Cast<IngredientType>().ToList();
+
+            foreach (IngredientType ingredient in availableIngredients)
+            {
+                ingredientInventory[ingredient] = ingredientInventoryManagerData.InitializeStockForAllIngredients;
+            }
+        }   
     }
 
     private void InitializeIngredientData()

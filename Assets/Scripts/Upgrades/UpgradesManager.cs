@@ -15,11 +15,20 @@ public class UpgradesManager : Singleton<UpgradesManager>
 
     public event Action<bool> OnCanPurchaseStatusChanged;
     public event Action OnAllUpgradesCompleted;
+    
+
     void Awake()
     {
         CreateSingleton(false);
+        SubscribeToSaveSystemManagerEvents();
         Initialize();
     }
+
+    void OnDestroy()
+    {
+        UnsuscribeToSaveSystemManagerEvents();
+    }
+
     public IUpgradable GetUpgrade(int index) =>
         (index >= 0 && index < upgrades.Count) ? upgrades[index] : null;
 
@@ -33,24 +42,64 @@ public class UpgradesManager : Singleton<UpgradesManager>
             // --- NOTIFICAR CAMBIOS ---
             if (AllUpgradesPurchased)
             {
-                OnAllUpgradesCompleted?.Invoke();
-                
+                OnAllUpgradesCompleted?.Invoke();    
             }
 
             // Verificamos de nuevo si alcanza para la siguiente (o si ya no hay mas)
             RefreshAvailabilityState();
         }
     }
+
     public void RefreshAvailabilityState()
     {
         if (AllUpgradesPurchased) return;
 
         OnCanPurchaseStatusChanged?.Invoke(reachedMoneyToPurchase);
     }
+
     public int GetUpgradesCount()
     {
         return upgrades.Count;
     }
+
+
+    private void SubscribeToSaveSystemManagerEvents()
+    {
+        SaveSystemManager.OnSaveAllGameData += OnSaveUpgrades;
+        SaveSystemManager.OnLoadAllGameData += OnLoadUpgrades;
+    }
+
+    private void UnsuscribeToSaveSystemManagerEvents()
+    {
+        SaveSystemManager.OnSaveAllGameData -= OnSaveUpgrades;
+        SaveSystemManager.OnLoadAllGameData -= OnLoadUpgrades;
+    }
+
+    private void OnSaveUpgrades()
+    {
+        SaveData data = SaveSystemManager.LoadGame();
+        data.purchasedUpgradesCount = purchasedUpgradesCount;
+        SaveSystemManager.SaveGame(data);
+    }
+
+    private void OnLoadUpgrades()
+    {
+        SaveData data = SaveSystemManager.LoadGame();
+
+        purchasedUpgradesCount = data.purchasedUpgradesCount;
+
+        // Forzar desbloqueo de las compras anteriores
+        for (int i = 0; i < purchasedUpgradesCount; i++)
+        {
+            var upgrade = GetUpgrade(i);
+            if (upgrade != null && upgrade.CanUpgrade) // CanUpgrade = !isUnlocked
+                upgrade.Unlock();
+        }
+
+        // Actualizar estado general
+        RefreshAvailabilityState();
+    }
+
     private void Initialize()
     {
         purchasedUpgradesCount = 0;

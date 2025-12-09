@@ -63,13 +63,13 @@ public class MessagePopUp : MonoBehaviour
 
         // Fade in
         LeanTween.value(gameObject, 0f, 1f, fadeDuration)
-            .setIgnoreTimeScale(true)
+            .setIgnoreTimeScale(false)
             .setOnUpdate(a => canvasGroup.alpha = a);
 
         // Scale pop
         LeanTween.scale(popupPanel, Vector3.one, scaleDuration)
             .setEase(LeanTweenType.easeOutBack)
-            .setIgnoreTimeScale(true);
+            .setIgnoreTimeScale(false);
     }
 
     public void Hide()
@@ -79,13 +79,13 @@ public class MessagePopUp : MonoBehaviour
 
         // Fade out
         LeanTween.value(gameObject, canvasGroup.alpha, 0f, fadeDuration)
-            .setIgnoreTimeScale(true)
+            .setIgnoreTimeScale(false)
             .setOnUpdate(a => canvasGroup.alpha = a)
             .setOnComplete(() => HideImmediate());
 
         // Scale down slightly
         LeanTween.scale(popupPanel, Vector3.one * 0.9f, scaleDuration)
-            .setIgnoreTimeScale(true);
+            .setIgnoreTimeScale(false);
     }
 
     private void HideImmediate()

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+
 public class VictoryScreen : MonoBehaviour
 {
     [Header("References")]
@@ -18,24 +19,38 @@ public class VictoryScreen : MonoBehaviour
     [SerializeField] private float scaleTime = 0.25f;
     [SerializeField] private float buttonsDelay = 0.08f;
 
-    public static event Action OnVictory;
-    public static event Action OnVictoryClosed;
-    public static event Action OnContinuePressed;
-    public static event Action OnMenuPressed;
+    private static event Action onVictory;
+    private static event Action onVictoryClosed;
+    private static event Action onContinuePressed;
+    private static event Action onMenuPressed;
+
+    public static Action OnVictory { get => onVictory; set => onVictory = value; }
+    public static Action OnVictoryClosed { get => onVictoryClosed; set => onVictoryClosed = value; }
+    public static Action OnContinuePressed { get => onContinuePressed; set => onContinuePressed = value; }
+    public static Action OnMenuPressed { get => onMenuPressed; set => onMenuPressed = value; }
+
 
     void Awake()
     {
         HideImmediate();
         continueButton.OnClick.AddListener(() =>
         {
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
             RaiseContinue();
             Hide();
         });
         menuButton.OnClick.AddListener(() => 
         {
+            AudioManager.Instance.PlayOneShotSFX("ButtonClickWell");
             RaiseMenu();
             HideImmediate();
         });
+    }
+
+
+    public void PlayAudioButtonSelectedHover()
+    {
+        AudioManager.Instance.PlayOneShotSFX("ButtonSelected");
     }
 
     public void Show()
@@ -58,57 +73,57 @@ public class VictoryScreen : MonoBehaviour
 
         // BACKGROUND FADE
         LeanTween.alphaCanvas(rootGroup, 1f, fadeTime)
-            .setIgnoreTimeScale(true);
+            .setIgnoreTimeScale(false);
 
         // PANEL
         LeanTween.alphaCanvas(panelGroup, 1f, fadeTime)
-            .setIgnoreTimeScale(true);
+            .setIgnoreTimeScale(false);
 
         LeanTween.scale(panelRoot, Vector3.one * 1.05f, scaleTime)
             .setEaseOutBack()
-            .setIgnoreTimeScale(true)
+            .setIgnoreTimeScale(false)
             .setOnComplete(() =>
             {
                 LeanTween.scale(panelRoot, Vector3.one, 0.12f)
                     .setEaseOutQuad()
-                    .setIgnoreTimeScale(true);
+                    .setIgnoreTimeScale(false);
             });
 
         // BUTTONS (delayed stagger)
         AnimateButtonGroup(continueGroup, 0.15f);
         AnimateButtonGroup(menuGroup, 0.15f + buttonsDelay);
 
-        OnVictory?.Invoke();
+        onVictory?.Invoke();
         // AudioManager.Instance.PlayOneShotSFX("UI_PanelOpen");
     }
     private void AnimateButtonGroup(CanvasGroup group, float delay)
     {
         LeanTween.alphaCanvas(group, 1f, 0.25f)
             .setDelay(delay)
-            .setIgnoreTimeScale(true);
+            .setIgnoreTimeScale(false);
 
         LeanTween.moveLocalY(group.gameObject,
             group.transform.localPosition.y + 25,
             0.25f)
             .setDelay(delay)
             .setEaseOutQuad()
-            .setIgnoreTimeScale(true);
+            .setIgnoreTimeScale(false);
     }
     public void Hide()
     {
         LeanTween.alphaCanvas(rootGroup, 0f, fadeTime)
-              .setIgnoreTimeScale(true);
+              .setIgnoreTimeScale(false);
 
         LeanTween.alphaCanvas(panelGroup, 0f, fadeTime)
-            .setIgnoreTimeScale(true);
+            .setIgnoreTimeScale(false);
 
         LeanTween.scale(panelRoot, Vector3.one * 0.9f, scaleTime)
         .setEaseInBack()
-        .setIgnoreTimeScale(true)
+        .setIgnoreTimeScale(false)
         .setOnComplete(() =>
         {
             HideImmediate();
-            OnVictoryClosed?.Invoke();
+            onVictoryClosed?.Invoke();
         });
 
 
@@ -123,6 +138,6 @@ public class VictoryScreen : MonoBehaviour
         PlayerInputs.Instance.HasWon(false);
     }
 
-    public static void RaiseContinue() => OnContinuePressed?.Invoke();
-    public static void RaiseMenu() => OnMenuPressed?.Invoke();
+    public static void RaiseContinue() => onContinuePressed?.Invoke();
+    public static void RaiseMenu() => onMenuPressed?.Invoke();
 }
